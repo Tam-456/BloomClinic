@@ -1,0 +1,227 @@
+<div class="container mt-4">
+  <!-- HEADER & NÚT MỞ POPUP ĐẶT LỊCH MỚI -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Quản Lý Lịch Hẹn Của Tôi</h4>
+    </div>
+
+    <div>
+      <button type="button" class="btn btn-primary fw-bold shadow-sm" (click)="openBookingModal()">
+        + Đặt Lịch Hẹn Mới
+      </button>
+    </div>
+  </div>
+
+  <!-- THÔNG BÁO -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage() }}
+      <button type="button" class="btn-close py-2" (click)="errorMessage.set('')"></button>
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2 mb-3" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage() }}
+      <button type="button" class="btn-close py-2" (click)="successMessage.set('')"></button>
+    </div>
+  }
+
+  <!-- BẢNG LỊCH HẸN FULL PAGE -->
+  <div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold text-dark">
+        Danh Sách Lịch Hẹn Đã Đăng Ký
+      </h5>
+      <span class="badge bg-primary rounded-pill px-3 py-2">
+        {{ bookings().length }} lịch hẹn
+      </span>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 150px;">Mã Đặt</th>
+              <th>Chuyên Khoa / Ghi Chú</th>
+              <th style="width: 200px;">Ngày &amp; Giờ Khám</th>
+              <th class="text-center" style="width: 170px;">Trạng Thái</th>
+              <th class="text-end pe-4" style="width: 170px;">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of bookings(); track item._id) {
+              <tr [class.opacity-50]="item.status === 'cancelled'">
+                <!-- Mã đặt hẹn -->
+                <td>
+                  <span class="text-center font-monospace">
+                    {{ item.bookingCode }}
+                  </span>
+                </td>
+
+                <!-- Chuyên khoa & ghi chú -->
+                <td>
+                  <strong class="text-dark d-block">
+                    {{ getServiceName(item.serviceId) }}
+                  </strong>
+                  @if (item.note) {
+                    <small class="text-muted d-block fst-italic">
+                      "{{ item.note }}"
+                    </small>
+                  }
+                </td>
+
+                <!-- Ngày giờ khám -->
+                <td>
+                  <div class="fw-semibold text-dark">
+                    {{ item.appointmentDate }}
+                  </div>
+                  <small class="badge bg-light text-dark border">
+                    {{ item.appointmentTime }}
+                  </small>
+                </td>
+
+                <!-- Trạng thái -->
+                <td class="text-center">
+                  @if (item.status === 'pending') {
+                    <span class="badge bg-warning text-dark px-2 py-1">Chờ xác nhận</span>
+                  } @else if (item.status === 'confirmed') {
+                    <span class="badge bg-primary px-2 py-1">Đã duyệt</span>
+                  } @else if (item.status === 'in_treatment') {
+                    <span class="badge bg-info text-dark px-2 py-1">Đang khám</span>
+                  } @else if (item.status === 'completed') {
+                    <span class="badge bg-success px-2 py-1">Hoàn thành</span>
+                  } @else if (item.status === 'cancelled') {
+                    <span class="badge bg-secondary px-2 py-1">Đã hủy</span>
+                  } @else {
+                    <span class="badge bg-light text-dark border px-2 py-1">{{ item.status }}</span>
+                  }
+                </td>
+
+                <!-- Cột thao tác: Sửa & Hủy -->
+                <td class="text-end pe-4 text-nowrap">
+                  @if (item.status === 'pending' || item.status === 'confirmed') {
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-outline-primary me-2 fw-semibold" 
+                      (click)="openEditModal(item)"
+                      title="Chỉnh sửa thông tin lịch hẹn"
+                    >
+                      <i class="bi bi-pencil-square me-1"></i>Sửa
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-outline-danger fw-semibold" 
+                      (click)="onCancel(item._id!)"
+                      title="Hủy lịch hẹn"
+                    >
+                      <i class="bi bi-trash me-1"></i>Hủy
+                    </button>
+                  } @else {
+                    <span class="text-muted small fst-italic"></span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <i class="bi bi-calendar-x fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                  <div class="fw-semibold">Bạn chưa có lịch hẹn khám nào.</div>
+                  <small class="text-muted d-block mb-3">Hãy đặt trước một cuộc hẹn để được bác sĩ thăm khám và chuẩn bị chu đáo nhất.</small>
+                  <button type="button" class="btn btn-sm btn-primary fw-bold" (click)="openBookingModal()">
+                    + Đặt lịch ngay
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP 1: ĐẶT LỊCH HẸN MỚI -->
+<app-bloom-modal
+  [isOpen]="isBookingModalOpen()"
+  title="Đặt Lịch Khám &amp; Điều Trị"
+  icon="bi-calendar-plus"
+  maxWidth="540px"
+  (close)="closeBookingModal()"
+>
+  <div modal-body>
+    @if (modalError()) {
+      <div class="alert alert-danger py-2 small mb-3">{{ modalError() }}</div>
+    }
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Chọn chuyên khoa / dịch vụ (*):</label>
+        <select class="form-select" [(ngModel)]="newBooking.serviceId" name="serviceId" required>
+          <option value="">-- Chọn chuyên khoa khám &amp; điều trị --</option>
+          @for (spec of specialties; track spec.id) {
+            <option [value]="spec.id">{{ spec.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Ngày hẹn (*):</label>
+        <input type="date" class="form-control" [(ngModel)]="newBooking.appointmentDate" (change)="onDateChange(newBooking.appointmentDate!)" required />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Khung giờ hẹn (*):</label>
+        <input type="time" class="form-control" [(ngModel)]="newBooking.appointmentTime" required />
+      </div>
+      <div class="col-12">
+        <label class="form-label">Ghi chú triệu chứng / Mong muốn:</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="newBooking.note" placeholder="Mô tả tình trạng da..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeBookingModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-primary" (click)="onSubmitBooking()">Xác Nhận Đặt Lịch</button>
+  </div>
+</app-bloom-modal>
+
+<!-- POPUP 2: CHỈNH SỬA LỊCH HẸN -->
+<app-bloom-modal
+  [isOpen]="isEditModalOpen()"
+  [title]="'Cập Nhật Lịch Hẹn [' + editBookingForm.bookingCode + ']'"
+  icon="bi-pencil-square"
+  maxWidth="540px"
+  (close)="closeEditModal()"
+>
+  <div modal-body>
+    @if (modalError()) {
+      <div class="alert alert-danger py-2 small mb-3">{{ modalError() }}</div>
+    }
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Chuyên khoa / Dịch vụ (*):</label>
+        <select class="form-select" [(ngModel)]="editBookingForm.serviceId" name="editServiceId" required>
+          @for (spec of specialties; track spec.id) {
+            <option [value]="spec.id">{{ spec.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Ngày hẹn mới (*):</label>
+        <input type="date" class="form-control" [(ngModel)]="editBookingForm.appointmentDate" required />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Khung giờ hẹn mới (*):</label>
+        <input type="time" class="form-control" [(ngModel)]="editBookingForm.appointmentTime" required />
+      </div>
+      <div class="col-12">
+        <label class="form-label">Ghi chú bổ sung:</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="editBookingForm.note"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeEditModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-primary" (click)="onSaveEditBooking()">Lưu Thay Đổi</button>
+  </div>
+</app-bloom-modal>

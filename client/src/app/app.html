@@ -1,0 +1,9 @@
+<app-header-component></app-header-component>
+
+<main class="page-content">
+  <router-outlet></router-outlet>
+</main>
+
+<app-footer-component *ngIf="!isAdminRoute"></app-footer-component>
+
+<app-confirm-dialog></app-confirm-dialog>

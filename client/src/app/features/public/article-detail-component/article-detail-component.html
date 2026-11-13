@@ -1,0 +1,143 @@
+<main class="article-detail-page">
+  <!-- State: Loading -->
+  @if (loading()) {
+    <div class="state-box my-5" aria-live="polite">
+      <div class="bloom-spinner" role="status" aria-label="Đang tải..."></div>
+      <p class="state-box__desc mt-3">Đang tải nội dung bài viết...</p>
+    </div>
+  }
+
+  <!-- State: Not Found / Error -->
+  @else if (error() || !article()) {
+    <div class="container-bloom py-5">
+      <div class="state-box" appReveal>
+        <i class="bi bi-journal-x state-box__icon"></i>
+        <h1 class="state-box__title">Không tìm thấy bài viết</h1>
+        <p class="state-box__desc">
+          Bài viết bạn đang tìm không tồn tại hoặc đã được gỡ bỏ.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <a routerLink="/articles" class="btn-bloom">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Xem tất cả bài viết
+          </a>
+          <a routerLink="/" class="btn-bloom-outline">Về trang chủ</a>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Detail Content -->
+  @else if (article(); as art) {
+    <!-- Page Hero Banner -->
+    <header class="page-hero" appReveal>
+      <div class="page-hero__inner">
+        <nav class="breadcrumb-trail" aria-label="Đường dẫn trang">
+          <a routerLink="/">Trang chủ</a>
+          <span class="separator">/</span>
+          <a routerLink="/articles">Kiến thức</a>
+          <span class="separator">/</span>
+          <span>{{ categoryLabel(art.category) }}</span>
+        </nav>
+        <span class="page-hero__eyebrow mt-2">{{ categoryLabel(art.category) }}</span>
+        <h1 class="page-hero__title">{{ art.title }}</h1>
+        <div class="article-header-meta">
+          <span><i class="bi bi-calendar3 me-1"></i> {{ formatDate(art.createdAt) }}</span>
+          <span class="dot">·</span>
+          <span><i class="bi bi-clock me-1"></i> 3 phút đọc</span>
+          @if (author(); as auth) {
+            <span class="dot">·</span>
+            <span><i class="bi bi-person-fill me-1"></i> {{ auth.staffName }}</span>
+          }
+        </div>
+      </div>
+    </header>
+
+    <div class="container-bloom py-5">
+      <!-- Reading Width Article Container -->
+      <article class="article-reader" appReveal [revealDelay]="100">
+        <!-- Lead Summary Box -->
+        <div class="article-lead-box">
+          <p>{{ art.summary }}</p>
+        </div>
+
+        <!-- Featured Image -->
+        <div class="article-featured-img-wrap">
+          <img
+            [src]="art.thumbnail || 'assets/images/article-cham-soc-da.jfif'"
+            [alt]="art.title"
+            class="article-featured-img"
+          />
+        </div>
+
+        <!-- Main Body Content -->
+        <div class="article-body-content" [innerHTML]="art.contentHtml"></div>
+
+        <!-- Action Bar: Share & Back -->
+        <div class="article-action-bar">
+          <a routerLink="/articles" class="btn-bloom-outline">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Quay lại danh mục
+          </a>
+
+          <div class="share-group">
+            <span class="text-muted small me-2">Chia sẻ bài viết:</span>
+            <button type="button" class="btn-share" (click)="copyLink()" [title]="copied() ? 'Đã sao chép liên kết!' : 'Sao chép liên kết'">
+              <i class="bi" [class.bi-clipboard]="!copied()" [class.bi-check2]="copied()"></i>
+              <span>{{ copied() ? 'Đã sao chép' : 'Sao chép link' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Author Card -->
+        @if (author(); as doc) {
+          <div class="author-card" appReveal [revealDelay]="150">
+            <img [src]="doc.avatar" [alt]="doc.staffName" class="author-card__avatar" />
+            <div class="author-card__info">
+              <span class="author-card__badge">Tác giả chuyên môn</span>
+              <h3 class="author-card__name">{{ doc.staffName }}</h3>
+              <p class="author-card__title">{{ doc.title }} · Chuyên môn: {{ doc.specialty }}</p>
+              <p class="author-card__bio">
+                Đội ngũ y bác sĩ tại Bloom Beauty &amp; Wellness cam kết cung cấp kiến thức da liễu chính thống, hỗ trợ khách hàng xây dựng thói quen chăm sóc da an toàn và hiệu quả.
+              </p>
+              <a routerLink="/professors" class="author-card__link">
+                Xem hồ sơ bác sĩ <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        }
+      </article>
+
+      <!-- Related Articles -->
+      @if (relatedArticles().length > 0) {
+        <section class="related-section mt-5 pt-4" aria-labelledby="rel-art-heading" appReveal>
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+              <span class="eyebrow-sm text-primary-bloom">Bài viết liên quan</span>
+              <h2 id="rel-art-heading" class="related-title">Có thể bạn quan tâm</h2>
+            </div>
+            <a routerLink="/articles" class="view-more-link">
+              Xem tất cả <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+
+          <div class="related-grid">
+            @for (rel of relatedArticles(); track rel._id ?? rel.slug) {
+              <article class="related-card">
+                <a [routerLink]="['/articles', rel.slug]" class="related-card__thumb-link">
+                  <img [src]="rel.thumbnail || 'assets/images/article-cham-soc-da.jfif'" [alt]="rel.title" loading="lazy" />
+                </a>
+                <div class="related-card__body">
+                  <span class="small text-muted">{{ formatDate(rel.createdAt) }}</span>
+                  <h3 class="related-card__title mt-1">
+                    <a [routerLink]="['/articles', rel.slug]">{{ rel.title }}</a>
+                  </h3>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</main>

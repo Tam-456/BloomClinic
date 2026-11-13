@@ -1,0 +1,67 @@
+<header class="site-header" [class.scrolled]="scrolled()">
+  <div class="header-inner">
+
+    <!-- Brand / Logo: Nếu là Admin thì bấm logo về thẳng /admin/operations, khách thì về / -->
+    <a [routerLink]="isAdminRoute() ? '/admin/operations' : '/'" class="brand" (click)="closeMobile()" aria-label="Bloom Beauty & Wellness – Trang chủ">
+      <img src="assets/images/Bloom_Logo.png" alt="Bloom Beauty Logo" class="brand-logo" width="44" height="44">
+      <div class="brand-text">
+        <span class="brand-name">Bloom Beauty</span>
+        <span class="brand-tagline">Dermatology &amp; Wellness</span>
+      </div>
+    </a>
+
+    <!-- Desktop nav: ẨN khi ở trang Admin -->
+    @if (!isAdminRoute()) {
+      <nav class="main-nav" aria-label="Điều hướng chính">
+        <a routerLink="/introduce"  routerLinkActive="active">Giới thiệu</a>
+        <a routerLink="/services"   routerLinkActive="active">Dịch vụ</a>
+        <a routerLink="/price-list" routerLinkActive="active">Bảng giá</a>
+        <a routerLink="/professors" routerLinkActive="active">Đội ngũ</a>
+        <a routerLink="/articles"   routerLinkActive="active">Kiến thức</a>
+        <a routerLink="/policy"     routerLinkActive="active">Chính sách</a>
+      </nav>
+    }
+
+    <!-- User toolbar (desktop): Giữ nguyên nút tài khoản ở góc phải -->
+    <app-user-toolbar-component class="toolbar-desktop"></app-user-toolbar-component>
+
+    <!-- Hamburger (mobile): ẨN khi ở trang Admin -->
+    @if (!isAdminRoute()) {
+      <button
+        class="hamburger"
+        type="button"
+        [class.open]="mobileOpen()"
+        (click)="toggleMobile()"
+        aria-label="Mở menu"
+        [attr.aria-expanded]="mobileOpen()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    }
+  </div>
+
+  <!-- Mobile glass panel -->
+  @if (!isAdminRoute()) {
+    <div class="mobile-menu" [class.is-open]="mobileOpen()" role="dialog" aria-modal="true" aria-label="Menu di động">
+      <nav class="mobile-nav" (click)="closeMobile()">
+        <a routerLink="/"           routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Trang chủ</a>
+        <a routerLink="/introduce"  routerLinkActive="active">Giới thiệu</a>
+        <a routerLink="/services"   routerLinkActive="active">Dịch vụ</a>
+        <a routerLink="/price-list" routerLinkActive="active">Bảng giá</a>
+        <a routerLink="/professors" routerLinkActive="active">Đội ngũ</a>
+        <a routerLink="/articles"   routerLinkActive="active">Kiến thức</a>
+        <a routerLink="/policy"     routerLinkActive="active">Chính sách</a>
+      </nav>
+      <div class="mobile-toolbar">
+        <app-user-toolbar-component></app-user-toolbar-component>
+      </div>
+    </div>
+  }
+
+  <!-- Overlay -->
+  @if (mobileOpen()) {
+    <div class="mobile-overlay" (click)="closeMobile()" aria-hidden="true"></div>
+  }
+</header>

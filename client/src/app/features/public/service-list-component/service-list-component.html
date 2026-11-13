@@ -1,0 +1,127 @@
+<main class="services-page">
+  <!-- Page Hero -->
+  <header class="page-hero" appReveal>
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Dịch vụ &amp; Liệu trình</span>
+      <h1 class="page-hero__title">Giải pháp chăm sóc da khoa học</h1>
+      <p class="page-hero__lead">
+        Mỗi liệu trình tại Bloom được xây dựng dựa trên nguyên lý da liễu chuẩn y khoa, kết hợp công nghệ hiện đại và sự tận tâm của đội ngũ bác sĩ chuyên khoa.
+      </p>
+    </div>
+  </header>
+
+  <div class="container-bloom py-5">
+    <!-- Search Bar -->
+    <div class="search-wrapper" appReveal [revealDelay]="100">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input
+        type="text"
+        [value]="searchKeyword()"
+        (input)="onSearch($event)"
+        placeholder="Tìm kiếm dịch vụ theo tên hoặc nhu cầu..."
+        aria-label="Tìm kiếm dịch vụ"
+      />
+      @if (searchKeyword()) {
+        <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="Xóa tìm kiếm">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      }
+    </div>
+
+    <!-- Category Tabs -->
+    <nav class="filter-bar" aria-label="Danh mục dịch vụ" appReveal [revealDelay]="150">
+      @for (g of groups; track g.value) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="selectedGroup() === g.value"
+          (click)="selectGroup(g.value)"
+        >
+          <i class="bi {{ g.icon }}" aria-hidden="true"></i>
+          <span>{{ g.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- State: Loading -->
+    @if (loading()) {
+      <div class="state-box" aria-live="polite">
+        <div class="bloom-spinner" role="status" aria-label="Đang tải..."></div>
+        <p class="state-box__desc mt-3">Đang chuẩn bị danh mục liệu trình...</p>
+      </div>
+    }
+
+    <!-- State: Error -->
+    @else if (error()) {
+      <div class="state-box" role="alert">
+        <i class="bi bi-exclamation-circle state-box__icon text-danger"></i>
+        <h2 class="state-box__title">Đã xảy ra lỗi</h2>
+        <p class="state-box__desc">{{ error() }}</p>
+        <button type="button" class="btn-bloom" (click)="selectGroup(selectedGroup())">Thử lại</button>
+      </div>
+    }
+
+    <!-- State: Empty -->
+    @else if (filteredServices().length === 0) {
+      <div class="state-box" appReveal>
+        <i class="bi bi-search state-box__icon"></i>
+        <h2 class="state-box__title">Không tìm thấy dịch vụ</h2>
+        <p class="state-box__desc">
+          @if (searchKeyword()) {
+            Không có kết quả nào khớp với từ khóa "<strong>{{ searchKeyword() }}</strong>".
+          } @else {
+            Danh mục này hiện chưa có liệu trình khả dụng.
+          }
+        </p>
+        @if (searchKeyword() || selectedGroup()) {
+          <button type="button" class="btn-bloom-outline" (click)="clearSearch(); selectGroup('')">
+            Xem tất cả dịch vụ
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Service Grid -->
+    @else {
+      <div class="service-grid">
+        @for (service of filteredServices(); track service._id ?? service.slug; let i = $index) {
+          <article class="service-card" appReveal [revealDelay]="(i % 6) * 80">
+            <a [routerLink]="['/services', service.slug]" class="service-card__thumb-link" [attr.aria-label]="service.serviceName">
+              <img
+                [src]="service.image || 'assets/images/service-cham-soc-da.jpg'"
+                [alt]="service.serviceName"
+                loading="lazy"
+                class="service-card__thumb"
+              />
+              <span class="service-card__category-badge">
+                {{ groupLabel(service.categoryGroup) }}
+              </span>
+            </a>
+
+            <div class="service-card__content">
+              <h2 class="service-card__title">
+                <a [routerLink]="['/services', service.slug]">{{ service.serviceName }}</a>
+              </h2>
+              <p class="service-card__desc">{{ service.description }}</p>
+
+              <div class="service-card__meta">
+                <span class="service-card__price">{{ service.price | vnd }}</span>
+                <span class="service-card__duration">
+                  <i class="bi bi-clock-history me-1" aria-hidden="true"></i>
+                  {{ service.durationMinutes }} phút
+                </span>
+              </div>
+
+              <div class="service-card__footer">
+                <a [routerLink]="['/services', service.slug]" class="btn-detail">
+                  <span>Chi tiết &amp; Đặt hẹn</span>
+                  <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</main>

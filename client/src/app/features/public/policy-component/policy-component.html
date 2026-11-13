@@ -1,0 +1,124 @@
+<main class="policy-page">
+  <!-- Page Hero -->
+  <header class="page-hero" appReveal>
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Chính sách &amp; Cam kết</span>
+      <h1 class="page-hero__title">Quy định &amp; Bảo vệ quyền lợi</h1>
+      <p class="page-hero__lead">
+        Bloom Beauty &amp; Wellness xây dựng các quy định dịch vụ minh bạch nhằm đảm bảo quyền lợi, sự an tâm và trải nghiệm tốt nhất cho mỗi khách hàng khi thăm khám.
+      </p>
+    </div>
+  </header>
+
+  <div class="container-bloom py-5">
+    <div class="policy-layout">
+      <!-- Sticky Navigation Sidebar -->
+      <aside class="policy-nav-sidebar">
+        <div class="policy-nav-card" appReveal [revealDelay]="80">
+          <h2 class="nav-heading">Mục lục chính sách</h2>
+          <nav class="nav-links" aria-label="Mục lục chính sách">
+            @for (s of sections; track s.id) {
+              <button
+                type="button"
+                class="policy-nav-item"
+                [class.active]="activeSection() === s.id"
+                (click)="scrollTo(s.id)"
+              >
+                <i class="bi {{ s.icon }} me-2" aria-hidden="true"></i>
+                <span>{{ s.title }}</span>
+              </button>
+            }
+          </nav>
+
+          <div class="nav-contact-box mt-4">
+            <span class="small text-muted d-block mb-1">Cần hỗ trợ trực tiếp?</span>
+            <a href="tel:19006789" class="nav-hotline">
+              <i class="bi bi-telephone-fill me-1"></i> 1900 6789
+            </a>
+            <span class="small text-muted d-block mt-1">contact&#64;bloomwellness.vn</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Document Column -->
+      <article class="policy-content" appReveal [revealDelay]="120">
+        <!-- Section 1 -->
+        <section id="dat-lich" class="policy-section">
+          <div class="section-badge">Phần 1</div>
+          <h2 class="section-title">Quy định đặt hẹn &amp; Hủy lịch</h2>
+          <p>
+            Nhằm đảm bảo chất lượng phục vụ và để Bác sĩ có đủ thời gian thăm khám 1:1 kỹ lưỡng cho từng khách hàng, Bloom áp dụng chính sách đặt hẹn như sau:
+          </p>
+          <ul>
+            <li><strong>Thời gian đặt hẹn trước:</strong> Khách hàng nên đặt lịch trước tối thiểu 02 giờ đối với ngày trong tuần và 24 giờ đối với dịp cuối tuần hoặc ngày lễ.</li>
+            <li><strong>Xác nhận lịch hẹn:</strong> Bộ phận CSKH sẽ gọi điện hoặc gửi tin nhắn SMS/Zalo để xác nhận lịch hẹn trước giờ khám 02 tiếng. Lịch hẹn chỉ có hiệu lực sau khi đã được xác nhận.</li>
+            <li><strong>Thời gian giữ lịch:</strong> Bloom xin phép giữ chỗ tối đa 15 phút so với giờ hẹn ban đầu. Nếu quý khách đến muộn quá thời gian này, chúng tôi sẽ sắp xếp lượt kế tiếp để không ảnh hưởng đến khách hàng kế tiếp.</li>
+            <li><strong>Thay đổi hoặc Hủy hẹn:</strong> Quý khách vui lòng thông báo cho Bloom qua Hotline 1900 6789 trước ít nhất 02 giờ nếu có nhu cầu dời hoặc hủy lịch khám.</li>
+          </ul>
+        </section>
+
+        <!-- Section 2 -->
+        <section id="bao-mat" class="policy-section">
+          <div class="section-badge">Phần 2</div>
+          <h2 class="section-title">Chính sách bảo mật hồ sơ y khoa</h2>
+          <p>
+            Bloom Beauty &amp; Wellness cam kết bảo mật tuyệt đối thông tin cá nhân và hồ sơ bệnh án da liễu của quý khách theo quy định của Luật Khám bệnh, chữa bệnh:
+          </p>
+          <ul>
+            <li><strong>Phạm vi thông tin:</strong> Bao gồm họ tên, số điện thoại, hình ảnh soi da, tiền sử bệnh lý da liễu và nhật ký điều trị.</li>
+            <li><strong>Mục đích lưu trữ:</strong> Chỉ sử dụng nội bộ phục vụ cho việc theo dõi tiến trình hồi phục của da và điều chỉnh phác đồ giữa các buổi trị liệu.</li>
+            <li><strong>Bảo mật hình ảnh:</strong> Bloom tuyệt đối <em>KHÔNG</em> sử dụng hình ảnh trước/sau điều trị của khách hàng cho mục đích quảng cáo hoặc đăng tải mạng xã hội nếu chưa có sự đồng ý bằng văn bản của quý khách.</li>
+            <li><strong>Hệ thống lưu trữ:</strong> Toàn bộ dữ liệu được mã hóa trên hệ thống máy chủ an toàn, chỉ Bác sĩ trực tiếp điều trị mới có quyền truy cập hồ sơ chuyên môn.</li>
+          </ul>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="hoan-phi" class="policy-section">
+          <div class="section-badge">Phần 3</div>
+          <h2 class="section-title">Chính sách hoàn phí &amp; Đổi liệu trình</h2>
+          <p>
+            Chúng tôi luôn đặt hiệu quả điều trị và sự hài lòng của khách hàng lên hàng đầu:
+          </p>
+          <ul>
+            <li><strong>Đổi liệu trình:</strong> Trường hợp trong quá trình điều trị, Bác sĩ nhận định làn da đã cải thiện hoặc có chuyển biến cần thay đổi phác đồ khác phù hợp hơn, khách hàng được chuyển đổi tương đương giá trị các buổi chưa sử dụng mà không mất thêm phụ phí chuyển đổi.</li>
+            <li><strong>Bảo lưu gói dịch vụ:</strong> Khách hàng có nhu cầu công tác xa hoặc mang thai có quyền bảo lưu gói liệu trình tối đa trong vòng 12 tháng kể từ ngày đăng ký.</li>
+            <li><strong>Hoàn phí:</strong> Áp dụng hoàn phí đối với các buổi điều trị chưa thực hiện nếu khách hàng có chỉ định y khoa từ cơ sở y tế chuyên khoa về việc không thể tiếp tục liệu trình thẩm mỹ. Số tiền hoàn lại được tính trên giá trị thực tế các buổi chưa sử dụng theo hóa đơn thanh toán ban đầu.</li>
+          </ul>
+        </section>
+
+        <!-- Section 4 -->
+        <section id="bao-hanh" class="policy-section">
+          <div class="section-badge">Phần 4</div>
+          <h2 class="section-title">Cam kết chất lượng &amp; Bảo hành kết quả</h2>
+          <p>
+            Chất lượng và an toàn là lời hứa danh dự của đội ngũ y bác sĩ tại Bloom:
+          </p>
+          <ul>
+            <li><strong>Dược mỹ phẩm chính hãng:</strong> 100% sản phẩm bôi thoa, tinh chất tiêm cấy và thuốc kê đơn đều có tem phụ, nguồn gốc xuất xứ rõ ràng và được cấp phép lưu hành bởi Cục Quản lý Dược – Bộ Y tế. Khách hàng có quyền kiểm tra hộp và mã vạch trước khi thực hiện.</li>
+            <li><strong>Bảo hành công nghệ triệt lông:</strong> Các gói triệt lông trọn gói được cấp thẻ bảo hành và hỗ trợ dặm miễn phí trong thời gian cam kết nếu có hiện tượng lông mọc lại.</li>
+            <li><strong>Tái khám miễn phí:</strong> Miễn phí hoàn toàn các buổi tái khám định kỳ để Bác sĩ kiểm tra tốc độ phục hồi của da sau liệu trình điều trị mụn, peel hoặc laser.</li>
+          </ul>
+        </section>
+
+        <!-- Section 5 -->
+        <section id="khieu-nai" class="policy-section">
+          <div class="section-badge">Phần 5</div>
+          <h2 class="section-title">Quy trình tiếp nhận &amp; Xử lý khiếu nại</h2>
+          <p>
+            Mọi ý kiến đóng góp hoặc phản ánh về chất lượng chuyên môn, thái độ phục vụ đều được Hội đồng chuyên môn Bloom tiếp nhận và xử lý nghiêm túc:
+          </p>
+          <ol>
+            <li><strong>Kênh tiếp nhận:</strong> Qua số hotline trực tiếp Ban Giám đốc <strong>1900 6789</strong> hoặc email <strong>contact&#64;bloomwellness.vn</strong>.</li>
+            <li><strong>Thời gian phản hồi:</strong> Ban Giám đốc cam kết liên hệ trực tiếp với khách hàng trong vòng 24 giờ làm việc kể từ thời điểm tiếp nhận phản ánh.</li>
+            <li><strong>Giải quyết thỏa đáng:</strong> Mọi tranh chấp hoặc không hài lòng đều được giải quyết trên tinh thần thiện chí, tôn trọng và ưu tiên cao nhất cho sức khỏe làn da của khách hàng.</li>
+          </ol>
+
+          <div class="policy-footer-note mt-4">
+            <i class="bi bi-calendar3 me-2"></i>
+            <em>Chính sách có hiệu lực từ ngày 01/01/2026 và được cập nhật định kỳ tại phòng khám Bloom Beauty &amp; Wellness.</em>
+          </div>
+        </section>
+      </article>
+    </div>
+  </div>
+</main>

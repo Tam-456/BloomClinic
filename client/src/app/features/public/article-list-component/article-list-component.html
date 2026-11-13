@@ -1,0 +1,128 @@
+<main class="articles-page">
+  <!-- Page Hero -->
+  <header class="page-hero" appReveal>
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Kiến thức y khoa</span>
+      <h1 class="page-hero__title">Góc chuyên gia da liễu</h1>
+      <p class="page-hero__lead">
+        Tổng hợp kiến thức chăm sóc da chuẩn khoa học, giải mã các thành phần hoạt chất và cập nhật phương pháp điều trị da liễu an toàn từ đội ngũ bác sĩ Bloom.
+      </p>
+    </div>
+  </header>
+
+  <div class="container-bloom py-5">
+    <!-- Search Bar -->
+    <div class="search-wrapper" appReveal [revealDelay]="100">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input
+        type="text"
+        [value]="searchKeyword()"
+        (input)="onSearch($event)"
+        placeholder="Tìm kiếm bài viết, thành phần hoặc chủ đề..."
+        aria-label="Tìm kiếm bài viết"
+      />
+      @if (searchKeyword()) {
+        <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="Xóa tìm kiếm">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      }
+    </div>
+
+    <!-- Category Chips -->
+    <nav class="filter-bar" aria-label="Chủ đề bài viết" appReveal [revealDelay]="150">
+      @for (c of categories; track c.value) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="selectedCategory() === c.value"
+          (click)="selectCategory(c.value)"
+        >
+          <span>{{ c.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- State: Loading -->
+    @if (loading()) {
+      <div class="state-box" aria-live="polite">
+        <div class="bloom-spinner" role="status" aria-label="Đang tải..."></div>
+        <p class="state-box__desc mt-3">Đang cập nhật bài viết mới...</p>
+      </div>
+    }
+
+    <!-- State: Error -->
+    @else if (error()) {
+      <div class="state-box" role="alert">
+        <i class="bi bi-exclamation-circle state-box__icon text-danger"></i>
+        <h2 class="state-box__title">Đã xảy ra lỗi</h2>
+        <p class="state-box__desc">{{ error() }}</p>
+        <button type="button" class="btn-bloom" (click)="selectCategory(selectedCategory())">Thử lại</button>
+      </div>
+    }
+
+    <!-- State: Empty -->
+    @else if (filteredArticles().length === 0) {
+      <div class="state-box" appReveal>
+        <i class="bi bi-journal-x state-box__icon"></i>
+        <h2 class="state-box__title">Chưa có bài viết</h2>
+        <p class="state-box__desc">
+          @if (searchKeyword()) {
+            Không tìm thấy bài viết nào khớp với từ khóa "<strong>{{ searchKeyword() }}</strong>".
+          } @else {
+            Chủ đề này đang được đội ngũ bác sĩ chuẩn bị nội dung.
+          }
+        </p>
+        @if (searchKeyword() || selectedCategory()) {
+          <button type="button" class="btn-bloom-outline" (click)="clearSearch(); selectCategory('')">
+            Xem tất cả bài viết
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Article Grid -->
+    @else {
+      <div class="article-grid">
+        @for (art of filteredArticles(); track art._id ?? art.slug; let i = $index) {
+          <article class="article-card" appReveal [revealDelay]="(i % 6) * 80">
+            <a [routerLink]="['/articles', art.slug]" class="article-card__thumb-link" [attr.aria-label]="art.title">
+              <img
+                [src]="art.thumbnail || 'assets/images/article-cham-soc-da.jfif'"
+                [alt]="art.title"
+                loading="lazy"
+                class="article-card__thumb"
+              />
+              <span class="article-card__category-badge">
+                {{ categoryLabel(art.category) }}
+              </span>
+            </a>
+
+            <div class="article-card__content">
+              <div class="article-card__meta">
+                <span class="meta-date">
+                  <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+                  {{ formatDate(art.createdAt) }}
+                </span>
+                <span class="meta-dot">·</span>
+                <span class="meta-read">3 phút đọc</span>
+              </div>
+
+              <h2 class="article-card__title">
+                <a [routerLink]="['/articles', art.slug]">{{ art.title }}</a>
+              </h2>
+
+              <p class="article-card__summary">{{ art.summary }}</p>
+
+              <div class="article-card__footer">
+                <a [routerLink]="['/articles', art.slug]" class="read-more-btn">
+                  <span>Đọc tiếp</span>
+                  <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</main>

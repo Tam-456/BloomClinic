@@ -1,0 +1,56 @@
+/* =========================================
+   POPUP MODAL BẢNG GIÁ DỊCH VỤ
+========================================= */
+.price-highlight {
+  color: var(--bloom-900, #8B1638) !important;
+}
+
+.price-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(43, 10, 20, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.price-modal-dialog {
+  width: 100%;
+  max-width: 620px;
+  background: #ffffff;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  box-shadow: 0 10px 25px rgba(139, 22, 56, 0.12);
+  padding: 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  .modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--bloom-900);
+    font-weight: 600;
+  }
+
+  .form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bloom-900);
+    letter-spacing: 0.4px;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid var(--bloom-200);
+    border-radius: 4px;
+    font-size: 0.9rem;
+
+    &:focus {
+      border-color: var(--bloom-900);
+      box-shadow: 0 0 0 2px rgba(139, 22, 56, 0.15);
+    }
+  }
+}

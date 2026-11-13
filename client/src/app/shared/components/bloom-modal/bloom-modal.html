@@ -1,0 +1,29 @@
+@if (isOpen) {
+  <div class="bloom-modal-backdrop" (click)="onClose()">
+    <div
+      class="bloom-modal-dialog"
+      [style.max-width]="maxWidth"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="bloom-modal-header">
+        <h5 class="modal-title">
+          @if (icon) {
+            <i class="bi {{ icon }} me-2"></i>
+          }
+          {{ title }}
+        </h5>
+        <button type="button" class="btn-close" aria-label="Đóng" (click)="onClose()"></button>
+      </div>
+
+      <div class="bloom-modal-body">
+        <ng-content select="[modal-body]"></ng-content>
+      </div>
+
+      <div class="bloom-modal-footer">
+        <ng-content select="[modal-footer]"></ng-content>
+      </div>
+    </div>
+  </div>
+}

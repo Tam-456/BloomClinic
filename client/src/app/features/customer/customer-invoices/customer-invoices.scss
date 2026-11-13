@@ -1,0 +1,12 @@
+.cursor-pointer {
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+
+  &:hover {
+    background-color: rgba(13, 110, 253, 0.04) !important;
+  }
+}
+
+.h4 {
+  color: #8B1638
+}

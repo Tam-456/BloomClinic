@@ -1,0 +1,63 @@
+@if (authService.currentUser(); as user) {
+  <!-- Logged-in state: name chip + dropdown -->
+  <div class="user-toolbar" [class.open]="dropdownOpen()">
+    <button
+      class="user-chip"
+      type="button"
+      (click)="toggleDropdown()"
+      [attr.aria-expanded]="dropdownOpen()"
+      aria-haspopup="true"
+    >
+      <span class="user-avatar" aria-hidden="true">
+        {{ user.fullName.charAt(0).toUpperCase() }}
+      </span>
+      <span class="user-name">{{ user.fullName }}</span>
+      <i class="bi bi-chevron-down chip-caret" aria-hidden="true"></i>
+    </button>
+
+    <!-- Glass dropdown -->
+    <div class="user-dropdown" role="menu" [class.is-open]="dropdownOpen()">
+      <a
+  [routerLink]="(authService.currentUser()?.role === 'admin' || authService.currentUser()?.role === 'staff') ? '/admin/operations' : '/customer/overview'"
+  class="dropdown-item"
+  role="menuitem"
+  (click)="closeDropdown()"
+>
+  <i class="bi bi-person-circle" aria-hidden="true"></i>
+  Tài khoản
+</a>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item dropdown-item--danger" type="button" role="menuitem" (click)="requestLogout()">
+        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+        Đăng xuất
+      </button>
+    </div>
+  </div>
+
+  @if (logoutDialogOpen()) {
+    <div class="logout-backdrop" (click)="cancelLogout()">
+      <section class="logout-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-title" aria-describedby="logout-description" (click)="$event.stopPropagation()">
+        <div class="logout-mark"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></div>
+        <h2 id="logout-title">Đăng xuất khỏi Bloom?</h2>
+        <p id="logout-description">Bạn có chắc chắn muốn kết thúc phiên đăng nhập hiện tại không?</p>
+        @if (logoutError()) { <div class="logout-error" role="alert">{{ logoutError() }}</div> }
+        <div class="logout-actions">
+          <button class="logout-cancel" type="button" (click)="cancelLogout()" [disabled]="logoutLoading()">Ở lại</button>
+          <button class="logout-confirm" type="button" (click)="confirmLogout()" [disabled]="logoutLoading()">
+            @if (logoutLoading()) { <span class="logout-spinner" aria-hidden="true"></span> Đang đăng xuất… }
+            @else { Đăng xuất }
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+} @else {
+  <!-- Guest state: Đăng nhập / Đăng ký -->
+  <div class="user-toolbar guest">
+    <a routerLink="/login" class="btn-ghost">Đăng nhập</a>
+    <a routerLink="/register" class="btn-primary">Đăng ký</a>
+  </div>
+}
+@if (logoutNotice()) {
+  <div class="logout-toast" role="status" aria-live="polite"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ logoutNotice() }}</div>
+}

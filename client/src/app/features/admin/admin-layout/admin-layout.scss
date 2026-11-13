@@ -1,0 +1,232 @@
+$bloom-primary: #8e2d56;         // Hồng mận chín thương hiệu
+$bloom-primary-hover: #751f43;
+$bloom-bg-page: #fff9f9;         // Nền toàn trang trắng hồng phấn rất nhạt
+$bloom-bg-soft: #fdf3f4;         // Nền ô hover, active
+$bloom-border: #f0d5db;          // Viền mảnh
+$bloom-text-main: #332026;
+$bloom-text-muted: #8c737a;
+
+.admin-wrapper {
+  display: flex;
+  background-color: $bloom-bg-page;
+  min-height: calc(100vh - var(--header-h));
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  // SIDEBAR TRẠNG THÁI MỞ (MẶC ĐỊNH)
+  .admin-sidebar {
+    position: fixed;
+    top: var(--header-h); // Nằm ngay dưới Header
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid $bloom-border;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 900; // Thấp hơn z-index: 1000 của Header để dropdown không bị che
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 8px rgba(142, 45, 86, 0.04);
+  }
+
+  // NỘI DUNG CHÍNH
+  .admin-main-content {
+    flex: 1;
+    margin-left: 240px; // Đẩy nội dung né sidebar
+    padding: 28px 32px 60px;
+    min-height: 100vh;
+    background-color: $bloom-bg-page;
+    transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // Tiêu đề các trang Admin
+    h1, h2, h3, .page-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      color: $bloom-primary;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+  }
+
+  // NÚT TOGGLE ĐẦU SIDEBAR
+  .sidebar-toggle-header {
+    padding: 16px;
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: 1px solid $bloom-border;
+
+    .btn-toggle-sidebar {
+      background: transparent;
+      border: none;
+      color: $bloom-primary;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $bloom-bg-soft;
+      }
+    }
+  }
+
+  // MENU
+  .admin-menu {
+    list-style: none;
+    padding: 12px 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+
+    .menu-item {
+      margin-bottom: 2px;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 20px;
+      color: $bloom-text-main;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-right: 3px solid transparent;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 1.1rem;
+        color: $bloom-text-muted;
+        min-width: 22px;
+        text-align: center;
+        transition: color 0.2s;
+      }
+
+      &:hover {
+        background-color: $bloom-bg-soft;
+        color: $bloom-primary;
+        i { color: $bloom-primary; }
+      }
+
+      &.active {
+        background-color: $bloom-bg-soft;
+        color: $bloom-primary;
+        font-weight: 600;
+        border-right: 3px solid $bloom-primary;
+
+        i {
+          color: $bloom-primary;
+        }
+      }
+    }
+  }
+
+  // CHÂN SIDEBAR
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid $bloom-border;
+    background-color: #ffffff;
+
+    .admin-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 4px;
+        background-color: $bloom-bg-soft;
+        color: $bloom-primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        border: 1px solid $bloom-border;
+      }
+
+      .user-details {
+        overflow: hidden;
+
+        .user-name {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: $bloom-text-main;
+        }
+
+        .user-role {
+          font-size: 0.7rem;
+          color: $bloom-primary;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    .btn-sidebar-logout {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 7px 12px;
+      background: transparent;
+      border: 1px solid $bloom-border;
+      border-radius: 4px;
+      color: $bloom-primary;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: all 0.2s;
+
+      i {
+        font-size: 0.95rem;
+      }
+
+      &:hover {
+        background-color: $bloom-primary;
+        border-color: $bloom-primary;
+        color: #ffffff;
+      }
+    }
+  }
+
+  // TRẠNG THÁI THU GỌN (COLLAPSED)
+  &.collapsed {
+    .admin-sidebar {
+      width: 68px;
+
+      .sidebar-toggle-header {
+        justify-content: center;
+      }
+
+      .menu-link {
+        justify-content: center;
+        padding: 12px 0;
+        gap: 0;
+
+        .link-text {
+          display: none;
+        }
+      }
+
+      .btn-sidebar-logout {
+        padding: 8px 0;
+        .link-text {
+          display: none;
+        }
+      }
+    }
+
+    .admin-main-content {
+      margin-left: 68px;
+    }
+  }
+}

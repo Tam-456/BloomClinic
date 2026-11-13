@@ -1,0 +1,571 @@
+<div class="container-fluid p-4">
+  <!-- HEADER -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Quản Lý Lịch Hẹn & Điều Phối Khám</h4>
+      
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary d-flex align-items-center gap-2"
+      (click)="openCreateModal()"
+    >
+      <i class="bi bi-calendar-plus"></i>
+      <span>Tạo Lịch Hẹn Mới</span>
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      {{ successMessage() }}
+      <button
+        type="button"
+        class="btn-close py-2"
+        (click)="successMessage.set('')"
+      ></button>
+    </div>
+  }
+
+  <!-- BỘ LỌC -->
+  <div class="card mb-4">
+    <div class="card-body p-3">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="🔍 Tìm mã lịch, tên khách hoặc SĐT..."
+            [ngModel]="searchKeyword()"
+            (ngModelChange)="searchKeyword.set($event)"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <input
+            type="date"
+            class="form-control"
+            [ngModel]="selectedDate()"
+            (ngModelChange)="selectedDate.set($event)"
+          />
+        </div>
+
+        <div class="col-md-1">
+          <button
+            type="button"
+            class="btn btn-outline-secondary w-100"
+            title="Xóa bộ lọc ngày"
+            (click)="selectedDate.set('')"
+          >
+            Đặt lại
+          </button>
+        </div>
+
+        <div class="col-md-4">
+          <div class="booking-filter-group d-flex gap-1 justify-content-end">
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="selectedFilter() === 'all'"
+              [class.btn-outline-secondary]="selectedFilter() !== 'all'"
+              (click)="selectedFilter.set('all')"
+            >
+              Tất cả
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-warning]="selectedFilter() === 'pending'"
+              [class.btn-outline-secondary]="selectedFilter() !== 'pending'"
+              (click)="selectedFilter.set('pending')"
+            >
+              Chờ duyệt
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-info]="selectedFilter() === 'confirmed'"
+              [class.btn-outline-secondary]="selectedFilter() !== 'confirmed'"
+              (click)="selectedFilter.set('confirmed')"
+            >
+              Đã duyệt
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="selectedFilter() === 'in_treatment'"
+              [class.btn-outline-secondary]="selectedFilter() !== 'in_treatment'"
+              (click)="selectedFilter.set('in_treatment')"
+            >
+              Đang khám
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-success]="selectedFilter() === 'completed'"
+              [class.btn-outline-secondary]="selectedFilter() !== 'completed'"
+              (click)="selectedFilter.set('completed')"
+            >
+              Hoàn thành
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BẢNG CHÍNH (CLICK DÒNG XEM LỊCH SỬ) -->
+  <div class="card">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold">
+        Danh Sách Khách Hàng Đặt Hẹn ({{ groupedCustomerBookings().length }} khách)
+      </h5>
+      <span class="badge bg-light text-muted border">
+        Click vào dòng để xem toàn bộ lịch sử hẹn
+      </span>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive" style="overflow-x: auto;">
+        <table class="table table-hover align-middle mb-0 booking-table" style="min-width: 1100px;">
+          <thead>
+            <tr>
+              <th style="width: 140px;" class="text-center">Mã Đặt</th>
+              <th style="width: 220px;" class="ps-3">Khách Hàng</th>
+              <th style="width: 160px;">Ngày & Khung Giờ</th>
+              <th style="width: 230px;">Phụ Trách</th>
+              <th style="width: 130px;" class="text-end">Tiền Cọc</th>
+              <th style="width: 120px;" class="text-center">Trạng Thái</th>
+              <th style="width: 200px;" class="text-end pe-3">Hành Động</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (g of groupedCustomerBookings(); track g.customerKey) {
+              <tr style="cursor: pointer;" (click)="openCustomerHistory(g)">
+                <td class="text-center text-muted font-monospace">
+                  {{ g.latestBooking.bookingCode }}
+                  @if (g.totalAppointments > 1) {
+                    <span class="badge bg-secondary ms-1" title="Tổng số lần đặt lịch">
+                      {{ g.totalAppointments }} lần
+                    </span>
+                  }
+                </td>
+
+                <td class="ps-3">
+                  <div class="fw-bold text-dark">{{ g.customerName }}</div>
+                  <div class="small text-muted">{{ g.customerPhone }}</div>
+
+                  @if (g.activeCount > 1) {
+                    <span class="badge bg-warning text-dark border border-warning mt-1" style="font-size: 11px;">
+                      <i class="bi bi-bell-fill me-1"></i> Có {{ g.activeCount }} lịch chưa xong
+                    </span>
+                  }
+
+                  @if (g.latestBooking.note) {
+                    <small class="text-secondary fst-italic d-block mt-1">
+                      "{{ g.latestBooking.note }}"
+                    </small>
+                  }
+                </td>
+
+                <td>
+                  <div class="fw-semibold">{{ g.latestBooking.appointmentDate }}</div>
+                  <div class="small text-muted">{{ g.latestBooking.appointmentTime }}</div>
+                </td>
+
+                <!-- CỘT PHỤ TRÁCH -->
+                <td (click)="$event.stopPropagation()">
+                  <div class="small fw-semibold text-secondary mb-1">
+                    {{ getSpecialtyName(g.latestBooking.serviceId) }}
+                  </div>
+
+                  @if (g.latestBooking.status === 'completed' || g.latestBooking.status === 'in_treatment' || g.latestBooking.status === 'cancelled') {
+                    <div class="badge bg-light text-dark border py-1 px-2">
+                      <i class="bi bi-person-check-fill text-success me-1"></i>
+                      {{ getStaffName(g.latestBooking.staffId) }}
+                    </div>
+                  } @else {
+                    <select
+                      class="form-select form-select-sm"
+                      style="min-width: 180px;"
+                      [ngModel]="getStaffIdString(g.latestBooking.staffId)"
+                      (ngModelChange)="onUpdateStatus(g.latestBooking._id!, g.latestBooking.status, $event, $event)"
+                    >
+                      <option value="">-- Chưa gán Bác sĩ/KTV --</option>
+                      @for (st of qualifiedStaffs(); track st._id) {
+                        <option [value]="st._id">{{ st.staffName }} ({{ st.title }})</option>
+                      }
+                    </select>
+                  }
+                </td>
+
+                <td class="text-end fw-bold price-highlight text-nowrap">
+                  {{ g.latestBooking.depositAmount > 0 ? (g.latestBooking.depositAmount | number) + ' đ' : 'Chưa cọc' }}
+                </td>
+
+                <td class="text-center">
+                  <span
+                    class="badge px-3 py-2"
+                    [class.bg-warning]="g.latestBooking.status === 'pending'"
+                    [class.bg-info]="g.latestBooking.status === 'confirmed'"
+                    [class.bg-primary]="g.latestBooking.status === 'in_treatment'"
+                    [class.bg-success]="g.latestBooking.status === 'completed'"
+                    [class.bg-danger]="g.latestBooking.status === 'cancelled'"
+                  >
+                    {{ g.latestBooking.status === 'pending' ? 'Chờ duyệt' : g.latestBooking.status === 'confirmed' ? 'Đã duyệt' : g.latestBooking.status === 'in_treatment' ? 'Đang khám' : g.latestBooking.status === 'completed' ? 'Hoàn thành' : 'Đã hủy' }}
+                  </span>
+                </td>
+
+                <!-- CỘT HÀNH ĐỘNG -->
+                <td class="text-end pe-3 text-nowrap" (click)="$event.stopPropagation()">
+                  @if (g.latestBooking.status !== 'completed' && g.latestBooking.status !== 'cancelled' && g.latestBooking.status !== 'in_treatment') {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary me-1"
+                      (click)="openEditModal(g.latestBooking, $event)"
+                    >
+                      <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                  }
+
+                  @if (g.latestBooking.status === 'pending') {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success me-1"
+                      (click)="onUpdateStatusWithConfirm(g.latestBooking, 'confirmed', $event)"
+                    >
+                      Duyệt
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="onUpdateStatusWithConfirm(g.latestBooking, 'cancelled', $event)"
+                    >
+                      Từ chối
+                    </button>
+                  } @else if (g.latestBooking.status === 'confirmed') {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary me-1"
+                      [disabled]="!g.latestBooking.staffId"
+                      [title]="!g.latestBooking.staffId ? 'Vui lòng chọn người phụ trách trước' : 'Bắt đầu ca khám'"
+                      (click)="onUpdateStatusWithConfirm(g.latestBooking, 'in_treatment', $event)"
+                    >
+                      Vào khám
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      (click)="onUpdateStatusWithConfirm(g.latestBooking, 'cancelled', $event)"
+                    >
+                      Hủy
+                    </button>
+                  } @else if (g.latestBooking.status === 'in_treatment') {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success"
+                      (click)="onUpdateStatusWithConfirm(g.latestBooking, 'completed', $event)"
+                    >
+                      Xong ca
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                  Không tìm thấy lịch hẹn nào phù hợp.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= POPUP 1: LỊCH SỬ HẸN CỦA KHÁCH HÀNG ================= -->
+<app-bloom-modal
+  [isOpen]="isHistoryModalOpen() && !!selectedCustomerHistory()"
+  [title]="'Lịch Sử Đặt Hẹn: ' + (selectedCustomerHistory()?.customerName || '')"
+  icon="bi-clock-history"
+  maxWidth="860px"
+  (close)="closeCustomerHistory()"
+>
+  @if (selectedCustomerHistory()) {
+    <div modal-body>
+      <div class="p-3 bg-light rounded border mb-3">
+        <div class="row g-2 small">
+          <div class="col-md-6">
+            Khách hàng: <strong class="text-dark">{{ selectedCustomerHistory()?.customerName }}</strong>
+          </div>
+          <div class="col-md-6">
+            Số điện thoại: <strong>{{ selectedCustomerHistory()?.customerPhone }}</strong>
+          </div>
+          <div class="col-12">
+            Tổng số lượt hẹn: <strong class="price-highlight">{{ selectedCustomerHistory()?.totalAppointments }}</strong> lượt
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="overflow-x: auto;">
+        <table class="table table-bordered table-sm align-middle mb-0" style="min-width: 760px;">
+          <thead class="table-light">
+            <tr>
+              <th>Mã Hẹn</th>
+              <th>Ngày & Giờ</th>
+              <th>Chuyên Khoa</th>
+              <th>Phụ Trách</th>
+              <th class="text-end">Tiền Cọc</th>
+              <th class="text-center">Trạng Thái</th>
+              <th class="text-center" style="width: 100px;">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of selectedCustomerHistory()?.allBookings; track item._id) {
+              <tr>
+                <td class="font-monospace fw-bold text-nowrap">{{ item.bookingCode }}</td>
+                <td class="text-nowrap">{{ item.appointmentDate }} {{ item.appointmentTime }}</td>
+                <td>{{ getSpecialtyName(item.serviceId) }}</td>
+                <td>{{ getStaffName(item.staffId) }}</td>
+                <td class="text-end fw-bold price-highlight text-nowrap">
+                  {{ item.depositAmount > 0 ? (item.depositAmount | number) + ' đ' : '0 đ' }}
+                </td>
+                <td class="text-center">
+                  <span class="badge"
+                    [class.bg-warning]="item.status === 'pending'"
+                    [class.bg-info]="item.status === 'confirmed'"
+                    [class.bg-primary]="item.status === 'in_treatment'"
+                    [class.bg-success]="item.status === 'completed'"
+                    [class.bg-danger]="item.status === 'cancelled'">
+                    {{ item.status === 'pending' ? 'Chờ duyệt' : item.status === 'confirmed' ? 'Đã duyệt' : item.status === 'in_treatment' ? 'Đang khám' : item.status === 'completed' ? 'Hoàn thành' : 'Đã hủy' }}
+                  </span>
+                </td>
+                <td class="text-center text-nowrap">
+                  @if (item.status !== 'completed' && item.status !== 'cancelled' && item.status !== 'in_treatment') {
+                    <button type="button" class="btn btn-sm btn-outline-primary py-0" (click)="openEditModal(item, $event)">
+                      Sửa
+                    </button>
+                  } @else {
+                    <span class="text-muted small">--</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">
+                  Khách hàng chưa có lịch sử đặt hẹn.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeCustomerHistory()">
+      Đóng
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 2: TẠO LỊCH HẸN MỚI ================= -->
+<app-bloom-modal
+  [isOpen]="isCreateModalOpen()"
+  title="Thêm Lịch Hẹn Mới"
+  icon="bi-calendar-plus"
+  maxWidth="640px"
+  (close)="closeCreateModal()"
+>
+  <div modal-body class="row g-3">
+    @if (modalErrorMessage()) {
+      <div class="col-12">
+        <div class="alert alert-danger py-2 mb-0">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          {{ modalErrorMessage() }}
+        </div>
+      </div>
+    }
+
+    <div class="col-md-6 position-relative">
+      <label class="form-label fw-semibold">
+        Họ tên khách hàng <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nhập tên khách hàng..."
+        [ngModel]="newBooking.customerName"
+        (ngModelChange)="onCustomerNameChange($event)"
+      />
+
+      @if (showCustomerDropdown() && customerSuggestions().length > 0) {
+        <div class="dropdown-menu show w-100 shadow-sm mt-1" style="max-height: 200px; overflow-y: auto;">
+          @for (c of customerSuggestions(); track c._id) {
+            <button type="button" class="dropdown-item py-2" (click)="selectCustomer(c)">
+              <strong>{{ c.fullName }}</strong>
+              <small class="text-muted d-block font-monospace">{{ c.phone }}</small>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        Số điện thoại <span class="text-danger">*</span>
+      </label>
+      <input
+        type="tel"
+        class="form-control"
+        placeholder="VD: 0912345678"
+        [ngModel]="newBooking.customerPhone"
+        (ngModelChange)="onCustomerPhoneChange($event)"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Dịch vụ quan tâm</label>
+      <select class="form-select" [(ngModel)]="newBooking.serviceId">
+        @for (sp of specialties; track sp.id) {
+          <option [value]="sp.id">{{ sp.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Phân công Bác sĩ/KTV</label>
+      <select class="form-select" [(ngModel)]="newBooking.staffId">
+        <option value="">-- Chưa gán (chọn sau) --</option>
+        @for (st of qualifiedStaffs(); track st._id) {
+          <option [value]="st._id">{{ st.staffName }} ({{ st.title }})</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Ngày hẹn <span class="text-danger">*</span></label>
+      <input type="date" class="form-control" [(ngModel)]="newBooking.appointmentDate" />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Khung giờ <span class="text-danger">*</span></label>
+      <input type="time" class="form-control" [(ngModel)]="newBooking.appointmentTime" />
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-semibold">Tiền đặt cọc trước (VNĐ)</label>
+      <input
+        type="number"
+        class="form-control"
+        min="0"
+        step="50000"
+        placeholder="0"
+        [(ngModel)]="newBooking.depositAmount"
+      />
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-semibold">Ghi chú yêu cầu của khách</label>
+      <textarea
+        class="form-control"
+        rows="3"
+        placeholder="Tình trạng da, tiền sử bệnh lý hoặc yêu cầu đặc biệt..."
+        [(ngModel)]="newBooking.note"
+      ></textarea>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeCreateModal()">
+      Hủy bỏ
+    </button>
+    <button type="button" class="btn btn-primary" (click)="submitCreateBooking()">
+      <i class="bi bi-check2-circle me-1"></i> Lưu Lịch Hẹn
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 3: SỬA LỊCH HẸN ================= -->
+<app-bloom-modal
+  [isOpen]="isEditModalOpen()"
+  title="Chỉnh Sửa Lịch Hẹn"
+  icon="bi-pencil-square"
+  maxWidth="640px"
+  (close)="closeEditModal()"
+>
+  <div modal-body class="row g-3">
+    @if (modalErrorMessage()) {
+      <div class="col-12">
+        <div class="alert alert-danger py-2 mb-0">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          {{ modalErrorMessage() }}
+        </div>
+      </div>
+    }
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Họ tên khách hàng</label>
+      <input type="text" class="form-control" [(ngModel)]="editBooking.customerName" />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Số điện thoại</label>
+      <input type="tel" class="form-control" [(ngModel)]="editBooking.customerPhone" />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Dịch vụ (Chuyên khoa)</label>
+      <select class="form-select" [(ngModel)]="editBooking.serviceId">
+        @for (sp of specialties; track sp.id) {
+          <option [value]="sp.id">{{ sp.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Phụ trách (Bác sĩ/KTV)</label>
+      <select class="form-select" [(ngModel)]="editBooking.staffId">
+        <option value="">-- Chưa gán --</option>
+        @for (st of qualifiedStaffs(); track st._id) {
+          <option [value]="st._id">{{ st.staffName }} ({{ st.title }})</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Ngày hẹn</label>
+      <input type="date" class="form-control" [(ngModel)]="editBooking.appointmentDate" />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Khung giờ</label>
+      <input type="time" class="form-control" [(ngModel)]="editBooking.appointmentTime" />
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-semibold">Tiền đặt cọc (VNĐ)</label>
+      <input type="number" class="form-control" min="0" step="50000" [(ngModel)]="editBooking.depositAmount" />
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-semibold">Ghi chú</label>
+      <textarea class="form-control" rows="3" [(ngModel)]="editBooking.note"></textarea>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeEditModal()">
+      Hủy
+    </button>
+    <button type="button" class="btn btn-primary" (click)="submitEditBooking()">
+      <i class="bi bi-check2-circle me-1"></i> Lưu Thay Đổi
+    </button>
+  </div>
+</app-bloom-modal>

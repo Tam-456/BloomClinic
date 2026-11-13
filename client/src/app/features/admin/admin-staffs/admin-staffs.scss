@@ -1,0 +1,195 @@
+.price-highlight {
+  color: var(--bloom-900, #8B1638) !important;
+}
+
+.timeline-scroll {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.timeline-table {
+  min-width: 1050px;
+  table-layout: fixed;
+  border-color: #eeeeee;
+}
+
+.timeline-table th,
+.timeline-table td {
+  vertical-align: middle;
+  padding: 10px 8px;
+}
+
+.timeline-staff-column {
+  width: 220px;
+  min-width: 220px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #ffffff;
+  border-right: 2px solid #e5e7eb !important;
+}
+
+.timeline-table thead .timeline-staff-column {
+  z-index: 4;
+  background: #f8f9fa;
+}
+
+.timeline-day-column {
+  min-width: 115px;
+  background: #ffffff;
+}
+
+.timeline-weekend {
+  background-color: #fafafa !important;
+}
+
+.timeline-cell {
+  min-width: 115px;
+  height: 95px;
+  vertical-align: top !important;
+  background: #ffffff;
+}
+
+.timeline-staff-name {
+  font-size: 13px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.timeline-avatar {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.timeline-shift-item {
+  padding: 7px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.4;
+  border-left: 3px solid transparent;
+  background: #f8f9fa;
+}
+
+.timeline-shift-item:last-child {
+  margin-bottom: 0;
+}
+
+.shift-morning {
+  background: #effaf3;
+  border-left-color: #16a34a;
+  color: #166534;
+}
+
+.shift-afternoon {
+  background: #eff6ff;
+  border-left-color: #2563eb;
+  color: #1d4ed8;
+}
+
+.shift-evening {
+  background: #fffbeb;
+  border-left-color: #eab308;
+  color: #854d0e;
+}
+
+.shift-off {
+  background: #fef2f2;
+  border-left-color: #dc2626;
+  color: #b91c1c;
+}
+
+.timeline-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  border-radius: 2px;
+  margin-right: 4px;
+}
+
+.timeline-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 55px;
+  font-size: 18px;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .timeline-staff-column {
+    width: 170px;
+    min-width: 170px;
+  }
+
+  .timeline-day-column,
+  .timeline-cell {
+    min-width: 105px;
+  }
+
+  .timeline-table th,
+  .timeline-table td {
+    padding: 8px 6px;
+  }
+}
+
+/* Bổ sung Modal Backdrop & Dialog */
+.review-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(30, 15, 20, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+}
+
+.review-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 90%;
+  max-width: 480px;
+}
+
+/* ===================================== */
+/* DANH SÁCH LỊCH LÀM VIỆC THEO NHÂN SỰ */
+/* ===================================== */
+
+/* Tên nhân sự không in đậm */
+.schedule-staff-name {
+  font-size: 14px;
+  font-weight: 400;
+  color: #212529;
+}
+
+/* Trạng thái chỉ hiển thị màu chữ */
+.schedule-status-text {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Đang trực */
+.schedule-status-text.status-working {
+  color: #198754;
+}
+
+/* Nghỉ phép */
+.schedule-status-text.status-off {
+  color: #dc3545;
+}

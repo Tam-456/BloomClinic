@@ -1,0 +1,185 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.professors-page {
+  background-color: var(--bloom-50);
+  min-height: calc(100vh - var(--header-h));
+}
+
+// Standards Banner
+.standards-banner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 2rem;
+  @include glass(var(--radius-xl));
+  border: 1px solid rgba(214, 58, 106, 0.15);
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+.standard-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+
+  i {
+    font-size: 2rem;
+    color: var(--bloom-600);
+    flex-shrink: 0;
+  }
+
+  strong {
+    display: block;
+    font-size: 1rem;
+    color: var(--bloom-900);
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: var(--bloom-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Doctors Grid
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 680px) {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+}
+
+.doctor-profile-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid rgba(214, 58, 106, 0.15);
+  box-shadow: var(--shadow-sm);
+  @include card-lift;
+
+  &__media {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--bloom-200);
+
+    .doctor-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      transition: transform 0.6s var(--ease-bloom);
+    }
+
+    .doctor-profile-card:hover & .doctor-img {
+      transform: scale(1.05);
+    }
+
+    .status-tag {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #065f46;
+      @include glass(var(--radius-pill));
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.75rem;
+  }
+
+  .doc-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--bloom-600);
+    margin-bottom: 0.4rem;
+  }
+
+  .doc-name {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--bloom-900);
+    margin-bottom: 0.4rem;
+  }
+
+  .doc-specialty {
+    font-size: 0.9rem;
+    color: var(--bloom-muted);
+    font-weight: 500;
+    margin-bottom: 0.85rem;
+  }
+
+  .doc-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+
+    .stars {
+      color: #f59e0b;
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    .rating-num {
+      font-weight: 700;
+      color: var(--bloom-text);
+    }
+
+    .rating-count {
+      color: var(--bloom-muted);
+      font-size: 0.8rem;
+    }
+  }
+
+  .doc-desc {
+    font-size: 0.9rem;
+    color: var(--bloom-text);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .doc-actions {
+    margin-top: auto;
+  }
+}
+

@@ -1,0 +1,102 @@
+<main class="professors-page">
+  <!-- Page Hero -->
+  <header class="page-hero" appReveal>
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Đội ngũ chuyên môn</span>
+      <h1 class="page-hero__title">Bác sĩ Da liễu &amp; Chuyên gia hàng đầu</h1>
+      <p class="page-hero__lead">
+        100% bác sĩ tại Bloom Beauty &amp; Wellness đều tốt nghiệp chuyên khoa Da liễu, có chứng chỉ hành nghề và nhiều năm công tác tại các bệnh viện da liễu tuyến đầu.
+      </p>
+    </div>
+  </header>
+
+  <div class="container-bloom py-5">
+    <!-- State: Loading -->
+    @if (loading()) {
+      <div class="state-box" aria-live="polite">
+        <div class="bloom-spinner" role="status" aria-label="Đang tải..."></div>
+        <p class="state-box__desc mt-3">Đang kết nối danh sách chuyên gia...</p>
+      </div>
+    }
+
+    <!-- State: Error -->
+    @else if (error()) {
+      <div class="state-box" role="alert">
+        <i class="bi bi-exclamation-circle state-box__icon text-danger"></i>
+        <h2 class="state-box__title">Đã xảy ra lỗi</h2>
+        <p class="state-box__desc">{{ error() }}</p>
+      </div>
+    }
+
+    <!-- Doctors Grid -->
+    @else {
+      <!-- Standards bar -->
+      <div class="standards-banner mb-5" appReveal [revealDelay]="100">
+        <div class="standard-item">
+          <i class="bi bi-mortarboard-fill"></i>
+          <div>
+            <strong>100% Bác sĩ CKI Da liễu</strong>
+            <p>Được đào tạo bài bản, cập nhật liên tục các nghiên cứu y khoa mới.</p>
+          </div>
+        </div>
+        <div class="standard-item">
+          <i class="bi bi-person-check-fill"></i>
+          <div>
+            <strong>Thăm khám trực tiếp 1:1</strong>
+            <p>Bác sĩ trực tiếp chẩn đoán, lên phác đồ và đồng hành suốt liệu trình.</p>
+          </div>
+        </div>
+        <div class="standard-item">
+          <i class="bi bi-patch-check-fill"></i>
+          <div>
+            <strong>Y đức &amp; Trung thực</strong>
+            <p>Chỉ chỉ định những dịch vụ thực sự cần thiết, bảo vệ quyền lợi tối đa.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="doctors-grid">
+        @for (doc of professors(); track doc._id ?? doc.staffName; let i = $index) {
+          <article class="doctor-profile-card" appReveal [revealDelay]="i * 120">
+            <div class="doctor-profile-card__media">
+              <img [src]="doc.avatar" [alt]="doc.staffName" class="doctor-img" loading="lazy" />
+              <span class="status-tag">
+                <span class="dot"></span> Đang công tác
+              </span>
+            </div>
+
+            <div class="doctor-profile-card__body">
+              <span class="doc-badge">{{ doc.title }}</span>
+              <h2 class="doc-name">{{ doc.staffName }}</h2>
+              <p class="doc-specialty">
+                <i class="bi bi-heart-pulse-fill me-1 text-primary-bloom"></i>
+                {{ doc.specialty }}
+              </p>
+
+              <div class="doc-rating">
+                <div class="stars">
+                  @for (filled of starsArray(doc.rating || 0); track $index) {
+                    <i class="bi" [class.bi-star-fill]="filled" [class.bi-star]="!filled"></i>
+                  }
+                </div>
+                <span class="rating-num">{{ doc.rating }} / 5.0</span>
+                <span class="rating-count">(Hơn 800+ lượt khám)</span>
+              </div>
+
+              <p class="doc-desc">
+                Chuyên sâu trong việc chẩn đoán các ca mụn phức tạp, điều trị sắc tố da và trẻ hóa thẩm mỹ nội khoa không xâm lấn. Tận tâm lắng nghe và giải thích cặn kẽ mọi thắc mắc của khách hàng.
+              </p>
+
+              <div class="doc-actions">
+                <a routerLink="/" fragment="booking" class="btn-bloom w-100 justify-content-center">
+                  <i class="bi bi-calendar2-heart-fill me-2"></i>
+                  Đặt lịch khám cùng bác sĩ
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</main>

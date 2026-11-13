@@ -1,0 +1,277 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+:host {
+  display: block;
+  // ── Adjustable pin position ───────────────────────────────
+  // Override these CSS vars in parent if ever needed:
+  //   app-map-component { --pin-x: 239px; --pin-y: 712px; }
+  --pin-x: 239px;
+  --pin-y: 712px;
+}
+
+// ── Map wrapper ───────────────────────────────────────────────
+.map-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin-inline: auto;
+  user-select: none;
+}
+
+// ── SVG container ─────────────────────────────────────────────
+.vietnam-map {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  display: block;
+  filter: drop-shadow(0 14px 34px rgba(139, 22, 56, 0.08));
+}
+
+// ── Coastline and mainland draw animation ─────────────────────
+// Use a dash longer than the entire outline so every coast and island path draws fully.
+.vn-coast {
+  stroke-dasharray: 10000;
+  stroke-dashoffset: 10000;
+  transition: stroke-dashoffset 2.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .map-drawn & {
+    stroke-dashoffset: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    stroke-dashoffset: 0;
+    transition: none;
+  }
+}
+
+// ── Grid lines & Compass rose ─────────────────────────────────
+.map-grid,
+.map-grid-labels,
+.compass-rose {
+  opacity: 0;
+  transition: opacity 1s 1s ease;
+
+  .map-drawn & {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    transition: none;
+  }
+}
+
+// ── Coastal island labels ─────────────────────────────────────
+.coastal-label {
+  opacity: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: opacity 0.8s 1.8s ease;
+
+  .map-drawn & {
+    opacity: 0.85;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 0.85;
+    transition: none;
+  }
+}
+
+// ── Island clusters (Hoàng Sa & Trường Sa) ────────────────────
+.archipelago {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.8s 1.5s ease, transform 0.8s 1.5s ease;
+
+  .map-drawn & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.archipelago-title {
+  letter-spacing: 0.04em;
+}
+
+.archipelago-sub {
+  letter-spacing: 0.03em;
+}
+
+// ── TP.HCM Pin ────────────────────────────────────────────────
+.hcmc-pin {
+  transform: translate(var(--pin-x), var(--pin-y));
+  opacity: 0;
+  transition: opacity 0.6s 2s ease;
+  cursor: pointer;
+
+  .map-drawn & {
+    opacity: 1;
+  }
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    filter: drop-shadow(0 0 10px rgba(245, 85, 136, 0.85));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    transition: none;
+  }
+}
+
+.pin-caption {
+  letter-spacing: 0.03em;
+}
+
+.pin-subcaption {
+  letter-spacing: 0.02em;
+}
+
+// ── Pulse animations ──────────────────────────────────────────
+.pin-pulse {
+  animation: pinPulse 2.4s ease-out infinite;
+
+  &--2 {
+    animation-delay: 0.8s;
+  }
+  &--3 {
+    animation-delay: 1.6s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes pinPulse {
+  0% {
+    r: 6;
+    opacity: 0.8;
+  }
+  70% {
+    r: 32;
+    opacity: 0;
+  }
+  100% {
+    r: 32;
+    opacity: 0;
+  }
+}
+
+// ── Interactive Frosted Glass Clinic Card Tooltip ─────────────
+.map-tooltip {
+  position: absolute;
+  bottom: 18%;
+  left: 2%;
+  width: 240px;
+  padding: 14px 16px;
+  border-radius: $radius-lg;
+  @include glass($radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(245, 85, 136, 0.28);
+  box-shadow: 0 16px 36px rgba(139, 22, 56, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $bloom-900;
+    margin-bottom: 4px;
+
+    i {
+      color: $bloom-600;
+      font-size: 0.95rem;
+    }
+  }
+
+  &__address {
+    font-size: 0.76rem;
+    color: $bloom-text;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: $bloom-muted;
+    border-top: 1px dashed rgba(245, 85, 136, 0.22);
+    padding-top: 6px;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    i {
+      color: $bloom-500;
+    }
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+    width: 100%;
+    padding: 6px 12px;
+    border-radius: $radius-pill;
+    background: linear-gradient(135deg, $bloom-600, $bloom-900);
+    color: white !important;
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(214, 58, 106, 0.35);
+    }
+  }
+
+  @media (max-width: 576px) {
+    width: 210px;
+    padding: 10px 12px;
+    bottom: 12%;
+    left: 0;
+
+    &__header {
+      font-size: 0.82rem;
+    }
+
+    &__address {
+      font-size: 0.7rem;
+    }
+
+    &__meta {
+      font-size: 0.68rem;
+    }
+  }
+}

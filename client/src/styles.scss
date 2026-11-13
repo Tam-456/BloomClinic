@@ -1,0 +1,460 @@
+// ============================================================
+// 1. NHÚNG TÀI NGUYÊN DÙNG CHUNG
+// ============================================================
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+@use 'styles/page-shared' as *;
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// ============================================================
+// 2. HỆ MÀU & BIẾN TOÀN CỤC
+// ============================================================
+$bloom-primary: #8B1638;
+$bloom-primary-hover: #B5234B;
+$bloom-bg-page: #FFF0F4;
+$bloom-bg-soft: #FFF0F4;
+$bloom-border: #FFD6E3;
+$bloom-text-main: #2B0A14;
+$bloom-text-muted: #7A3250;
+
+:root {
+  --primary-color: #{$bloom-primary};
+  --primary-hover: #{$bloom-primary-hover};
+  --bg-page: #{$bloom-bg-page};
+  --bg-soft: #{$bloom-bg-soft};
+  --border-color: #{$bloom-border};
+  --header-h: 70px;
+}
+
+// ============================================================
+// 3. RESET & TYPOGRAPHY TOÀN HỆ THỐNG
+// ============================================================
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--bloom-50, $bloom-bg-page) !important;
+  color: var(--bloom-text, $bloom-text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0.15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  accent-color: var(--bloom-900, $bloom-primary) !important;
+}
+
+::selection {
+  background-color: var(--bloom-900, $bloom-primary) !important;
+  color: #ffffff !important;
+}
+
+// Đồng bộ toàn bộ tiêu đề trang & tiêu đề card sang đỏ tía thương hiệu
+h1, h2, h3, h4, h5, h6,
+.card-header h4,
+.card-header h5,
+.card-header h6,
+.card-header .text-dark,
+.page-title {
+  font-family: 'Playfair Display', Georgia, serif !important;
+  color: var(--bloom-900, $bloom-primary) !important;
+  line-height: 1.25;
+}
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 3.5vw, 2.5rem); }
+h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); }
+
+a {
+  color: var(--bloom-900, $bloom-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover { color: var(--bloom-800, $bloom-primary-hover); }
+}
+
+// Khử màu xanh dương mặc định của Bootstrap
+.text-primary, .price-highlight { color: var(--bloom-900, $bloom-primary) !important; }
+.border-primary { border-color: var(--bloom-900, $bloom-primary) !important; }
+
+// ============================================================
+// 4. TIỆN ÍCH PUBLIC & LAYOUT
+// ============================================================
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  &.is-visible { opacity: 1; transform: translateY(0); }
+}
+
+.container-bloom {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+body:not(.admin-body) main,
+body:not(.admin-body) .page-content {
+  padding-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+
+.text-gradient { @include gradient-text; }
+.btn-bloom { @include btn-bloom; }
+.btn-bloom-outline { @include btn-outline; }
+.cursor-pointer { cursor: pointer; }
+
+// ============================================================
+// 5. CARD, FORM & KPI DÙNG CHUNG (ADMIN + CUSTOMER)
+// ============================================================
+.card {
+  background-color: #ffffff !important;
+  border: 1px solid var(--bloom-200, $bloom-border) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(139, 22, 56, 0.04) !important;
+}
+
+.card-header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--bloom-200, $bloom-border) !important;
+  font-weight: 600;
+}
+
+.bloom-kpi-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--bloom-900, $bloom-primary) !important;
+    box-shadow: 0 4px 14px rgba(139, 22, 56, 0.08) !important;
+  }
+
+  .card-body { padding: 20px; }
+  h3 { font-size: 1.75rem; line-height: 1.2; }
+}
+
+.form-control, .form-select {
+  background-color: #ffffff !important;
+  border: 1px solid var(--bloom-200, $bloom-border) !important;
+  border-radius: 4px !important;
+  color: var(--bloom-text, $bloom-text-main) !important;
+  font-size: 0.9rem;
+
+  &:focus {
+    border-color: var(--bloom-900, $bloom-primary) !important;
+    box-shadow: 0 0 0 3px rgba(139, 22, 56, 0.15) !important;
+  }
+}
+
+label.form-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--bloom-900, $bloom-primary);
+  letter-spacing: 0.5px;
+}
+
+.form-check-input {
+  border-color: var(--bloom-200, $bloom-border);
+  cursor: pointer;
+
+  &:checked {
+    background-color: var(--bloom-900, $bloom-primary) !important;
+    border-color: var(--bloom-900, $bloom-primary) !important;
+  }
+}
+
+// ============================================================
+// 6. NÚT BẤM, TAB & BADGE DÙNG CHUNG
+// ============================================================
+.btn-primary {
+  background: linear-gradient(135deg, #8B1638 0%, #D63A6A 55%, #F55588 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  box-shadow: 0 3px 10px rgba(139, 22, 56, 0.22) !important;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  i { color: #ffffff !important; }
+
+  &:hover {
+    background: linear-gradient(135deg, #A01B42 0%, #E24376 55%, #FA6B99 100%) !important;
+    box-shadow: 0 5px 15px rgba(214, 58, 106, 0.35) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.btn-outline-primary {
+  color: var(--bloom-900, $bloom-primary) !important;
+  border-color: var(--bloom-200, $bloom-border) !important;
+  background-color: transparent !important;
+  transition: all 0.25s ease;
+
+  i { color: var(--bloom-900, $bloom-primary) !important; }
+
+  &:hover, &:focus, &:active, &.active {
+    background: linear-gradient(135deg, #8B1638 0%, #D63A6A 55%, #F55588 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(214, 58, 106, 0.3) !important;
+    i { color: #ffffff !important; }
+  }
+}
+
+button.btn-success {
+  background-color: #EDF9F0 !important;
+  border: 1px solid #D1F0D9 !important;
+  color: #237844 !important;
+  font-weight: 600;
+
+  &:hover {
+    background-color: #237844 !important;
+    color: #ffffff !important;
+  }
+}
+
+.nav-pills .nav-link {
+  color: var(--bloom-muted, $bloom-text-muted) !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 8px 16px;
+
+  &:hover {
+    color: var(--bloom-900, $bloom-primary) !important;
+    background-color: var(--bloom-50, $bloom-bg-page);
+  }
+
+  &.active {
+    background-color: #F8CCD7 !important;
+    border: 1px solid #EAAAB9 !important;
+    color: $bloom-primary !important;
+  }
+}
+
+.badge {
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  padding: 5px 10px !important;
+  border-radius: 4px !important;
+  border: 1px solid transparent !important;
+
+  &.bg-info    { background-color: #E8F4FD !important; color: #1D6FA5 !important; border-color: #D0E7F9 !important; }
+  &.bg-warning { background-color: #FFF7E6 !important; color: #B76E00 !important; border-color: #FFE7BA !important; }
+  &.bg-primary { background-color: #FCEEF3 !important; color: $bloom-primary !important; border-color: #F8CCD7 !important; }
+  &.bg-success { background-color: #EDF9F0 !important; color: #237844 !important; border-color: #D1F0D9 !important; }
+  &.bg-danger  { background-color: #FFF1F0 !important; color: #CF1322 !important; border-color: #FFA39E !important; }
+  &.bg-secondary { background-color: #F5F5F5 !important; color: #595959 !important; border-color: #E8E8E8 !important; }
+}
+
+// ============================================================
+// 7. BẢNG DỮ LIỆU & PHÂN TRANG DÙNG CHUNG
+// ============================================================
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  border-color: var(--bloom-200, $bloom-border) !important;
+
+  thead th, thead.table-light th {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    color: var(--bloom-900, $bloom-primary) !important;
+    background-color: var(--bloom-50, $bloom-bg-soft) !important;
+    border-bottom: 1px solid var(--bloom-200, $bloom-border) !important;
+    white-space: nowrap;
+    padding: 12px 14px !important;
+  }
+
+  tbody td {
+    vertical-align: middle !important;
+    padding: 12px 14px !important;
+    border-color: var(--bloom-200, $bloom-border) !important;
+    font-size: 0.88rem !important;
+    color: var(--bloom-text, $bloom-text-main) !important;
+  }
+
+  tbody tr:hover {
+    background-color: var(--bloom-50, $bloom-bg-soft) !important;
+  }
+}
+
+.pagination {
+  .page-link {
+    color: var(--bloom-900, $bloom-primary);
+    background-color: #ffffff;
+    border-color: var(--bloom-200, $bloom-border);
+    font-size: 0.85rem;
+
+    &:hover {
+      color: #ffffff;
+      background-color: var(--bloom-800, $bloom-primary-hover);
+      border-color: var(--bloom-800, $bloom-primary-hover);
+    }
+  }
+
+  .page-item.active .page-link {
+    color: #ffffff !important;
+    background-color: var(--bloom-900, $bloom-primary) !important;
+    border-color: var(--bloom-900, $bloom-primary) !important;
+    font-weight: 700;
+  }
+}
+
+// ============================================================
+// 8. HỆ THỐNG POPUP / MODAL BLOOM GLASS DÙNG CHUNG
+// ============================================================
+.bloom-modal-backdrop,
+.modal-backdrop.show {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: rgba(43, 10, 20, 0.32) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  animation: bloomFadeIn 0.2s ease;
+}
+
+.bloom-modal-dialog,
+.modal-dialog .modal-content {
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 28px !important;
+  background: rgba(255, 252, 253, 0.96) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 24px 54px rgba(139, 22, 56, 0.16) !important;
+  overflow: hidden !important;
+  animation: bloomPopScale 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+
+  .bloom-modal-header,
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 28px 16px !important;
+    border-bottom: 1px solid #FFD6E3 !important;
+    background: transparent !important;
+
+    .modal-title {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-size: 1.4rem !important;
+      font-weight: 700 !important;
+      color: #8B1638 !important;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      i {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #FCE4EC;
+        color: #8B1638;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05rem;
+      }
+    }
+
+    .btn-close {
+      background-color: #FFF0F4;
+      border-radius: 50%;
+      padding: 10px;
+      opacity: 0.85;
+      transition: all 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+        background-color: #FFD6E3;
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .bloom-modal-body,
+  .modal-body {
+    padding: 22px 28px !important;
+    overflow-y: auto;
+
+    .form-control,
+    .form-select {
+      border-radius: 12px !important;
+      padding: 10px 14px !important;
+      border-color: #F3D1DC !important;
+    }
+  }
+
+  .bloom-modal-footer,
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px 24px !important;
+    border-top: 1px solid #FFD6E3 !important;
+    background: transparent !important;
+
+    [modal-footer] {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn,
+    button {
+      height: 42px;
+      border-radius: 999px !important;
+      padding: 0 24px !important;
+      font-size: 0.9rem !important;
+      font-weight: 600 !important;
+      text-transform: none !important;
+      letter-spacing: 0.2px !important;
+    }
+
+    .btn-outline-secondary,
+    .btn-secondary {
+      background: #ffffff !important;
+      border: 1px solid #F3D1DC !important;
+      color: #2B0A14 !important;
+
+      &:hover { background: #FFF0F4 !important; }
+    }
+  }
+}
+
+@keyframes bloomFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bloomPopScale {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}

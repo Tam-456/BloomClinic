@@ -1,0 +1,57 @@
+<section class="error-page">
+  <!-- Floating bloom line-art SVG -->
+  <div class="error-bg-art" aria-hidden="true">
+    <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Soft flower outline art -->
+      <g opacity="0.18" stroke="#D63A6A" stroke-width="1.5" fill="none">
+        <!-- Large bloom -->
+        <ellipse cx="200" cy="150" rx="30" ry="55" transform="rotate(0 200 200)"/>
+        <ellipse cx="200" cy="150" rx="30" ry="55" transform="rotate(60 200 200)"/>
+        <ellipse cx="200" cy="150" rx="30" ry="55" transform="rotate(120 200 200)"/>
+        <ellipse cx="200" cy="150" rx="30" ry="55" transform="rotate(180 200 200)"/>
+        <ellipse cx="200" cy="150" rx="30" ry="55" transform="rotate(240 200 200)"/>
+        <ellipse cx="200" cy="150" rx="30" ry="55" transform="rotate(300 200 200)"/>
+        <circle cx="200" cy="200" r="22"/>
+        <!-- Stem + leaf -->
+        <path d="M200 222 Q200 310 180 340" stroke-linecap="round"/>
+        <path d="M193 275 Q160 255 150 230" stroke-linecap="round"/>
+        <!-- Small bloom top-left -->
+        <ellipse cx="80" cy="80" rx="14" ry="26" transform="rotate(0 80 80)"/>
+        <ellipse cx="80" cy="80" rx="14" ry="26" transform="rotate(60 80 80)"/>
+        <ellipse cx="80" cy="80" rx="14" ry="26" transform="rotate(120 80 80)"/>
+        <ellipse cx="80" cy="80" rx="14" ry="26" transform="rotate(180 80 80)"/>
+        <ellipse cx="80" cy="80" rx="14" ry="26" transform="rotate(240 80 80)"/>
+        <ellipse cx="80" cy="80" rx="14" ry="26" transform="rotate(300 80 80)"/>
+        <circle cx="80" cy="80" r="10"/>
+        <!-- Small bloom bottom-right -->
+        <ellipse cx="330" cy="330" rx="18" ry="34" transform="rotate(30 330 330)"/>
+        <ellipse cx="330" cy="330" rx="18" ry="34" transform="rotate(90 330 330)"/>
+        <ellipse cx="330" cy="330" rx="18" ry="34" transform="rotate(150 330 330)"/>
+        <ellipse cx="330" cy="330" rx="18" ry="34" transform="rotate(210 330 330)"/>
+        <ellipse cx="330" cy="330" rx="18" ry="34" transform="rotate(270 330 330)"/>
+        <ellipse cx="330" cy="330" rx="18" ry="34" transform="rotate(330 330 330)"/>
+        <circle cx="330" cy="330" r="13"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="error-content">
+    <p class="error-label">Lỗi</p>
+    <h1 class="error-code">404</h1>
+    <h2 class="error-title">Ôi, trang không tìm thấy!</h2>
+    <p class="error-message">
+      Có vẻ như đường dẫn bạn truy cập không còn tồn tại hoặc đã được di chuyển.<br>
+      Hãy để Bloom dẫn bạn trở về nhé!
+    </p>
+    <div class="error-actions">
+      <a routerLink="/" class="btn-bloom">
+        <i class="bi bi-house-door-fill"></i>
+        Về trang chủ
+      </a>
+      <a routerLink="/policy" class="btn-bloom-outline">
+        <i class="bi bi-headset"></i>
+        Liên hệ
+      </a>
+    </div>
+  </div>
+</section>

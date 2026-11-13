@@ -1,0 +1,522 @@
+<div class="container-fluid py-4">
+  <!-- TIÊU ĐỀ TRANG -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Lịch Sử Hóa Đơn &amp; Thanh Toán</h4>
+    </div>
+    @if (viewMode() === 'detail') {
+      <button type="button" class="btn btn-outline-secondary fw-semibold btn-sm" (click)="backToList()">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách hóa đơn
+      </button>
+    }
+  </div>
+
+  <!-- THÔNG BÁO THÀNH CÔNG & LỖI -->
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2 mb-3" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage() }}
+      <button type="button" class="btn-close py-2" (click)="successMessage.set('')"></button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage() }}
+      <button type="button" class="btn-close py-2" (click)="errorMessage.set('')"></button>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- VIEW 1: BẢNG DANH SÁCH HÓA ĐƠN FULL PAGE   -->
+  <!-- ========================================== -->
+  @if (viewMode() === 'list') {
+    <div class="card">
+      <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0 fw-bold">
+          Danh Sách Hóa Đơn Của Bạn ({{ filteredInvoices().length }})
+        </h5>
+
+        <!-- BỘ LỌC TRẠNG THÁI THANH TOÁN -->
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-primary]="statusFilter() === 'all'"
+            [class.btn-outline-primary]="statusFilter() !== 'all'"
+            (click)="statusFilter.set('all')"
+          >
+            Tất cả ({{ invoices().length }})
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-primary]="statusFilter() === 'paid'"
+            [class.btn-outline-primary]="statusFilter() !== 'paid'"
+            (click)="statusFilter.set('paid')"
+          >
+            Đã thanh toán
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-primary]="statusFilter() === 'partially_paid'"
+            [class.btn-outline-primary]="statusFilter() !== 'partially_paid'"
+            (click)="statusFilter.set('partially_paid')"
+          >
+            Còn nợ lại
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="ps-3" style="width: 170px;">Mã Hóa Đơn</th>
+                <th style="width: 140px;">Ngày Lập</th>
+                <th>Khoản Mục Thanh Toán</th>
+                <th class="text-end" style="width: 160px;">Tổng Thực Trả</th>
+                <th class="text-center" style="width: 160px;">Tình Trạng Nợ</th>
+                <th class="text-center" style="width: 150px;">Trạng Thái</th>
+                <th class="text-end pe-4" style="width: 220px;">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of filteredInvoices(); track inv._id) {
+                <tr class="cursor-pointer" (click)="viewInvoiceDetail(inv)">
+                  <!-- Mã hóa đơn -->
+                  <td class="ps-3">
+                    <strong class="font-monospace text-muted d-block">{{ inv.invoiceCode }}</strong>
+                    <small class="text-muted">
+                      {{
+                        inv.paymentMethod === 'prepaid_wallet'
+                          ? 'Ví trả trước'
+                          : (inv.paymentMethod === 'banking' ? 'Chuyển khoản / Ví điện tử' : 'Tiền mặt')
+                      }}
+                    </small>
+                  </td>
+
+                  <!-- Ngày lập -->
+                  <td>
+                    <span>{{ inv.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </td>
+
+                  <!-- Khoản mục mua -->
+                  <td>
+                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                      @for (it of inv.items; track it.itemId) {
+                        <span class="badge bg-light text-dark border">
+                          {{ it.name }} (x{{ it.quantity }})
+                        </span>
+                      }
+                    </div>
+                  </td>
+
+                  <!-- Tổng tiền thanh toán -->
+                  <td class="text-end fw-bold price-highlight">
+                    {{ (inv.finalAmount || (inv.totalAmount - (inv.discountAmount || 0))) | number:'1.0-0' }} đ
+                  </td>
+
+                  <!-- Tình trạng nợ -->
+                  <td class="text-center">
+                    @if (inv.debtAmount > 0) {
+                      <span class="badge bg-danger">
+                        Nợ: {{ inv.debtAmount | number:'1.0-0' }} đ
+                      </span>
+                    } @else {
+                      <span class="badge bg-success">
+                        Hết nợ
+                      </span>
+                    }
+                  </td>
+
+                  <!-- Trạng thái -->
+                  <td class="text-center">
+                    @if (inv.debtAmount === 0 && (inv.status === 'paid' || inv.status === 'exported' || inv.status === 'normal')) {
+                      <span class="badge bg-success">Đã thanh toán</span>
+                    } @else if (inv.debtAmount > 0 || inv.status === 'partially_paid') {
+                      <span class="badge bg-danger">Còn công nợ</span>
+                    } @else {
+                      <span class="badge bg-secondary">Bản nháp</span>
+                    }
+                  </td>
+
+                  <!-- Cột thao tác: Thanh toán (nếu còn nợ) + Chi tiết -->
+                  <td class="text-end pe-4 text-nowrap" (click)="$event.stopPropagation()">
+                    @if (inv.debtAmount > 0) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-primary me-1"
+                        (click)="openPaymentModal(inv, $event)"
+                      >
+                        <i class="bi bi-credit-card me-1"></i>Thanh toán
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary fw-semibold"
+                      (click)="viewInvoiceDetail(inv)"
+                    >
+                      Chi Tiết →
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-receipt fs-1 d-block mb-2 opacity-50"></i>
+                    <div class="fw-semibold">Bạn chưa có hóa đơn giao dịch nào trong danh mục đã chọn.</div>
+                    <small>Mọi giao dịch thanh toán khám, mua thuốc và liệu trình sẽ được lưu tại đây.</small>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- VIEW 2: CHI TIẾT HÓA ĐƠN ĐƯỢC CHỌN (FULL)  -->
+  <!-- ========================================== -->
+  @if (viewMode() === 'detail' && selectedInvoice()) {
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-9">
+        <div class="card">
+          <!-- HEADER PHIẾU THU -->
+          <div
+            class="card-header py-3 px-4 d-flex justify-content-between align-items-center"
+            style="background-color: var(--bloom-50, #FFF0F4) !important;"
+          >
+            <div>
+              <h5 class="mb-0 fw-bold">Chi Tiết Hóa Đơn</h5>
+              <small class="text-muted">Phòng khám chuyên khoa Da liễu &amp; Thẩm mỹ Bloom Beauty</small>
+            </div>
+            <span class="badge bg-primary font-monospace fs-6 px-3 py-2">
+              {{ selectedInvoice()?.invoiceCode }}
+            </span>
+          </div>
+
+          <div class="card-body p-4">
+            <!-- THÔNG TIN CHUNG KHÁCH HÀNG & PHÒNG KHÁM -->
+            <div class="row g-3 border-bottom pb-3 mb-4">
+              <div class="col-md-6">
+                <span class="text-muted small d-block">Họ tên khách hàng:</span>
+                <strong class="text-dark fs-6">{{ selectedInvoice()?.customerName }}</strong>
+                <small class="text-muted d-block mt-1">
+                  Mã khách hàng: #{{ selectedInvoice()?.customerId?.slice(-6) || 'KH-001' }}
+                </small>
+              </div>
+              <div class="col-md-6 text-md-end">
+                <span class="text-muted small d-block">Thời điểm xuất hóa đơn:</span>
+                <strong class="text-dark">{{ selectedInvoice()?.createdAt | date:'dd/MM/yyyy' }}</strong>
+                <div class="mt-1">
+                  @if ((selectedInvoice()?.debtAmount || 0) === 0) {
+                    <span class="badge bg-success">Đã tất toán</span>
+                  } @else {
+                    <span class="badge bg-danger">Còn công nợ</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- BẢNG CHI TIẾT DỊCH VỤ / SẢN PHẨM -->
+            <h6 class="fw-bold mb-3">Danh sách dịch vụ &amp; sản phẩm đã mua:</h6>
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;" class="text-center">STT</th>
+                    <th>Tên Mặt Hàng / Quy Cách</th>
+                    <th class="text-center" style="width: 120px;">Phân Loại</th>
+                    <th class="text-center" style="width: 80px;">SL</th>
+                    <th class="text-end" style="width: 150px;">Đơn Giá</th>
+                    <th class="text-end" style="width: 160px;">Thành Tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (it of selectedInvoice()?.items; track it.itemId; let idx = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ idx + 1 }}</td>
+                      <td>
+                        <strong class="text-dark d-block">{{ it.name }}</strong>
+                      </td>
+                      <td class="text-center">
+                        <span
+                          class="badge"
+                          [class.bg-info]="it.type === 'service'"
+                          [class.bg-success]="it.type === 'product'"
+                        >
+                          {{ it.type === 'service' ? 'Dịch vụ' : 'Sản phẩm' }}
+                        </span>
+                      </td>
+                      <td class="text-center fw-semibold">{{ it.quantity }}</td>
+                      <td class="text-end text-muted">{{ it.unitPrice | number:'1.0-0' }} đ</td>
+                      <td class="text-end fw-bold text-dark">{{ it.amount | number:'1.0-0' }} đ</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- TỔNG HỢP THANH TOÁN -->
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="p-3 rounded border h-100" style="background-color: var(--bloom-50, #FFF0F4);">
+                  <h6 class="small fw-bold mb-2">Phương thức thanh toán:</h6>
+                  <div class="mb-2">
+                    <span class="badge bg-primary px-3 py-2">
+                      @if (selectedInvoice()?.paymentMethod === 'prepaid_wallet') {
+                        Trừ vào Ví Trả Trước
+                      } @else if (selectedInvoice()?.paymentMethod === 'banking') {
+                        Chuyển khoản ngân hàng / Ví điện tử
+                      } @else if (selectedInvoice()?.paymentMethod === 'card') {
+                        Quẹt thẻ máy POS
+                      } @else {
+                        Tiền mặt tại quầy
+                      }
+                    </span>
+                  </div>
+                  <small class="text-muted d-block">
+                    * Hóa đơn điện tử có giá trị lưu vết giao dịch tại hệ thống phòng khám Bloom Beauty &amp; Wellness.
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="border rounded p-3 bg-white h-100">
+                  <div class="d-flex justify-content-between py-1 small">
+                    <span class="text-muted">Tổng giá trị đơn hàng:</span>
+                    <strong>{{ selectedInvoice()?.totalAmount | number:'1.0-0' }} đ</strong>
+                  </div>
+
+                  @if ((selectedInvoice()?.discountAmount || 0) > 0) {
+                    <div class="d-flex justify-content-between py-1 small text-success">
+                      <span>Chiết khấu ưu đãi / Hạng thẻ:</span>
+                      <strong>-{{ selectedInvoice()?.discountAmount | number:'1.0-0' }} đ</strong>
+                    </div>
+                  }
+
+                  @if ((selectedInvoice()?.depositDeduction || 0) > 0) {
+                    <div class="d-flex justify-content-between py-1 small price-highlight">
+                      <span>Cấn trừ tiền cọc giữ chỗ:</span>
+                      <strong>-{{ selectedInvoice()?.depositDeduction | number:'1.0-0' }} đ</strong>
+                    </div>
+                  }
+
+                  <div class="d-flex justify-content-between align-items-center py-2 border-top border-bottom my-2 price-highlight">
+                    <span class="fw-bold fs-6">Tổng khách cần trả:</span>
+                    <h5 class="fw-bold mb-0">
+                      {{ (selectedInvoice()?.finalAmount || (selectedInvoice()!.totalAmount - (selectedInvoice()?.discountAmount || 0))) | number:'1.0-0' }} đ
+                    </h5>
+                  </div>
+
+                  <div class="d-flex justify-content-between py-1 small">
+                    <span class="text-muted">Đã thanh toán thực tế:</span>
+                    <strong class="text-success">{{ selectedInvoice()?.paidAmount | number:'1.0-0' }} đ</strong>
+                  </div>
+
+                  @if (selectedInvoice()!.debtAmount > 0) {
+                    <div class="d-flex justify-content-between py-1 small text-danger fw-bold border-top mt-1 pt-1">
+                      <span>Số tiền còn nợ lại:</span>
+                      <span>{{ selectedInvoice()?.debtAmount | number:'1.0-0' }} đ</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- BẢNG CHI TIẾT CÁC ĐỢT THANH TOÁN / THU CÔNG NỢ -->
+            @if (selectedInvoice()?.paymentHistory?.length) {
+              <div class="mt-4 pt-3 border-top">
+                <h6 class="fw-bold mb-3">
+                  <i class="bi bi-clock-history me-1"></i>Chi Tiết Các Đợt Thanh Toán Công Nợ:
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-bordered align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th style="width: 60px;" class="text-center">Đợt</th>
+                        <th style="width: 180px;">Ngày Giờ Thanh Toán</th>
+                        <th>Kênh Giao Dịch</th>
+                        <th class="text-center" style="width: 210px;">Phương Thức</th>
+                        <th class="text-end" style="width: 160px;">Số Tiền Thanh Toán</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (log of selectedInvoice()?.paymentHistory; track $index; let i = $index) {
+                        <tr>
+                          <td class="text-center text-muted fw-semibold">{{ i + 1 }}</td>
+                          <td class="fw-bold text-dark">{{ log.paidAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                          <td>{{ log.channel || 'Thanh toán trực tuyến' }}</td>
+                          <td class="text-center">
+                            <span class="badge bg-primary">
+                              {{ log.paymentMethod === 'banking' ? 'Chuyển khoản / Ví điện tử' : 'Tiền mặt tại quầy' }}
+                            </span>
+                          </td>
+                          <td class="text-end fw-bold text-success">+{{ log.amount | number:'1.0-0' }} đ</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+
+            <!-- NÚT QUAY LẠI & THANH TOÁN NỢ -->
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" (click)="backToList()">
+                ← Trở lại danh sách hóa đơn
+              </button>
+              @if (selectedInvoice()!.debtAmount > 0) {
+                <button type="button" class="btn btn-primary px-4" (click)="openPaymentModal(selectedInvoice()!)">
+                  <i class="bi bi-credit-card me-1"></i> Thanh Toán Công Nợ Ngay
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ================= POPUP THANH TOÁN CÔNG NỢ (TECHCOMBANK / MOMO) ================= -->
+<app-bloom-modal
+  [isOpen]="isPaymentModalOpen() && !!selectedDebtInvoice()"
+  [title]="'Thanh Toán Công Nợ [' + (selectedDebtInvoice()?.invoiceCode || '') + ']'"
+  icon="bi-credit-card-2-front"
+  maxWidth="500px"
+  (close)="closePaymentModal()"
+>
+  <div modal-body>
+    <!-- BƯỚC 1: CHỌN PHƯƠNG THỨC THANH TOÁN -->
+    @if (paymentStep() === 'select') {
+      <div
+        class="p-3 rounded border mb-4"
+        style="background-color: var(--bloom-50, #FFF0F4); border-color: var(--bloom-200, #FFD6E3) !important;"
+      >
+        <div class="d-flex justify-content-between small text-muted mb-1">
+          <span>Mã hóa đơn tất toán:</span>
+          <strong class="font-monospace text-dark">{{ selectedDebtInvoice()?.invoiceCode }}</strong>
+        </div>
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          <span class="fw-bold text-dark">Số tiền cần thanh toán:</span>
+          <span class="fs-5 fw-bold text-danger">{{ selectedDebtInvoice()?.debtAmount | number:'1.0-0' }} đ</span>
+        </div>
+      </div>
+
+      <label class="form-label mb-3">Chọn phương thức thanh toán trực tuyến:</label>
+
+      <div class="d-flex flex-column gap-3">
+        <!-- Nút Ngân hàng Techcombank -->
+        <button
+          type="button"
+          class="btn w-100 p-3 d-flex align-items-center justify-content-between border rounded-4 bg-white text-start shadow-sm"
+          style="border-color: #FFD6E3 !important; height: auto;"
+          (click)="proceedToGateway('techcombank')"
+        >
+          <div class="d-flex align-items-center gap-3">
+            <div
+              class="rounded-3 d-flex align-items-center justify-content-center fw-bold text-white"
+              style="width: 44px; height: 44px; background: #E31837;"
+            >
+              TCB
+            </div>
+            <div>
+              <div class="fw-bold text-dark">Ngân hàng Techcombank</div>
+              <small class="text-muted">Chuyển sang ứng dụng Techcombank Mobile</small>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </button>
+
+        <!-- Nút Ví MoMo -->
+        <button
+          type="button"
+          class="btn w-100 p-3 d-flex align-items-center justify-content-between border rounded-4 bg-white text-start shadow-sm"
+          style="border-color: #FFD6E3 !important; height: auto;"
+          (click)="proceedToGateway('momo')"
+        >
+          <div class="d-flex align-items-center gap-3">
+            <div
+              class="rounded-3 d-flex align-items-center justify-content-center fw-bold text-white"
+              style="width: 44px; height: 44px; background: #A50064;"
+            >
+              MoMo
+            </div>
+            <div>
+              <div class="fw-bold text-dark">Ví điện tử MoMo</div>
+              <small class="text-muted">Chuyển sang ứng dụng Ví MoMo</small>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </button>
+      </div>
+    }
+
+    <!-- BƯỚC 2: GIẢ LẬP CHUYỂN SANG ỨNG DỤNG NGÂN HÀNG / VÍ -->
+    @if (paymentStep() === 'gateway') {
+      <div class="text-center py-3">
+        <div
+          class="mx-auto mb-3 rounded-4 d-flex align-items-center justify-content-center fw-bold text-white fs-4 shadow"
+          [style.background]="selectedGateway() === 'momo' ? '#A50064' : '#E31837'"
+          style="width: 68px; height: 68px;"
+        >
+          {{ selectedGateway() === 'momo' ? 'MoMo' : 'TCB' }}
+        </div>
+
+        <h5 class="fw-bold mb-2">
+          {{ selectedGateway() === 'momo' ? 'Ứng Dụng Ví MoMo' : 'Ứng Dụng Techcombank Mobile' }}
+        </h5>
+        <p class="text-muted small mb-3">
+          Đang thực hiện chuyển khoản <strong>{{ selectedDebtInvoice()?.debtAmount | number:'1.0-0' }} đ</strong> cho hóa đơn <strong>{{ selectedDebtInvoice()?.invoiceCode }}</strong>.
+        </p>
+
+        <div class="p-3 rounded-3 border bg-light mb-3 small text-start">
+          <div><strong>Đơn vị thụ hưởng:</strong> BLOOM BEAUTY &amp; WELLNESS</div>
+          <div><strong>Nội dung CK:</strong> THANHTOAN {{ selectedDebtInvoice()?.invoiceCode }}</div>
+          <div><strong>Số tiền:</strong> <span class="text-danger fw-bold">{{ selectedDebtInvoice()?.debtAmount | number:'1.0-0' }} đ</span></div>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary w-100"
+          [disabled]="isProcessingPayment()"
+          (click)="confirmSimulatedPayment()"
+        >
+          <i class="bi bi-check-circle me-1"></i>
+          {{ isProcessingPayment() ? 'Đang xử lý giao dịch...' : 'Hoàn Tất Thanh Toán Trên Ứng Dụng' }}
+        </button>
+      </div>
+    }
+
+    <!-- BƯỚC 3: XÁC NHẬN THÀNH CÔNG -->
+    @if (paymentStep() === 'success') {
+      <div class="text-center py-4">
+        <div
+          class="mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 64px; height: 64px; background: #EDF9F0; color: #237844; font-size: 2rem;"
+        >
+          <i class="bi bi-check-lg"></i>
+        </div>
+        <h4 class="fw-bold mb-2">Thanh Toán Thành Công!</h4>
+        <p class="text-muted small mb-0">
+          Hóa đơn <strong>{{ selectedDebtInvoice()?.invoiceCode }}</strong> đã được tất toán 0 đ công nợ và đồng bộ với quầy POS phòng khám.
+        </p>
+      </div>
+    }
+  </div>
+
+  <div modal-footer>
+    @if (paymentStep() === 'select') {
+      <button type="button" class="btn btn-outline-secondary" (click)="closePaymentModal()">Đóng</button>
+    } @else if (paymentStep() === 'gateway') {
+      <button type="button" class="btn btn-outline-secondary" (click)="paymentStep.set('select')">Quay lại</button>
+    } @else {
+      <button type="button" class="btn btn-primary" (click)="closePaymentModal()">Hoàn Tất</button>
+    }
+  </div>
+</app-bloom-modal>

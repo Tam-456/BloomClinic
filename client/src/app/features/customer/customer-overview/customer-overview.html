@@ -1,0 +1,207 @@
+<div class="container-fluid py-4">
+  <!-- TIÊU ĐỀ CHÀO MỪNG -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold mb-1">Xin chào, {{ currentUser()?.fullName || 'Khách hàng' }}!</h3>
+      <p class="text-muted mb-0">Chào mừng bạn quay trở lại với Bloom Beauty &amp; Wellness</p>
+    </div>
+    <a routerLink="/customer/bookings" class="btn btn-primary d-flex align-items-center gap-2">
+      <i class="bi bi-plus-circle"></i>
+      <span>Đặt Lịch Hẹn Mới</span>
+    </a>
+  </div>
+
+  <!-- HÀNG 1: 3 THẺ KPI ĐỒNG BỘ PHONG CÁCH ADMIN -->
+  <div class="row g-3 mb-4">
+    <!-- Thẻ 1: Hạng Thành Viên & Tổng Chi Tiêu -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 bloom-kpi-card" routerLink="/customer/account" role="button" tabindex="0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <small class="text-muted fw-semibold">Hạng Thành Viên</small>
+            <span class="badge bg-warning">{{ currentUser()?.membershipTier || 'Standard' }}</span>
+          </div>
+          <h3 class="fw-bold mb-2 price-highlight">
+            {{ totalSpent() | number:'1.0-0' }} đ
+          </h3>
+          <small class="text-muted">
+            <i class="bi bi-award me-1"></i>
+            Tổng tích lũy chi tiêu tính đến hiện tại
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thẻ 2: Số Dư Ví Trả Trước -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 bloom-kpi-card" routerLink="/customer/invoices" role="button" tabindex="0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <small class="text-muted fw-semibold">Số Dư Ví Trả Trước</small>
+            <i class="bi bi-wallet2 fs-4 price-highlight"></i>
+          </div>
+          <h3 class="fw-bold mb-2 price-highlight">
+            {{ (currentUser()?.prepaidBalance || 0) | number:'1.0-0' }} đ
+          </h3>
+          <small class="text-muted">
+            <i class="bi bi-credit-card me-1"></i>
+            Sử dụng thanh toán trực tiếp tại quầy POS
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thẻ 3: Gói Liệu Trình Đang Thực Hiện -->
+    <div class="col-md-12 col-lg-4">
+      <div class="card h-100 bloom-kpi-card" routerLink="/customer/treatments" role="button" tabindex="0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <small class="text-muted fw-semibold">Gói Liệu Trình Đang Thực Hiện</small>
+            <i class="bi bi-heart-pulse fs-4 price-highlight"></i>
+          </div>
+          <h3 class="fw-bold mb-2 price-highlight">
+            {{ activeTreatments().length }} gói
+          </h3>
+          <small class="text-muted">
+            <i class="bi bi-arrow-up-right me-1"></i>
+            Xem chi tiết các buổi còn lại
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HÀNG 2: CẢNH BÁO CÔNG NỢ HÓA ĐƠN ĐẾN HẠN & QUÁ HẠN -->
+  @if (debtInvoices().length > 0) {
+    <div class="card mb-4">
+      <div class="card-header py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h5 class="fw-bold mb-0 text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>Cảnh Báo Công Nợ Hóa Đơn Đến Hạn &amp; Quá Hạn
+        </h5>
+        <span class="badge bg-danger">
+          Cần xử lý: {{ debtInvoices().length }} đơn
+        </span>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="ps-3">Mã Hóa Đơn</th>
+                <th>Ngày Lập</th>
+                <th class="text-end">Tổng Hóa Đơn</th>
+                <th class="text-end">Đã Thanh Toán</th>
+                <th class="text-end">Còn Nợ</th>
+                <th class="text-center">Tình Trạng Hạn Nợ</th>
+                <th class="text-end pe-3">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of debtInvoices(); track inv._id) {
+                <tr [class.urgent-debt-row]="isDueOrOverdue(inv)">
+                  <td class="ps-3 fw-bold text-muted font-monospace">{{ inv.invoiceCode }}</td>
+                  <td>{{ inv.createdAt | date:'dd/MM/yyyy' }}</td>
+                  <td class="text-end text-muted">{{ (inv.finalAmount || inv.totalAmount) | number:'1.0-0' }} đ</td>
+                  <td class="text-end text-muted">{{ inv.paidAmount | number:'1.0-0' }} đ</td>
+                  <td class="text-end fw-bold text-danger fs-6">{{ inv.debtAmount | number:'1.0-0' }} đ</td>
+                  <td class="text-center">
+                    @if (isDueOrOverdue(inv)) {
+                      <span class="badge bg-danger">Đến hạn / Quá hạn</span>
+                      @if ($any(inv).dueDate) {
+                        <small class="d-block text-danger mt-1 fw-semibold">
+                          Hạn: {{ $any(inv).dueDate | date:'dd/MM/yyyy' }}
+                        </small>
+                      }
+                    } @else {
+                      <span class="badge bg-warning">Chưa đến hạn</span>
+                      @if ($any(inv).dueDate) {
+                        <small class="d-block text-muted mt-1">
+                          Hạn: {{ $any(inv).dueDate | date:'dd/MM/yyyy' }}
+                        </small>
+                      }
+                    }
+                  </td>
+                  <td class="text-end pe-3">
+                    <a routerLink="/customer/invoices" class="btn btn-sm btn-primary">
+                      <i class="bi bi-arrow-right-circle me-1"></i>Đến thanh toán
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- HÀNG 3: LỊCH HẸN SẮP TỚI (ĐÃ XÓA BUTTON BÊN TRONG) -->
+  <div class="card mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0">Lịch Hẹn Sắp Tới</h5>
+      <a routerLink="/customer/bookings" class="small fw-semibold price-highlight">
+        Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="card-body">
+      @if (upcomingBooking()) {
+        <div class="p-3 rounded border" style="background-color: var(--bloom-50, #FFF0F4); border-color: var(--bloom-200, #FFD6E3) !important;">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-primary font-monospace">{{ upcomingBooking()?.bookingCode }}</span>
+            <span class="badge bg-success">
+              {{ upcomingBooking()?.status === 'confirmed' ? 'Đã xác nhận' : 'Chờ xác nhận' }}
+            </span>
+          </div>
+          <h6 class="fw-bold mb-1" style="color: var(--bloom-900, #8B1638);">Khám &amp; Điều trị da chuyên sâu</h6>
+          <p class="text-muted small mb-1">
+            <i class="bi bi-calendar-event me-1"></i>
+            <strong>{{ upcomingBooking()?.appointmentDate }}</strong> vào lúc <strong>{{ upcomingBooking()?.appointmentTime }}</strong>
+          </p>
+          @if (upcomingBooking()?.note) {
+            <small class="text-muted d-block fst-italic">Ghi chú: {{ upcomingBooking()?.note }}</small>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-calendar-x fs-3 d-block mb-2"></i>
+          <p class="mb-0 small">Bạn không có lịch hẹn nào sắp tới.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- HÀNG 4: GÓI LIỆU TRÌNH CỦA BẠN -->
+  <div class="card">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0">Gói Trị Liệu Của Bạn</h5>
+      <a routerLink="/customer/treatments" class="small fw-semibold price-highlight">
+        Chi tiết <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="card-body">
+      @for (item of activeTreatments(); track item.treatmentId) {
+        <div class="mb-3 pb-3 border-bottom last-border-none">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <strong class="text-dark">{{ item.treatmentName }}</strong>
+            <span class="badge bg-primary">Còn {{ item.remainingSessions }} buổi</span>
+          </div>
+          <div class="progress my-2" style="height: 6px; background-color: var(--bloom-50, #FFF0F4);">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="background: linear-gradient(135deg, #8B1638 0%, #D63A6A 100%);"
+              [style.width.%]="(item.usedSessions / item.totalSessions) * 100"
+            ></div>
+          </div>
+          <small class="text-muted">Đã làm: {{ item.usedSessions }} / {{ item.totalSessions }} buổi</small>
+        </div>
+      } @empty {
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+          <span class="small">Bạn chưa đăng ký gói liệu trình nào.</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

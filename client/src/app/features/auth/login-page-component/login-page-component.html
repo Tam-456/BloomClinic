@@ -1,0 +1,61 @@
+<main class="auth-shell">
+    <aside class="brand-panel" aria-label="Bloom Beauty & Wellness">
+        <div class="brand-content">
+            <a class="brand-mark" routerLink="/" aria-label="Bloom trang chủ"><span class="brand-icon"><i class="bi bi-flower1"></i></span><span>BLOOM</span></a>
+            <div class="brand-copy"><span class="eyebrow">BEAUTY & WELLNESS</span><h1>Vẻ đẹp từ gốc.</h1><p>Chăm sóc làn da, nuôi dưỡng sự tự tin — bắt đầu từ những điều dịu dàng nhất.</p></div>
+            <div class="line-art art-one" aria-hidden="true"><i class="bi bi-flower3"></i></div>
+            <div class="line-art art-two" aria-hidden="true"><i class="bi bi-flower1"></i></div>
+            <span class="brand-footnote">CHĂM SÓC BẰNG SỰ THẤU HIỂU</span>
+        </div>
+    </aside>
+    <section class="form-side">
+        <div class="auth-card">
+            <div class="mobile-brand"><i class="bi bi-flower1"></i> BLOOM</div>
+            <header class="form-heading"><span class="eyebrow">CHÀO MỪNG TRỞ LẠI</span><h2>Đăng nhập</h2><p>Đăng nhập để tiếp tục hành trình chăm sóc bản thân.</p></header>
+
+            @if (justRegistered) {
+            <div class="notice-toast" role="status"><i class="bi bi-check-circle-fill"></i><span>Đăng ký thành công! Vui lòng đăng nhập.</span></div>
+            }
+
+            <form #loginForm="ngForm" (ngSubmit)="onLogin()" novalidate [hidden]="showForgotFlow">
+                <div class="field-group">
+                    <label for="username">Số điện thoại hoặc email</label>
+                    <div class="input-wrap"><i class="bi bi-person input-icon"></i><input id="username" type="text" name="username" [(ngModel)]="model.username" #username="ngModel" required autocomplete="username" placeholder="Nhập số điện thoại hoặc email" [class.is-invalid]="username.invalid && username.touched" [attr.aria-invalid]="username.invalid && username.touched"><span class="field-check" *ngIf="username.valid && username.touched"><i class="bi bi-check-circle-fill"></i></span></div>
+                    @if (username.invalid && username.touched) { <small class="field-error"><i class="bi bi-exclamation-circle"></i> Vui lòng nhập tài khoản.</small> }
+                </div>
+                <div class="field-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrap"><i class="bi bi-lock input-icon"></i><input id="password" [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="model.password" #password="ngModel" required autocomplete="current-password" placeholder="Nhập mật khẩu" [class.is-invalid]="password.invalid && password.touched" [attr.aria-invalid]="password.invalid && password.touched"><button class="visibility-toggle" type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"><i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i></button></div>
+                    @if (password.invalid && password.touched) { <small class="field-error"><i class="bi bi-exclamation-circle"></i> Vui lòng nhập mật khẩu.</small> }
+                </div>
+                <div class="form-options"><label class="remember-option"><input id="rememberMe" type="checkbox" name="rememberMe" [(ngModel)]="model.rememberMe"><span class="custom-check"><i class="bi bi-check"></i></span><span>Ghi nhớ đăng nhập (7 ngày)</span></label><button class="forgot-link" type="button" (click)="showForgotFlow = true">Quên mật khẩu?</button></div>
+                @if (errMessage()) { <div class="error-toast" role="alert"><i class="bi bi-exclamation-triangle-fill"></i><span>{{ errMessage() }}</span></div> }
+                <button class="submit-button" type="submit" [disabled]="loginForm.invalid || loading()"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" *ngIf="loading()"></span><i class="bi bi-arrow-right" *ngIf="!loading()"></i>{{ loading() ? 'Đang xử lý...' : 'Đăng nhập' }}</button>
+            </form>
+            @if (showForgotFlow) {
+            <section class="reset-panel" aria-labelledby="reset-title">
+                <button class="reset-back" type="button" (click)="closeForgotFlow()"><i class="bi bi-arrow-left"></i> Quay lại đăng nhập</button>
+                <header class="form-heading reset-heading"><span class="eyebrow">KHÔI PHỤC TÀI KHOẢN</span><h2 id="reset-title">Quên mật khẩu?</h2><p>Nhận mã xác minh 6 số qua Zalo theo số điện thoại đã đăng ký.</p></header>
+                @if (resetComplete) {
+                <div class="notice-toast" role="status"><i class="bi bi-check-circle-fill"></i><span>{{ resetMessage }}</span></div>
+                <button class="submit-button" type="button" (click)="closeForgotFlow()">Đến trang đăng nhập <i class="bi bi-arrow-right"></i></button>
+                } @else {
+                @if (!resetStep) {
+                <div class="field-group"><label for="resetPhone">Số điện thoại</label><div class="input-wrap"><i class="bi bi-telephone input-icon"></i><input id="resetPhone" type="tel" [(ngModel)]="resetPhone" [ngModelOptions]="{standalone: true}" autocomplete="tel" placeholder="Số điện thoại đã đăng ký"></div></div>
+                } @else {
+                @if (resetMessage) { <div class="notice-toast" role="status"><i class="bi bi-chat-dots-fill"></i><span>{{ resetMessage }}</span></div> }
+                <div class="field-group"><label for="resetCode">Mã OTP</label><div class="input-wrap"><i class="bi bi-shield-check input-icon"></i><input id="resetCode" type="text" inputmode="numeric" maxlength="6" [(ngModel)]="resetCode" [ngModelOptions]="{standalone: true}" autocomplete="one-time-code" placeholder="Nhập mã 6 chữ số"></div></div>
+                <div class="field-group"><label for="resetPassword">Mật khẩu mới</label><div class="input-wrap"><i class="bi bi-lock input-icon"></i><input id="resetPassword" type="password" [(ngModel)]="resetPassword" [ngModelOptions]="{standalone: true}" autocomplete="new-password" placeholder="Tối thiểu 6 ký tự"></div></div>
+                <div class="field-group"><label for="resetPasswordConfirm">Nhập lại mật khẩu mới</label><div class="input-wrap"><i class="bi bi-shield-lock input-icon"></i><input id="resetPasswordConfirm" type="password" [(ngModel)]="resetPasswordConfirm" [ngModelOptions]="{standalone: true}" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></div></div>
+                }
+                @if (resetError) { <div class="error-toast" role="alert"><i class="bi bi-exclamation-triangle-fill"></i><span>{{ resetError }}</span></div> }
+                @if (!resetStep) { <button class="submit-button" type="button" [disabled]="resetLoading" (click)="requestResetCode()"><span class="spinner-border spinner-border-sm" *ngIf="resetLoading"></span>{{ resetLoading ? 'Đang gửi mã...' : 'Gửi mã OTP' }}</button> }
+                @else { <button class="submit-button" type="button" [disabled]="resetLoading" (click)="completePasswordReset()"><span class="spinner-border spinner-border-sm" *ngIf="resetLoading"></span>{{ resetLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu' }}</button><button class="resend-code" type="button" (click)="resetStep = false; resetError = ''; resetMessage = ''">Gửi mã khác</button> }
+                }
+            </section>
+            }
+            <p class="auth-switch" [hidden]="showForgotFlow">Chưa có tài khoản? <a routerLink="/register">Đăng ký ngay</a></p>
+            <div class="secure-note"><i class="bi bi-shield-lock"></i> Thông tin của bạn luôn được bảo mật</div>
+        </div>
+    </section>
+</main>

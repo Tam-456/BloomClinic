@@ -1,0 +1,260 @@
+/* ================================
+   ADMIN OPERATIONS & KPI CARDS
+================================ */
+.price-highlight {
+  color: var(--bloom-900, #8B1638) !important;
+}
+
+.revenue-kpi {
+  cursor: pointer;
+  background-color: #ffffff !important;
+  border: 1px solid var(--bloom-200) !important;
+  border-radius: 4px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--bloom-900) !important;
+    box-shadow: 0 4px 14px rgba(139, 22, 56, 0.08) !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bloom-900);
+    outline-offset: 2px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--bloom-900);
+  }
+}
+
+/* ================================
+   REVENUE & SPENDING MODAL
+================================ */
+
+.revenue-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(43, 10, 20, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.revenue-dialog {
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(139, 22, 56, 0.12);
+}
+
+/* Header Modal */
+.revenue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--bloom-200);
+
+  .modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--bloom-900);
+    font-weight: 600;
+  }
+}
+
+/* Bộ lọc Doanh thu */
+.revenue-filter {
+  padding: 16px 20px;
+  background: var(--bloom-50);
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+
+  .form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bloom-900);
+    letter-spacing: 0.4px;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid var(--bloom-200);
+    border-radius: 4px;
+    font-size: 0.88rem;
+
+    &:focus {
+      border-color: var(--bloom-900);
+      box-shadow: 0 0 0 2px rgba(139, 22, 56, 0.15);
+    }
+  }
+
+  .btn {
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+/* Thẻ tổng kết tóm tắt */
+.revenue-summary-card {
+  height: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  background: #ffffff;
+
+  small {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    color: var(--bloom-muted);
+    font-weight: 500;
+  }
+
+  h5 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+  }
+}
+
+/* Khung Biểu đồ */
+.revenue-chart-card {
+  padding: 20px;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  background: #ffffff;
+
+  h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--bloom-900);
+    font-weight: 600;
+  }
+}
+
+.revenue-chart-container {
+  position: relative;
+  width: 100%;
+  height: 340px;
+}
+
+.chart-note {
+  line-height: 1.5;
+  color: var(--bloom-muted);
+}
+
+/* Bảng Chi tiết Doanh thu */
+.revenue-table-card {
+  padding: 20px;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  background: #ffffff;
+
+  .table {
+    font-size: 0.88rem;
+    border-color: var(--bloom-200);
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-color: var(--bloom-200);
+    }
+
+    thead th {
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--bloom-900);
+      background-color: var(--bloom-50) !important;
+    }
+  }
+}
+
+/* Footer Modal */
+.revenue-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid var(--bloom-200);
+}
+
+/* ================================
+   BẢNG TIỀN CỌC & CÔNG NỢ
+================================ */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.deposit-debt-table {
+  thead th {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bloom-900);
+    background-color: var(--bloom-50) !important;
+    border-bottom: 1px solid var(--bloom-200);
+    white-space: nowrap;
+    padding: 12px 10px;
+  }
+
+  tbody td {
+    vertical-align: middle;
+    padding: 12px 10px;
+    border-color: var(--bloom-200);
+    font-size: 0.88rem;
+    color: var(--bloom-text);
+  }
+
+  tbody tr:hover {
+    background-color: var(--bloom-50) !important;
+  }
+}
+
+.urgent-debt-row:hover {
+  background-color: #fff5f5 !important;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+  .revenue-backdrop {
+    padding: 10px;
+  }
+
+  .revenue-header,
+  .revenue-filter {
+    padding: 14px;
+  }
+
+  .revenue-chart-card,
+  .revenue-table-card {
+    padding: 14px;
+  }
+
+  .revenue-chart-container {
+    height: 260px;
+  }
+
+  .revenue-table-card .table {
+    font-size: 0.8rem;
+  }
+}

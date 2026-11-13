@@ -1,0 +1,68 @@
+<div class="admin-wrapper" [class.collapsed]="isSidebarCollapsed()">
+  <!-- SIDEBAR ADMIN CỐ ĐỊNH (FIXED) -->
+  <aside class="admin-sidebar">
+    <!-- NÚT ĐÓNG / MỞ SIDEBAR TRÊN CÙNG -->
+    <div class="sidebar-toggle-header">
+      <button class="btn-toggle-sidebar" (click)="toggleSidebar()" [title]="isSidebarCollapsed() ? 'Mở rộng menu' : 'Thu gọn menu'">
+        <i class="bi" [class.bi-text-indent-left]="!isSidebarCollapsed()" [class.bi-text-indent-right]="isSidebarCollapsed()"></i>
+      </button>
+    </div>
+
+    <!-- DANH SÁCH MENU QUẢN TRỊ -->
+    <ul class="admin-menu">
+      <li class="menu-item">
+        <a routerLink="/admin/operations" routerLinkActive="active" class="menu-link" title="Trung tâm điều hành">
+          <i class="bi bi-speedometer2"></i>
+          <span class="link-text">Điều hành</span>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a routerLink="/admin/pos" routerLinkActive="active" class="menu-link" title="Quầy thu ngân POS">
+          <i class="bi bi-calculator"></i>
+          <span class="link-text">Quầy thu ngân POS</span>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a routerLink="/admin/bookings" routerLinkActive="active" class="menu-link" title="Quản lý đặt hẹn">
+          <i class="bi bi-calendar-check"></i>
+          <span class="link-text">Quản lý đặt hẹn</span>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a routerLink="/admin/staffs" routerLinkActive="active" class="menu-link" title="Nhân sự & Ca trực">
+          <i class="bi bi-people"></i>
+          <span class="link-text">Nhân sự & Ca trực</span>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a routerLink="/admin/products" routerLinkActive="active" class="menu-link" title="Kho dược mỹ phẩm">
+          <i class="bi bi-box-seam"></i>
+          <span class="link-text">Kho dược mỹ phẩm</span>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a routerLink="/admin/treatments" routerLinkActive="active" class="menu-link" title="Phác đồ liệu trình">
+          <i class="bi bi-journal-medical"></i>
+          <span class="link-text">Phác đồ liệu trình</span>
+        </a>
+      </li>
+
+      <li class="menu-item">
+        <a routerLink="/admin/price-management" routerLinkActive="active" class="menu-link" title="Bảng giá dịch vụ">
+          <i class="bi bi-tags"></i>
+          <span class="link-text">Bảng giá dịch vụ</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- NỘI DUNG CHÍNH CUỘN ĐỘC LẬP -->
+  <main class="admin-main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

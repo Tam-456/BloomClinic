@@ -1,0 +1,75 @@
+// ============================================================
+// Bloom Beauty & Wellness – Design Tokens
+// ============================================================
+
+// --- Colour palette ------------------------------------------
+:root {
+  --bloom-900: #8B1638;
+  --bloom-800: #B5234B;
+  --bloom-600: #D63A6A;
+  --bloom-500: #F55588;
+  --bloom-400: #FF85AA;
+  --bloom-300: #FFB3CC;
+  --bloom-200: #FFD6E3;
+  --bloom-50:  #FFF0F4;
+
+  --bloom-text:   #2B0A14;
+  --bloom-muted:  #7A3250;
+  --bloom-white:  #FFFFFF;
+
+  // Gradient
+  --bloom-gradient: linear-gradient(135deg, #8B1638 0%, #D63A6A 55%, #F55588 100%);
+
+  // Glass
+  --glass-bg:     rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.60);
+  --glass-shadow: 0 8px 32px rgba(139, 22, 56, 0.12), 0 2px 8px rgba(139, 22, 56, 0.08);
+
+  // Border radius
+  --radius-sm:   8px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-xl:   36px;
+  --radius-pill: 9999px;
+
+  // Shadows
+  --shadow-sm:  0 2px 8px rgba(139, 22, 56, 0.08);
+  --shadow-md:  0 4px 24px rgba(139, 22, 56, 0.12);
+  --shadow-lg:  0 8px 40px rgba(139, 22, 56, 0.18);
+  --shadow-hover: 0 12px 48px rgba(139, 22, 56, 0.22);
+
+  // Typography
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+
+  // Transitions
+  --ease-bloom: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast:   150ms;
+  --duration-normal: 250ms;
+  --duration-slow:   350ms;
+
+  // Header height
+  --header-h: 72px;
+}
+
+// --- SCSS variable aliases (for use inside SCSS) -----------
+$bloom-900: #8B1638;
+$bloom-800: #B5234B;
+$bloom-600: #D63A6A;
+$bloom-500: #F55588;
+$bloom-400: #FF85AA;
+$bloom-300: #FFB3CC;
+$bloom-200: #FFD6E3;
+$bloom-50:  #FFF0F4;
+
+$bloom-text:  #2B0A14;
+$bloom-muted: #7A3250;
+
+$radius-sm:   8px;
+$radius-md:   16px;
+$radius-lg:   24px;
+$radius-xl:   36px;
+$radius-pill: 9999px;
+
+$bloom-gradient: linear-gradient(135deg, #8B1638 0%, #D63A6A 55%, #F55588 100%);
+

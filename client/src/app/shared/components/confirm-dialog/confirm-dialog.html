@@ -1,0 +1,41 @@
+@if (confirmService.isOpen()) {
+  <div class="bloom-dialog-backdrop" (click)="confirmService.close()">
+    <div class="bloom-dialog-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      
+      <!-- Ô icon bo tròn phía trên -->
+      <div class="dialog-icon-box" [ngClass]="'is-' + (confirmService.config().type || 'primary')">
+        @switch (confirmService.config().type) {
+          @case ('danger') {
+            <i class="bi bi-exclamation-triangle"></i>
+          }
+          @case ('warning') {
+            <i class="bi bi-question-circle"></i>
+          }
+          @default {
+            <i class="bi bi-check2-circle"></i>
+          }
+        }
+      </div>
+
+      <!-- Tiêu đề & Nội dung -->
+      <h3 class="dialog-title">{{ confirmService.config().title }}</h3>
+      <p class="dialog-message">{{ confirmService.config().message }}</p>
+
+      <!-- Hai nút bo tròn dạng viên thuốc -->
+      <div class="dialog-actions">
+        <button type="button" class="btn-dialog-cancel" (click)="confirmService.close()">
+          {{ confirmService.config().cancelText || 'Ở lại' }}
+        </button>
+        <button
+          type="button"
+          class="btn-dialog-confirm"
+          [ngClass]="'is-' + (confirmService.config().type || 'primary')"
+          (click)="confirmService.onConfirm()"
+        >
+          {{ confirmService.config().confirmText || 'Xác nhận' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

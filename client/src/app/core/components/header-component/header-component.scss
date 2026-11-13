@@ -1,0 +1,282 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+// ── Sticky glass bar ──────────────────────────────────────────
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: var(--header-h);
+  transition:
+    background var(--duration-normal) var(--ease-bloom),
+    box-shadow var(--duration-normal) var(--ease-bloom);
+
+  // Default: transparent (before scroll)
+  background: transparent;
+
+  // After scroll: glass
+  &.scrolled {
+    @include glass(0px);
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+// ── Inner layout ─────────────────────────────────────────────
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+// ── Brand / Logo ─────────────────────────────────────────────
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  text-decoration: none;
+  margin-right: auto; // push nav + toolbar right on desktop
+
+  .brand-logo {
+    height: 42px;
+    width: 42px;
+    object-fit: contain;
+    transition: transform 0.25s var(--ease-bloom);
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.15;
+  }
+
+  .brand-name {
+    font-family: var(--font-heading);
+    font-size: 1.28rem;
+    font-weight: 700;
+    color: $bloom-900;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+
+  .brand-tagline {
+    font-family: var(--font-body);
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: $bloom-600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    .brand-logo {
+      transform: scale(1.05) rotate(4deg);
+    }
+    .brand-name {
+      color: $bloom-600;
+    }
+  }
+}
+
+// ── Desktop nav ───────────────────────────────────────────────
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $bloom-text;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--duration-fast) var(--ease-bloom);
+
+    // Animated underline
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0.9rem;
+      right: 0.9rem;
+      height: 2px;
+      background: $bloom-gradient;
+      border-radius: 2px;
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform var(--duration-normal) var(--ease-bloom);
+    }
+
+    &:hover,
+    &.active {
+      color: $bloom-900;
+
+      &::after {
+        transform: scaleX(1);
+      }
+    }
+  }
+}
+
+// ── Desktop toolbar ───────────────────────────────────────────
+.toolbar-desktop {
+  flex-shrink: 0;
+}
+
+// ── Hamburger button ─────────────────────────────────────────
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: $bloom-900;
+    border-radius: 2px;
+    transition: transform var(--duration-normal) var(--ease-bloom),
+                opacity var(--duration-fast) var(--ease-bloom);
+    transform-origin: center;
+  }
+
+  &.open {
+    span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  }
+}
+
+// ── Mobile menu (glass panel) ────────────────────────────────
+.mobile-menu {
+  position: fixed;
+  top: var(--header-h);
+  right: 0;
+  width: min(320px, 90vw);
+  height: calc(100dvh - var(--header-h));
+  overflow-y: auto;
+  z-index: 999;
+
+  @include glass(0px);
+  border-radius: 0;
+  border-top: 1px solid var(--glass-border);
+
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1.5rem;
+
+  // Hidden state
+  transform: translateX(100%) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-slow) var(--ease-bloom),
+    opacity var(--duration-slow) var(--ease-bloom);
+
+  &.is-open {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  a {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    color: $bloom-text;
+    text-decoration: none;
+    transition: background var(--duration-fast) var(--ease-bloom),
+                color var(--duration-fast) var(--ease-bloom);
+
+    &:hover,
+    &.active {
+      background: rgba($bloom-500, 0.1);
+      color: $bloom-900;
+    }
+
+    &.active {
+      font-weight: 600;
+    }
+  }
+}
+
+.mobile-toolbar {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--glass-border);
+}
+
+// ── Overlay ───────────────────────────────────────────────────
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba($bloom-900, 0.25);
+  backdrop-filter: blur(2px);
+  animation: fadeIn var(--duration-normal) var(--ease-bloom) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ── Responsive breakpoints ────────────────────────────────────
+@media (max-width: 991px) {
+  .main-nav,
+  .toolbar-desktop {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .brand {
+    margin-right: auto;
+  }
+}
+
+@media (min-width: 992px) {
+  .mobile-menu,
+  .mobile-overlay {
+    display: none !important;
+  }
+}
+

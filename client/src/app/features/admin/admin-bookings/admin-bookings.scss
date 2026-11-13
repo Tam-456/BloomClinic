@@ -1,0 +1,321 @@
+/* ================= BẢNG LỊCH HẸN ================= */
+.price-highlight {
+  color: var(--bloom-900, #8B1638) !important;
+}
+
+.booking-table {
+  font-size: 0.88rem;
+  color: var(--bloom-text);
+
+  th {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bloom-900);
+    background-color: var(--bloom-50) !important;
+    border-bottom: 1px solid var(--bloom-200);
+    white-space: nowrap;
+    padding: 12px 10px;
+  }
+
+  td {
+    vertical-align: middle;
+    padding: 12px 10px;
+    border-color: var(--bloom-200);
+  }
+
+  tbody tr:hover {
+    background-color: var(--bloom-50) !important;
+  }
+}
+
+.booking-text {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--bloom-text);
+}
+
+.booking-subtext {
+  font-size: 0.8rem;
+  color: var(--bloom-muted);
+}
+
+.booking-table .form-select {
+  font-size: 0.85rem;
+  border-color: var(--bloom-200);
+  border-radius: 4px;
+}
+
+/* ================= TRẠNG THÁI ================= */
+
+.booking-status {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.status-pending {
+  color: #d97706; // Hổ phách
+}
+
+.status-confirmed {
+  color: #2563eb; // Xanh dương
+}
+
+.status-treatment {
+  color: var(--bloom-900); // Mận đậm
+}
+
+.status-completed {
+  color: #16a34a; // Xanh lá
+}
+
+.status-cancelled {
+  color: #dc2626; // Đỏ
+}
+
+/* ================= BỘ LỌC ================= */
+
+.booking-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+
+  .btn {
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+}
+
+.booking-actions {
+  white-space: nowrap;
+}
+
+/* ================= MODAL POPUP ================= */
+
+.booking-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(43, 10, 20, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.booking-modal-dialog {
+  width: 100%;
+  max-width: 650px;
+  background: #ffffff;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  box-shadow: 0 10px 25px rgba(139, 22, 56, 0.12);
+  padding: 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  .modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--bloom-900);
+    font-weight: 600;
+  }
+
+  .form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bloom-900);
+    letter-spacing: 0.4px;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid var(--bloom-200);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    &:focus {
+      border-color: var(--bloom-900);
+      box-shadow: 0 0 0 2px rgba(139, 22, 56, 0.15);
+    }
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .booking-filter-group {
+    justify-content: flex-start;
+  }
+
+  .booking-modal-dialog {
+    padding: 16px;
+  }
+
+  .booking-actions {
+    min-width: 180px;
+  }
+}
+
+/* ============================================================
+   1. CÁC NÚT BỘ LỌC (Tất cả, Chờ duyệt, Đã duyệt, Đang khám...):
+   Khi hover (rê chuột) hoặc active (click chọn) -> Nền hồng phấn, chữ đỏ tía
+============================================================ */
+.booking-filter-group {
+  .btn {
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border: 1px solid var(--bloom-200, #FFD6E3) !important;
+    background-color: transparent !important;
+    color: var(--bloom-muted, #7A3250) !important;
+    transition: all 0.2s ease;
+
+    // Khi rê chuột vào (Hover)
+    &:hover {
+      background-color: #F8CCD7 !important;           // Hồng phấn pastel
+      border-color: #EAAAB9 !important;
+      color: var(--bloom-900, #8B1638) !important;   // Chữ đỏ tía sắc nét
+    }
+
+    // Khi được bấm chọn (Active) - Ghi đè toàn bộ các class btn-dark, btn-warning, btn-primary...
+    &.btn-dark,
+    &.btn-warning,
+    &.btn-info,
+    &.btn-primary,
+    &.btn-success {
+      background-color: #F8CCD7 !important;           // Nền hồng phấn pastel
+      border-color: #EAAAB9 !important;
+      color: var(--bloom-900, #8B1638) !important;   // Chữ đỏ tía
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(139, 22, 56, 0.12) !important;
+    }
+  }
+}
+
+/* ============================================================
+   2. NÚT "VÀO KHÁM" TRONG BẢNG:
+   Dùng màu hồng phấn pastel phẳng (Flat), KHÔNG dùng hiệu ứng Ombre
+============================================================ */
+.booking-table {
+  button.btn-primary {
+    background: #F8CCD7 !important;                   // Bỏ dải ombre, gán nền hồng phấn
+    background-image: none !important;
+    border: 1px solid #EAAAB9 !important;
+    color: var(--bloom-900, #8B1638) !important;     // Chữ đỏ tía
+    box-shadow: none !important;
+    font-weight: 600;
+
+    i {
+      color: var(--bloom-900, #8B1638) !important;
+    }
+
+    &:hover:not(:disabled) {
+      background: #F3BAC7 !important;                 // Hồng đậm hơn một chút khi rê chuột
+      border-color: var(--bloom-900, #8B1638) !important;
+      color: var(--bloom-900, #8B1638) !important;
+      transform: none !important;
+    }
+
+    &:disabled {
+      background: var(--bloom-50, #FFF0F4) !important;
+      border-color: var(--bloom-200, #FFD6E3) !important;
+      color: var(--bloom-muted, #7A3250) !important;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* ============================================================
+   1. CÁC NÚT BỘ LỌC (Tất cả, Chờ duyệt, Đã duyệt...):
+   Không in hoa, kích thước nhỏ gọn đồng đều
+============================================================ */
+.booking-filter-group {
+  button.btn {
+    font-size: 0.8125rem !important;        // Cỡ chữ chuẩn nhỏ gọn (~13px)
+    font-weight: 500 !important;
+    text-transform: none !important;        // HỦY BỎ IN HOA
+    letter-spacing: normal !important;
+    padding: 5px 12px !important;           // Độ cao bằng nút outline bên cạnh
+    border-radius: 4px !important;
+    border: 1px solid var(--bloom-200, #FFD6E3) !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--bloom-muted, #7A3250) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    line-height: 1.5 !important;
+
+    &:hover {
+      background: #F8CCD7 !important;
+      background-image: none !important;
+      border-color: #EAAAB9 !important;
+      color: var(--bloom-900, #8B1638) !important;
+      text-transform: none !important;
+      transform: none !important;
+    }
+
+    // Khi được chọn (Active)
+    &.btn-dark,
+    &.btn-primary,
+    &.btn-warning,
+    &.btn-info,
+    &.btn-success {
+      background: #F8CCD7 !important;
+      background-image: none !important;
+      border-color: #EAAAB9 !important;
+      color: var(--bloom-900, #8B1638) !important;
+      font-weight: 600 !important;
+      text-transform: none !important;      // HỦY BỎ IN HOA
+      box-shadow: none !important;
+      transform: none !important;
+    }
+  }
+}
+
+/* ============================================================
+   2. NÚT "Vào khám" TRONG BẢNG:
+   Kích thước và kiểu chữ ngang bằng chính xác với nút "Sửa" và "Hủy"
+============================================================ */
+.booking-table {
+  button.btn-primary {
+    font-size: 0.8125rem !important;        // Cỡ chữ chuẩn bằng nút Sửa/Hủy
+    font-weight: 500 !important;
+    text-transform: none !important;        // HỦY BỎ IN HOA ("Vào khám" thay vì "VÀO KHÁM")
+    letter-spacing: normal !important;
+    padding: 4px 10px !important;           // Chiều cao vừa vặn khớp nút .btn-sm
+    border-radius: 4px !important;
+    border: 1px solid #EAAAB9 !important;
+    background: #F8CCD7 !important;
+    background-image: none !important;
+    color: var(--bloom-900, #8B1638) !important;
+    box-shadow: none !important;
+    line-height: 1.5 !important;
+    transform: none !important;
+
+    &:hover:not(:disabled) {
+      background: #F3BAC7 !important;
+      border-color: var(--bloom-900, #8B1638) !important;
+      color: var(--bloom-900, #8B1638) !important;
+      text-transform: none !important;
+      transform: none !important;
+    }
+
+    &:disabled {
+      background: var(--bloom-50, #FFF0F4) !important;
+      border-color: var(--bloom-200, #FFD6E3) !important;
+      color: var(--bloom-muted, #7A3250) !important;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

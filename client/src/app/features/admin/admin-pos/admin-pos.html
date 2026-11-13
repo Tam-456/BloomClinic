@@ -1,0 +1,1406 @@
+<div class="container-fluid p-4 d-print-none">
+  <!-- THÔNG BÁO HỆ THỐNG -->
+  @if (message()) {
+    <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      {{ message() }}
+      <button class="btn-close py-2" (click)="message.set('')"></button>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- VIEW 1: QUẦY THU NGÂN BÁN HÀNG -->
+  <!-- ======================================================== -->
+  @if (currentView() === 'main') {
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <div>
+        <h4 class="fw-bold mb-1">Quầy Thu Ngân Bán Hàng (POS)</h4>
+        
+      </div>
+
+      <div class="d-flex gap-2">
+        <button
+          type="button"
+          class="btn btn-outline-primary d-flex align-items-center gap-2"
+          (click)="openCreateDepositModal()"
+        >
+          <i class="bi bi-piggy-bank"></i>
+          <span>Thu Tiền Cọc</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-primary d-flex align-items-center gap-2"
+          (click)="switchView('drafts')"
+        >
+          <i class="bi bi-clipboard2"></i>
+          <span>Đơn Đang Lưu Nháp ({{ draftOrders().length }})</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary d-flex align-items-center gap-2"
+          (click)="switchView('invoices')"
+        >
+          <i class="bi bi-receipt"></i>
+          <span>Quản Lý Hóa Đơn ({{ todayInvoicesCount() }})</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- CỘT TRÁI: DỊCH VỤ & SẢN PHẨM -->
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header py-3">
+            <ul class="nav nav-pills" role="tablist">
+              <li class="nav-item">
+                <button
+                  class="nav-link active fw-bold"
+                  data-bs-toggle="pill"
+                  data-bs-target="#tab-services"
+                >
+                  <i class="bi bi-heart-pulse me-1"></i>
+                  Dịch Vụ Điều Trị
+                </button>
+              </li>
+
+              <li class="nav-item">
+                <button
+                  class="nav-link fw-bold"
+                  data-bs-toggle="pill"
+                  data-bs-target="#tab-products"
+                >
+                  <i class="bi bi-capsule me-1"></i>
+                  Dược Mỹ Phẩm & Thuốc
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card-body tab-content p-3">
+            <!-- TAB DỊCH VỤ -->
+            <div class="tab-pane fade show active" id="tab-services">
+              <div class="row g-2 mb-3">
+                <div class="col-md-7">
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    placeholder="🔍 Tìm theo mã hoặc tên dịch vụ..."
+                    [ngModel]="serviceSearch()"
+                    (ngModelChange)="serviceSearch.set($event); servicePage.set(1)"
+                  >
+                </div>
+
+                <div class="col-md-5">
+                  <select
+                    class="form-select form-select-sm"
+                    [ngModel]="serviceTypeFilter()"
+                    (ngModelChange)="serviceTypeFilter.set($event); servicePage.set(1)"
+                  >
+                    <option value="all">-- Tất cả hình thức --</option>
+                    <option value="single">Gói lẻ (Từng buổi)</option>
+                    <option value="package">Liệu trình (Trọn gói)</option>
+                  </select>
+                </div>
+              </div>
+
+              <h6 class="small fw-bold text-muted text-uppercase mt-2">
+                Danh sách dịch vụ
+              </h6>
+
+              <div class="row g-2">
+                @for (s of pagedServices(); track s._id) {
+                  <div class="col-md-6 col-xl-4">
+                    <div
+                      class="card h-100 p-2 cursor-pointer hover-card"
+                      (click)="addItemToCart(s, 'service')"
+                    >
+                      <div class="d-flex justify-content-between align-items-start mb-1">
+                        <div class="d-flex align-items-center gap-1">
+                          <span class="badge bg-light text-dark border align-self-start font-monospace">
+                            {{ $any(s).customId || s.serviceCode || ('DV-' + (s._id?.slice(-4) || '0000')) }}
+                          </span>
+
+                          <span
+                            class="badge"
+                            [class.bg-info-subtle]="s.serviceType === 'package'"
+                            [class.text-info-emphasis]="s.serviceType === 'package'"
+                            [class.bg-light]="s.serviceType !== 'package'"
+                            [class.text-dark]="s.serviceType !== 'package'"
+                            [class.border]="true"
+                          >
+                            {{
+                              s.serviceType === 'package' ||
+                              $any(s).itemType === 'package' ||
+                              $any(s).isPackage
+                                ? 'L.tr'
+                                : 'Gói lẻ'
+                            }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="text-truncate product-item-name" [title]="s.serviceName">
+                        {{ s.serviceName }}
+                      </div>
+
+                      <div class="product-item-price mt-2 price-highlight">
+                        {{ s.price | number }} đ
+                      </div>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="col-12">
+                    <div class="text-center text-muted py-4">
+                      <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                      Không tìm thấy dịch vụ phù hợp.
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- PHÂN TRANG DỊCH VỤ -->
+              @if (totalServicePages() > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                  <small class="text-muted">Trang {{ servicePage() }} / {{ totalServicePages() }}</small>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="servicePage() === 1">
+                      <button class="page-link" (click)="setServicePage(servicePage() - 1)">«</button>
+                    </li>
+                    @for (page of [].constructor(totalServicePages()); track $index) {
+                      <li class="page-item" [class.active]="servicePage() === ($index + 1)">
+                        <button class="page-link" (click)="setServicePage($index + 1)">{{ $index + 1 }}</button>
+                      </li>
+                    }
+                    <li class="page-item" [class.disabled]="servicePage() === totalServicePages()">
+                      <button class="page-link" (click)="setServicePage(servicePage() + 1)">»</button>
+                    </li>
+                  </ul>
+                </div>
+              }
+            </div>
+
+            <!-- TAB SẢN PHẨM -->
+            <div class="tab-pane fade" id="tab-products">
+              <input
+                type="text"
+                class="form-control form-control-sm mb-3"
+                placeholder="🔍 Tìm theo mã hoặc tên thuốc, mỹ phẩm..."
+                [ngModel]="productSearch()"
+                (ngModelChange)="productSearch.set($event); productPage.set(1)"
+              >
+
+              <h6 class="small fw-bold text-muted text-uppercase mt-2 mb-3">
+                Toàn bộ kho thuốc/mỹ phẩm
+              </h6>
+
+              <div class="row g-2">
+                @for (p of pagedProducts(); track p._id) {
+                  <div class="col-md-6 col-xl-4">
+                    <div
+                      class="card h-100 p-2 cursor-pointer hover-card product-item-card"
+                      (click)="addItemToCart(p, 'product')"
+                    >
+                      <span class="badge bg-light text-dark border align-self-start font-monospace">
+                        {{ p.productCode }}
+                      </span>
+
+                      <div class="mt-2 fw-normal text-dark product-item-name" [title]="p.productName">
+                        {{ p.productName }}
+                      </div>
+
+                      <div class="text-muted small mt-1">
+                        Tồn kho: {{ p.stockQuantity }} {{ p.unit }}
+                      </div>
+
+                      <div class="product-item-price mt-2 price-highlight">
+                        {{ p.price | number }} đ
+                      </div>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="col-12">
+                    <div class="text-center text-muted py-4">
+                      <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                      Không tìm thấy sản phẩm phù hợp.
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- PHÂN TRANG SẢN PHẨM -->
+              @if (totalProductPages() > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                  <small class="text-muted">Trang {{ productPage() }} / {{ totalProductPages() }}</small>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="productPage() === 1">
+                      <button class="page-link" (click)="setProductPage(productPage() - 1)">«</button>
+                    </li>
+                    @for (page of [].constructor(totalProductPages()); track $index) {
+                      <li class="page-item" [class.active]="productPage() === ($index + 1)">
+                        <button class="page-link" (click)="setProductPage($index + 1)">{{ $index + 1 }}</button>
+                      </li>
+                    }
+                    <li class="page-item" [class.disabled]="productPage() === totalProductPages()">
+                      <button class="page-link" (click)="setProductPage(productPage() + 1)">»</button>
+                    </li>
+                  </ul>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI: CHI TIẾT HÓA ĐƠN -->
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold price-highlight">
+              <i class="bi bi-receipt-cutoff me-2"></i>
+              Chi Tiết Hóa Đơn
+            </h5>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger fw-bold"
+              (click)="clearAll()"
+            >
+              <i class="bi bi-trash3 me-1"></i>Xóa trắng
+            </button>
+          </div>
+
+          <div class="card-body p-3">
+            <!-- CHỌN KHÁCH HÀNG -->
+            <div class="mb-3 p-2 bg-light rounded border">
+              <div class="d-flex gap-3 mb-2">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="custType"
+                    id="typeCust"
+                    [checked]="customerType() === 'registered'"
+                    (change)="onCustomerTypeChange('registered')"
+                  >
+                  <label class="form-check-label fw-bold small" for="typeCust">
+                    <i class="bi bi-person-check me-1"></i>
+                    Khách đã đăng ký
+                  </label>
+                </div>
+
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="custType"
+                    id="typeWalkin"
+                    [checked]="customerType() === 'walkin'"
+                    (change)="onCustomerTypeChange('walkin')"
+                  >
+                  <label class="form-check-label fw-bold small" for="typeWalkin">
+                    <i class="bi bi-person me-1"></i>
+                    Khách vãng lai
+                  </label>
+                </div>
+              </div>
+
+              @if (customerType() === 'registered') {
+                <div class="position-relative">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white">
+                      <i class="bi bi-search"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Tìm tên hoặc SĐT khách hàng..."
+                      [ngModel]="customerSearchKeyword()"
+                      (ngModelChange)="customerSearchKeyword.set($event)"
+                    >
+                  </div>
+
+                  @if (customerSearchKeyword().trim()) {
+                    <div class="customer-dropdown shadow-sm border rounded bg-white">
+                      @for (c of searchedCustomers(); track c.id) {
+                        <div
+                          class="p-2 border-bottom cursor-pointer hover-bg small d-flex justify-content-between"
+                          (click)="selectCustomer(c)"
+                        >
+                          <div>
+                            <strong>{{ c.name }}</strong> ({{ c.phone }})
+                          </div>
+                          <span class="badge bg-secondary">
+                            {{ c.tier }}
+                          </span>
+                        </div>
+                      } @empty {
+                        <div class="p-2 text-muted small">
+                          Không tìm thấy khách hàng.
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-2 small">
+                  <div>
+                    Khách: <strong>{{ selectedCustomerName() }}</strong>
+                    <span
+                      class="badge ms-1"
+                      [class.bg-secondary]="selectedCustomerTier() === 'Standard'"
+                      [class.bg-info]="selectedCustomerTier() === 'Silver'"
+                      [class.bg-warning]="selectedCustomerTier() === 'Gold'"
+                      [class.bg-danger]="selectedCustomerTier() === 'Diamond'"
+                    >
+                      {{ selectedCustomerTier() }}
+                    </span>
+                  </div>
+
+                  <span class="text-success fw-bold">
+                    <i class="bi bi-wallet2 me-1"></i>
+                    Ví: {{ customerWallet() | number }} đ
+                  </span>
+                </div>
+
+                <!-- TIỀN CỌC VÀ HẠN MỨC CÔNG NỢ -->
+                <div class="mt-2 pt-2 border-top small">
+                  <div class="d-flex justify-content-between align-items-center mb-1 price-highlight">
+                    <span>
+                      <i class="bi bi-piggy-bank me-1"></i>
+                      Tiền cọc hiện có:
+                    </span>
+                    <strong class="fs-6">
+                      {{ customerDeposit() | number }} đ
+                    </strong>
+                  </div>
+
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted">Hạn mức nợ tối đa:</span>
+                    <strong>
+                      {{ customerCreditInfo().debtLimit | number }} đ
+                      ({{ customerCreditInfo().dueDays }} ngày)
+                    </strong>
+                  </div>
+
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted">Nợ cũ hiện tại:</span>
+                    <span
+                      [class.text-danger]="customerCreditInfo().currentTotalDebt > 0"
+                      class="fw-semibold"
+                    >
+                      {{ customerCreditInfo().currentTotalDebt | number }} đ
+                    </span>
+                  </div>
+
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted">Hạn mức còn nợ được:</span>
+                    <strong class="price-highlight">
+                      {{ customerCreditInfo().availableCredit | number }} đ
+                    </strong>
+                  </div>
+
+                  @if (customerCreditInfo().hasOverdueDebt) {
+                    <div class="badge bg-danger w-100 text-wrap mt-1 py-1">
+                      ⚠️ Khách đang có khoản nợ QUÁ HẠN! Đã khóa quyền ghi nợ mới.
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-muted small">
+                  <i class="bi bi-person me-1"></i>
+                  Đang thao tác:
+                  <strong>Khách vãng lai (Không ghi nợ & không cấn trừ cọc)</strong>
+                </div>
+              }
+            </div>
+
+            <!-- BẢNG GIỎ HÀNG -->
+            <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Tên</th>
+                    <th style="width: 90px;">SL</th>
+                    <th class="text-end">Tiền</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (item of cartItems(); track item.itemId; let idx = $index) {
+                    <tr>
+                      <td>
+                        <div class="fw-semibold text-truncate" style="max-width: 170px;">
+                          {{ item.name }}
+                        </div>
+
+                        <small
+                          class="badge"
+                          [class.bg-info]="item.type === 'service'"
+                          [class.bg-success]="item.type === 'product'"
+                        >
+                          {{ item.type === 'service' ? 'Dịch vụ' : 'Thuốc/SP' }}
+                        </small>
+                      </td>
+
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary px-2"
+                            (click)="changeQuantity(idx, -1)"
+                          >-</button>
+
+                          <span class="btn btn-light disabled px-2">
+                            {{ item.quantity }}
+                          </span>
+
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary px-2"
+                            (click)="changeQuantity(idx, 1)"
+                          >+</button>
+                        </div>
+                      </td>
+
+                      <td class="text-end fw-bold">
+                        {{ item.amount | number }} đ
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="3" class="text-center py-4 text-muted small">
+                        Chưa có mục nào được chọn vào hóa đơn.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- TÍNH TIỀN, CẤN TRỪ CỌC & CÔNG NỢ -->
+            <div class="border-top pt-2">
+              <div class="d-flex justify-content-between py-1 small">
+                <span class="text-muted">Tổng tiền hàng:</span>
+                <strong>{{ totalAmount() | number }} đ</strong>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center py-1 small">
+                <span class="text-muted">Chiết khấu (VNĐ):</span>
+                <input
+                  type="number"
+                  class="form-control form-control-sm text-end w-50"
+                  [ngModel]="discountAmount()"
+                  (ngModelChange)="discountAmount.set($event); paidAmount.set(finalAmount())"
+                >
+              </div>
+
+              <!-- CẤN TRỪ TIỀN CỌC -->
+              @if (customerType() === 'registered' && customerDeposit() > 0) {
+                <div class="d-flex justify-content-between align-items-center py-1 small">
+                  <span class="fw-bold price-highlight">
+                    <i class="bi bi-piggy-bank me-1"></i>
+                    Cấn trừ tiền cọc:
+                  </span>
+
+                  <div class="d-flex align-items-center gap-1 w-50">
+                    <input
+                      type="number"
+                      class="form-control form-control-sm text-end price-highlight fw-bold"
+                      [ngModel]="depositDeduction()"
+                      (ngModelChange)="onDepositDeductionChange($event)"
+                      min="0"
+                    >
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary py-0 px-2 text-nowrap"
+                      title="Trừ tối đa tiền cọc"
+                      (click)="onDepositDeductionChange(customerDeposit())"
+                    >
+                      Hết
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <div class="d-flex justify-content-between py-1 price-highlight">
+                <span class="fw-bold">Cần thanh toán:</span>
+                <h5 class="fw-bold mb-0 price-highlight">{{ finalAmount() | number }} đ</h5>
+              </div>
+
+              <!-- KHÁCH THỰC TRẢ -->
+              <div class="d-flex justify-content-between align-items-center py-1 small">
+                <span class="fw-bold text-dark">Khách thực trả:</span>
+                <input
+                  type="number"
+                  class="form-control form-control-sm text-end w-50 fw-bold"
+                  [ngModel]="paidAmount()"
+                  (ngModelChange)="paidAmount.set($event)"
+                  min="0"
+                >
+              </div>
+
+              @if (finalAmount() > paidAmount()) {
+                <div
+                  class="p-2 rounded mt-1 small"
+                  [class.bg-danger-subtle]="customerCreditInfo().hasOverdueDebt || (finalAmount() - paidAmount()) > customerCreditInfo().availableCredit"
+                  [class.bg-warning-subtle]="!customerCreditInfo().hasOverdueDebt && (finalAmount() - paidAmount()) <= customerCreditInfo().availableCredit"
+                >
+                  <div class="d-flex justify-content-between fw-bold text-danger">
+                    <span>Số tiền ghi nhận nợ:</span>
+                    <span>{{ (finalAmount() - paidAmount()) | number }} đ</span>
+                  </div>
+
+                  <div class="small text-muted mt-1">
+                    Thời hạn trả nợ:
+                    <strong>{{ customerCreditInfo().dueDays }} ngày</strong>
+                    kể từ hôm nay.
+                  </div>
+
+                  @if ((finalAmount() - paidAmount()) > customerCreditInfo().availableCredit) {
+                    <div class="text-danger fw-bold mt-1">
+                      Vượt quá hạn mức nợ khả dụng
+                      ({{ customerCreditInfo().availableCredit | number }} đ)!
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- PHƯƠNG THỨC THANH TOÁN -->
+              <div class="my-2">
+                <label class="form-label small fw-bold">Phương thức:</label>
+                <div class="btn-group w-100">
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-primary]="paymentMethod() === 'cash'"
+                    [class.btn-outline-secondary]="paymentMethod() !== 'cash'"
+                    (click)="paymentMethod.set('cash')"
+                  >
+                    Tiền mặt
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-primary]="paymentMethod() === 'banking'"
+                    [class.btn-outline-secondary]="paymentMethod() !== 'banking'"
+                    (click)="paymentMethod.set('banking')"
+                  >
+                    Chuyển khoản
+                  </button>
+
+                  @if (customerType() === 'registered') {
+                    <button
+                      type="button"
+                      class="btn btn-sm"
+                      [class.btn-success]="paymentMethod() === 'prepaid_wallet'"
+                      [class.btn-outline-secondary]="paymentMethod() !== 'prepaid_wallet'"
+                      (click)="paymentMethod.set('prepaid_wallet')"
+                    >
+                      Ví trả trước
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- NÚT LƯU NHÁP & THANH TOÁN -->
+              <div class="row g-2 mt-2">
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary w-100 py-2 fw-bold"
+                    (click)="saveDraft()"
+                  >
+                    <i class="bi bi-floppy me-1"></i>
+                    Lưu Nháp
+                  </button>
+                </div>
+
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-primary w-100 py-2 fw-bold"
+                    [disabled]="(customerType() === 'walkin' || selectedCustomerTier() === 'Standard') && (finalAmount() > paidAmount())"
+                    (click)="checkout()"
+                  >
+                    <i class="bi bi-credit-card me-1"></i>
+                    Thanh Toán
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- VIEW 2: QUẢN LÝ HÓA ĐƠN -->
+  <!-- ======================================================== -->
+  @if (currentView() === 'invoices') {
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <div>
+        <h4 class="fw-bold mb-1">
+          <i class="bi bi-receipt me-2 price-highlight"></i>
+          Lịch Sử & Quản Lý Hóa Đơn Bán Hàng
+        </h4>
+        <p class="text-muted mb-0">
+          Hóa đơn sau khi xuất sẽ được ghi nhận doanh thu và khóa vĩnh viễn (Lưu trữ 5 năm)
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary fw-bold d-flex align-items-center gap-2"
+        (click)="switchView('main')"
+      >
+        <i class="bi bi-arrow-left"></i>
+        <span>Quay lại Quầy Thu Ngân</span>
+      </button>
+    </div>
+
+    <div class="card">
+      <!-- BỘ LỌC HÓA ĐƠN -->
+      <div class="card-header py-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-2">
+            <label class="form-label small fw-bold mb-1">CHỌN NGÀY:</label>
+            <div class="d-flex gap-1">
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                style="width: 140px;"
+                [ngModel]="invoiceFilterDate()"
+                (ngModelChange)="invoiceFilterDate.set($event)"
+              />
+              @if (invoiceFilterDate()) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light border text-nowrap"
+                  (click)="invoiceFilterDate.set('')"
+                  title="Hiện toàn bộ hóa đơn"
+                >
+                  Tất cả
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">Ca Làm Việc:</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="invoiceFilterShift()"
+              (ngModelChange)="invoiceFilterShift.set($event)"
+            >
+              <option value="all">Tất cả ca</option>
+              <option value="morning">Ca Sáng (07:00 - 13:00)</option>
+              <option value="afternoon">Ca Chiều (13:00 - 22:00)</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">Nhân Viên/Quản Lý:</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="invoiceFilterCashier()"
+              (ngModelChange)="invoiceFilterCashier.set($event)"
+            >
+              <option value="all">Tất cả nhân viên</option>
+              @for (st of staffDirectory(); track st) {
+                <option [value]="st">{{ st }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">Thanh Toán:</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="invoiceFilterPayment()"
+              (ngModelChange)="invoiceFilterPayment.set($event)"
+            >
+              <option value="all">Tất cả PT</option>
+              <option value="cash">Tiền mặt</option>
+              <option value="banking">Chuyển khoản</option>
+              <option value="prepaid_wallet">Ví trả trước</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">Trạng Thái HĐ:</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="invoiceFilterStatus()"
+              (ngModelChange)="invoiceFilterStatus.set($event)"
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="exported">Đã xuất (Chốt doanh thu)</option>
+              <option value="edited">Đã sửa</option>
+              <option value="deleted">Đã xóa</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">Tình Trạng Nợ:</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="invoiceFilterDebt()"
+              (ngModelChange)="invoiceFilterDebt.set($event)"
+            >
+              <option value="all">Tất cả nợ</option>
+              <option value="debt_only">Còn nợ công nợ</option>
+              <option value="overdue_only">Đã quá hạn nợ</option>
+              <option value="paid_only">Đã thanh toán đủ</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- BẢNG DANH SÁCH HÓA ĐƠN -->
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="ps-3">Mã HĐ</th>
+                <th>Khách Hàng</th>
+                <th>Thời Gian Lập</th>
+                <th>Thu Ngân</th>
+                <th class="text-end">Tiền & Công Nợ</th>
+                <th class="text-center">Hạn Trả Nợ</th>
+                <th>Phương Thức</th>
+                <th class="text-center">Trạng Thái</th>
+                <th class="text-end pe-3">Thao Tác</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (inv of filteredInvoices(); track inv.id) {
+                <tr
+                  [class.invoice-row-edited]="inv.status === 'edited'"
+                  [class.invoice-row-deleted]="inv.status === 'deleted'"
+                  [class.invoice-row-exported]="inv.status === 'exported'"
+                >
+                  <td class="ps-3 fw-bold font-monospace">
+                    {{ inv.id }}
+                    @if (inv.status === 'deleted') {
+                      <small class="badge bg-danger d-block">ĐÃ HỦY / XÓA</small>
+                    }
+                    @if (inv.status === 'exported') {
+                      <small class="badge bg-success d-block">ĐÃ CHỐT DOANH THU</small>
+                    }
+                  </td>
+
+                  <td>
+                    <strong>{{ inv.customerName }}</strong>
+                    <span
+                      class="badge ms-1"
+                      [class.bg-secondary]="inv.customerTier === 'Standard' || inv.customerTier === 'walkin'"
+                      [class.bg-info]="inv.customerTier === 'Silver'"
+                      [class.bg-warning]="inv.customerTier === 'Gold'"
+                      [class.bg-danger]="inv.customerTier === 'Diamond'"
+                    >
+                      {{ inv.customerTier }}
+                    </span>
+                    <div class="small text-muted font-monospace">
+                      {{ inv.customerPhone || 'Khách vãng lai' }}
+                    </div>
+                  </td>
+
+                  <td>
+                    <div>{{ inv.createdAt }}</div>
+                    <small class="text-muted">
+                      Ca: {{ inv.shift === 'morning' ? 'Sáng' : 'Chiều-Tối' }}
+                    </small>
+
+                    @if (inv.status === 'exported' && inv.exportedAt) {
+                      <div class="small text-success fw-semibold mt-1">
+                        Xuất lúc: {{ inv.exportedAt }}
+                      </div>
+                      <div class="small text-muted fst-italic">Lưu trữ: 5 năm</div>
+                    }
+
+                    @if (inv.status === 'edited' && inv.editAudit) {
+                      <div class="small text-warning-emphasis fw-semibold mt-1">
+                        Sửa lúc: {{ inv.editAudit.actionAt }}
+                      </div>
+                      <div class="small text-muted fst-italic">Bởi: {{ inv.editAudit.actionBy }}</div>
+                    }
+
+                    @if (inv.status === 'deleted' && inv.deleteAudit) {
+                      <div class="small text-danger fw-semibold mt-1">
+                        Xóa lúc: {{ inv.deleteAudit.actionAt }}
+                      </div>
+                      <div class="small text-muted fst-italic">Lưu vết đến: {{ inv.retentionExpiresAt }}</div>
+                    }
+
+                    @if (inv.managerOverride) {
+                      <div class="mt-1">
+                        <span class="badge bg-warning-subtle text-dark border border-warning" style="font-size: 0.68rem;" [title]="inv.managerOverride.reason">
+                          <i class="bi bi-shield-check text-warning-emphasis me-1"></i>Duyệt bởi: {{ inv.managerOverride.approvedBy }}
+                        </span>
+                      </div>
+                    }
+                  </td>
+
+                  <td>{{ inv.cashierName }}</td>
+
+                  <td class="text-end">
+                    <div class="fw-bold price-highlight">
+                      {{ inv.finalAmount | number }} đ
+                    </div>
+                    @if (inv.depositDeduction > 0) {
+                      <small class="text-muted d-block">
+                        (Đã trừ cọc: {{ inv.depositDeduction | number }} đ)
+                      </small>
+                    }
+                    <small class="text-muted d-block">
+                      Đã trả: {{ inv.paidAmount | number }} đ
+                    </small>
+                    @if (inv.debtAmount > 0) {
+                      <span class="badge bg-danger mt-1">
+                        Còn nợ: {{ inv.debtAmount | number }} đ
+                      </span>
+                    }
+                  </td>
+
+                  <td class="text-center">
+                    @if (inv.debtAmount > 0 && inv.dueDate) {
+                      <div class="small fw-bold font-monospace">{{ inv.dueDate }}</div>
+                      @if (inv.dueDate < invoiceFilterDate()) {
+                        <span class="badge bg-danger">Quá hạn nợ</span>
+                      } @else if (inv.dueDate === invoiceFilterDate()) {
+                        <span class="badge bg-warning">Đến hạn hôm nay</span>
+                      } @else {
+                        <span class="badge bg-info">Trong hạn</span>
+                      }
+                    } @else {
+                      <span class="text-muted small">-</span>
+                    }
+                  </td>
+
+                  <td>
+                    @if (inv.paymentMethod === 'cash') {
+                      <span class="badge bg-secondary">Tiền mặt</span>
+                    } @else if (inv.paymentMethod === 'banking') {
+                      <span class="badge bg-info">Chuyển khoản</span>
+                    } @else {
+                      <span class="badge bg-success">Ví trả trước</span>
+                    }
+                  </td>
+
+                  <td class="text-center">
+                    @if (inv.status === 'exported') {
+                      <span class="badge bg-success">Đã xuất</span>
+                    } @else if (inv.status === 'normal') {
+                      <span class="badge bg-primary">Chờ xuất</span>
+                    } @else if (inv.status === 'edited') {
+                      <span class="badge bg-warning">Đã sửa đổi</span>
+                    } @else {
+                      <span class="badge bg-danger">Đã xóa</span>
+                    }
+                  </td>
+
+                  <td class="text-end pe-3 text-nowrap">
+                    @if (inv.debtAmount > 0 && inv.status !== 'deleted') {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-warning me-1 fw-bold"
+                        title="Thu hồi công nợ"
+                        (click)="openCollectDebtModal(inv)"
+                      >
+                        <i class="bi bi-cash-coin me-1"></i>
+                        Thu Nợ
+                      </button>
+                    }
+
+                    @if (inv.status === 'exported') {
+                      <span class="badge bg-light text-muted border px-2 py-1">
+                        <i class="bi bi-lock-fill me-1 text-secondary"></i>
+                        Đã khóa
+                      </span>
+                    } @else if (inv.status !== 'deleted') {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary me-1"
+                        title="In & Xuất Hóa Đơn"
+                        (click)="printInvoice(inv)"
+                      >
+                        <i class="bi bi-printer me-1"></i>
+                        Xuất
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary me-1"
+                        title="Sửa Hóa Đơn"
+                        (click)="openEditInvoiceModal(inv)"
+                      >
+                        <i class="bi bi-pencil-square me-1"></i>
+                        Sửa
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        title="Xóa Hóa Đơn"
+                        (click)="openDeleteInvoiceModal(inv)"
+                      >
+                        <i class="bi bi-trash me-1"></i>
+                        Xóa
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="9" class="text-center py-5 text-muted">
+                    Không tìm thấy hóa đơn nào phù hợp với bộ lọc đã chọn.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          <strong>Quy định tài chính:</strong> Hóa đơn sau khi Xuất sẽ được chốt doanh thu và lưu trữ trong <strong>5 năm</strong>.
+        </small>
+        <span class="badge bg-light text-dark border">
+          Tổng số: {{ filteredInvoices().length }} hóa đơn
+        </span>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- VIEW 3: ĐƠN ĐANG LƯU NHÁP -->
+  <!-- ======================================================== -->
+  @if (currentView() === 'drafts') {
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <div>
+        <h4 class="fw-bold mb-1">
+          <i class="bi bi-clipboard2 me-2 price-highlight"></i>
+          Danh Sách Đơn Đang Lưu Nháp
+        </h4>
+        <p class="text-muted mb-0">
+          Quản lý và nạp lại các đơn hàng lưu tạm chưa hoàn tất thanh toán
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary fw-bold d-flex align-items-center gap-2"
+        (click)="switchView('main')"
+      >
+        <i class="bi bi-arrow-left"></i>
+        <span>Quay lại Quầy Thu Ngân</span>
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-header py-3">
+        <h6 class="mb-0 fw-bold">
+          Tổng số đơn lưu nháp: {{ draftOrders().length }}
+        </h6>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="ps-3">Mã Đơn Nháp</th>
+                <th>Khách Hàng</th>
+                <th>Số Lượng Hàng</th>
+                <th>Thời Gian Lưu</th>
+                <th class="text-end">Tổng Tiền</th>
+                <th class="text-end pe-3">Thao Tác</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (d of draftOrders(); track d.id) {
+                <tr>
+                  <td class="ps-3">
+                    <strong class="price-highlight font-monospace">{{ d.id }}</strong>
+                  </td>
+
+                  <td>
+                    <strong>{{ d.customerName }}</strong>
+                    <small class="text-muted d-block font-monospace">{{ d.customerPhone || 'N/A' }}</small>
+                  </td>
+
+                  <td>{{ d.items.length }} sản phẩm / dịch vụ</td>
+                  <td class="text-muted">{{ d.createdAt }}</td>
+                  <td class="text-end fw-bold price-highlight">
+                    {{ d.finalAmount | number }} đ
+                  </td>
+
+                  <td class="text-end pe-3 text-nowrap">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary me-2"
+                      (click)="loadDraft(d)"
+                    >
+                      <i class="bi bi-box-arrow-in-up-right me-1"></i>
+                      Nạp Lên Quầy
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteDraft(d.id)"
+                    >
+                      <i class="bi bi-trash me-1"></i>
+                      Xóa
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    Hiện không có đơn hàng nào đang lưu nháp.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ================= POPUP 1: LẬP PHIẾU THU TIỀN CỌC ================= -->
+<app-bloom-modal
+  [isOpen]="isCreateDepositModalOpen()"
+  title="Lập Phiếu Thu Tiền Đặt Cọc"
+  icon="bi-piggy-bank"
+  maxWidth="600px"
+  (close)="closeCreateDepositModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <div class="p-3 bg-light rounded border">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Khách hàng đặt cọc:</span>
+          <strong>{{ selectedCustomerName() }} ({{ selectedCustomerPhone() }})</strong>
+        </div>
+        <div class="d-flex justify-content-between text-muted small">
+          <span>Tiền cọc hiện có:</span>
+          <span>{{ customerDeposit() | number }} đ</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">SỐ TIỀN CỌC (VNĐ) *</label>
+      <input type="number" class="form-control" [(ngModel)]="createDepositForm.amount" min="10000" step="50000">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">PHƯƠNG THỨC THU CỌC *</label>
+      <select class="form-select" [(ngModel)]="createDepositForm.paymentMethod">
+        <option value="banking">Chuyển khoản</option>
+        <option value="cash">Tiền mặt</option>
+      </select>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">NGƯỜI THU TIỀN *</label>
+      <select class="form-select" [(ngModel)]="createDepositForm.collectorName">
+        @for (st of staffDirectory(); track st) {
+          <option [value]="st">{{ st }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">LÝ DO / GHI CHÚ ĐẶT CỌC</label>
+      <textarea
+        class="form-control"
+        rows="2"
+        placeholder="Ví dụ: Đặt cọc giữ lịch bác sĩ da liễu..."
+        [(ngModel)]="createDepositForm.note"
+      ></textarea>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeCreateDepositModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-success fw-bold" (click)="submitCreateDeposit()">
+      <i class="bi bi-printer me-1"></i> Thu Tiền & In Biên Nhận
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 2: SỬA HÓA ĐƠN ================= -->
+<app-bloom-modal
+  [isOpen]="isEditInvoiceModalOpen() && !!editingInvoice()"
+  [title]="'Chỉnh Sửa Hóa Đơn [' + (editingInvoice()?.id || '') + ']'"
+  icon="bi-pencil-square"
+  maxWidth="640px"
+  (close)="closeEditInvoiceModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <div class="alert alert-warning py-2 small mb-0">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        Hóa đơn sau khi sửa sẽ được lưu vết thời gian lập ban đầu: <strong>{{ editingInvoice()?.createdAt }}</strong>.
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">NGƯỜI THỰC HIỆN SỬA ĐỔI *</label>
+      <select class="form-select" [(ngModel)]="editForm.modifierName">
+        @for (st of staffDirectory(); track st) {
+          <option [value]="st">{{ st }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">LÝ DO CHỈNH SỬA *</label>
+      <select class="form-select" [(ngModel)]="editForm.reasonPreset">
+        <option value="Tính sai chiết khấu">Tính sai chiết khấu</option>
+        <option value="Đổi phương thức thanh toán">Đổi phương thức thanh toán</option>
+        <option value="Nhập nhầm thông tin dịch vụ">Nhập nhầm thông tin dịch vụ</option>
+        <option value="Khác">Khác (Tự nhập nội dung)</option>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">PHƯƠNG THỨC THANH TOÁN MỚI</label>
+      <select class="form-select" [(ngModel)]="editForm.paymentMethod">
+        <option value="cash">Tiền mặt</option>
+        <option value="banking">Chuyển khoản</option>
+        <option value="prepaid_wallet">Ví trả trước</option>
+      </select>
+    </div>
+
+    @if (editForm.reasonPreset === 'Khác') {
+      <div class="col-md-12">
+        <label class="form-label fw-bold">CHI TIẾT LÝ DO KHÁC *</label>
+        <textarea
+          class="form-control"
+          rows="2"
+          placeholder="Ghi rõ nguyên nhân sửa đổi hóa đơn..."
+          [(ngModel)]="editForm.customReason"
+        ></textarea>
+      </div>
+    }
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">SỐ TIỀN CHIẾT KHẤU MỚI (VNĐ)</label>
+      <input type="number" class="form-control" [(ngModel)]="editForm.discountAmount" min="0">
+      <small class="text-muted d-block mt-1">Tổng tiền ban đầu: {{ editingInvoice()?.totalAmount | number }} đ</small>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeEditInvoiceModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-primary" (click)="submitEditInvoice()">
+      <i class="bi bi-check2-circle me-1"></i> Lưu Thay Đổi
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 3: XÓA HÓA ĐƠN ================= -->
+<app-bloom-modal
+  [isOpen]="isDeleteInvoiceModalOpen() && !!deletingInvoice()"
+  [title]="'Hủy / Xóa Hóa Đơn [' + (deletingInvoice()?.id || '') + ']'"
+  icon="bi-trash-fill"
+  maxWidth="540px"
+  (close)="closeDeleteInvoiceModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <div class="alert alert-danger py-2 small mb-0">
+        <strong>CẢNH BÁO:</strong> Hóa đơn bị xóa sẽ lưu trữ dữ liệu đối soát trong <strong>60 ngày</strong> và hoàn trả lại tiền cọc (nếu có cấn trừ).
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">NGƯỜI THỰC HIỆN XÓA *</label>
+      <select class="form-select" [(ngModel)]="deleteForm.modifierName">
+        @for (st of staffDirectory(); track st) {
+          <option [value]="st">{{ st }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">LÝ DO HỦY/XÓA HÓA ĐƠN *</label>
+      <select class="form-select" [(ngModel)]="deleteForm.reasonPreset">
+        <option value="Khách hàng hoàn trả hàng và hủy giao dịch">Khách hàng hoàn trả hàng và hủy giao dịch</option>
+        <option value="Thu ngân tạo đơn trùng lặp">Thu ngân tạo đơn trùng lặp</option>
+        <option value="Lỗi hệ thống quẹt thẻ không thành công">Lỗi hệ thống quẹt thẻ không thành công</option>
+        <option value="Khác">Khác (Tự nhập nội dung)</option>
+      </select>
+    </div>
+
+    @if (deleteForm.reasonPreset === 'Khác') {
+      <div class="col-md-12">
+        <label class="form-label fw-bold">CHI TIẾT LÝ DO KHÁC *</label>
+        <textarea
+          class="form-control"
+          rows="2"
+          placeholder="Nhập lý do chi tiết..."
+          [(ngModel)]="deleteForm.customReason"
+        ></textarea>
+      </div>
+    }
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteInvoiceModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-danger fw-bold" (click)="submitDeleteInvoice()">
+      <i class="bi bi-trash me-1"></i> Xác Nhận Xóa
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 4: THU HỒI CÔNG NỢ ================= -->
+<app-bloom-modal
+  [isOpen]="isCollectDebtModalOpen() && !!collectingInvoice()"
+  [title]="'Thu Hồi Công Nợ - HĐ [' + (collectingInvoice()?.id || '') + ']'"
+  icon="bi-cash-coin"
+  maxWidth="600px"
+  (close)="closeCollectDebtModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <div class="p-3 bg-light rounded border">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Khách hàng:</span>
+          <strong>{{ collectingInvoice()?.customerName }} ({{ collectingInvoice()?.customerPhone }})</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Tổng tiền hóa đơn:</span>
+          <span>{{ collectingInvoice()?.finalAmount | number }} đ</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Đã thanh toán:</span>
+          <span>{{ collectingInvoice()?.paidAmount | number }} đ</span>
+        </div>
+        <div class="d-flex justify-content-between border-top pt-2 mt-2 text-danger fw-bold">
+          <span>Công nợ còn lại:</span>
+          <span class="fs-6">{{ collectingInvoice()?.debtAmount | number }} đ</span>
+        </div>
+        @if (collectingInvoice()?.dueDate) {
+          <div class="d-flex justify-content-between text-warning-emphasis small mt-1">
+            <span>Hạn chót thanh toán:</span>
+            <strong>{{ collectingInvoice()?.dueDate }}</strong>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">SỐ TIỀN THU ĐỢT NÀY (VNĐ) *</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="collectDebtForm.repayAmount"
+        [max]="collectingInvoice()?.debtAmount || 0"
+        min="1"
+      >
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">HÌNH THỨC THU TIỀN *</label>
+      <select class="form-select" [(ngModel)]="collectDebtForm.paymentMethod">
+        <option value="cash">Tiền mặt</option>
+        <option value="banking">Chuyển khoản</option>
+      </select>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">NGƯỜI THU TIỀN *</label>
+      <select class="form-select" [(ngModel)]="collectDebtForm.collectorName">
+        @for (st of staffDirectory(); track st) {
+          <option [value]="st">{{ st }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">GHI CHÚ THU NỢ</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Ví dụ: Khách thanh toán nốt buổi 2..."
+        [(ngModel)]="collectDebtForm.note"
+      >
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeCollectDebtModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-primary" (click)="submitCollectDebt()">
+      <i class="bi bi-check2-circle me-1"></i> Xác Nhận Thu Tiền
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 5: BẢO LÃNH VƯỢT HẠN MỨC (MANAGER OVERRIDE) ================= -->
+<app-bloom-modal
+  [isOpen]="isManagerOverrideOpen()"
+  title="Xác Thực Bảo Lãnh Vượt Hạn Mức"
+  icon="bi-shield-lock-fill"
+  maxWidth="480px"
+  (close)="isManagerOverrideOpen.set(false)"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <div class="alert alert-danger py-2 small mb-0">
+        <strong>CẢNH BÁO:</strong> Khoản nợ vượt quá hạn mức tín dụng của hạng thẻ. Thao tác phê duyệt sẽ được lưu vào nhật ký kiểm toán.
+      </div>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold small">QUẢN LÝ PHÊ DUYỆT (*)</label>
+      <select class="form-select form-select-sm" [(ngModel)]="overrideData.managerName">
+        @for (st of staffDirectory(); track st) {
+          <option [value]="st">{{ st }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold small">MẬT KHẨU / MÃ PIN QUẢN LÝ (*)</label>
+      <input
+        type="password"
+        class="form-control form-control-sm"
+        placeholder="Nhập mã PIN xác nhận bảo lãnh..."
+        [(ngModel)]="overrideData.pin"
+        (keydown.enter)="confirmManagerOverride()"
+      />
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold small">LÝ DO BẢO LÃNH NGOẠI LỆ (*)</label>
+      <textarea
+        class="form-control form-control-sm"
+        rows="2"
+        placeholder="Ghi rõ lý do bảo lãnh nợ cho khách..."
+        [(ngModel)]="overrideData.reason"
+      ></textarea>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="isManagerOverrideOpen.set(false)">Hủy</button>
+    <button type="button" class="btn btn-sm btn-danger fw-bold" (click)="confirmManagerOverride()">
+      <i class="bi bi-check2-shield me-1"></i> Xác Nhận Bảo Lãnh
+    </button>
+  </div>
+</app-bloom-modal>

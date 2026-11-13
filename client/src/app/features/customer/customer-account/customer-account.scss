@@ -1,0 +1,18 @@
+.bloom-pink-btn {
+  background-color: #FFF0F4;
+  color: #8B1638;
+  border: 1.5px solid #F5B8C9;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &:hover,
+  &:focus {
+    background-color: #FFE0EA;
+    color: #8B1638;
+    border-color: #D63A6A;
+    box-shadow: 0 4px 12px rgba(214, 58, 106, 0.14);
+  }
+}
+.h4 {
+    color:#8B1638
+}

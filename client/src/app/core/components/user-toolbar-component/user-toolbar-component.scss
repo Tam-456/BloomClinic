@@ -1,0 +1,228 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+// ── Wrapper ───────────────────────────────────────────────────
+.user-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &.guest {
+    gap: 0.5rem;
+  }
+}
+
+// ── Guest buttons ─────────────────────────────────────────────
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $bloom-900;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  transition: background var(--duration-fast) var(--ease-bloom),
+              color var(--duration-fast) var(--ease-bloom);
+
+  &:hover {
+    background: rgba($bloom-200, 0.6);
+    color: $bloom-900;
+  }
+}
+
+.btn-primary {
+  @include btn-bloom;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.875rem;
+}
+
+// ── User chip (logged-in) ─────────────────────────────────────
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem 0.3rem 0.3rem;
+  background: rgba($bloom-200, 0.5);
+  border: 1.5px solid rgba($bloom-400, 0.4);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-bloom),
+              border-color var(--duration-fast) var(--ease-bloom);
+
+  &:hover,
+  .user-toolbar.open & {
+    background: rgba($bloom-200, 0.9);
+    border-color: $bloom-400;
+  }
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $bloom-gradient;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $bloom-text;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip-caret {
+  font-size: 0.75rem;
+  color: $bloom-muted;
+  transition: transform var(--duration-normal) var(--ease-bloom);
+
+  .user-toolbar.open & {
+    transform: rotate(180deg);
+  }
+}
+
+// ── Glass dropdown ────────────────────────────────────────────
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 190px;
+  z-index: 1100;
+
+  @include glass(var(--radius-md));
+  padding: 0.5rem;
+
+  // Hidden state
+  transform: translateY(-8px) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-normal) var(--ease-bloom),
+    opacity var(--duration-normal) var(--ease-bloom);
+
+  &.is-open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $bloom-text;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-bloom),
+              color var(--duration-fast) var(--ease-bloom);
+
+  &:hover {
+    background: rgba($bloom-200, 0.6);
+    color: $bloom-900;
+  }
+
+  &--danger {
+    color: $bloom-800;
+
+    &:hover {
+      background: rgba($bloom-200, 0.5);
+      color: $bloom-900;
+    }
+  }
+
+  i {
+    font-size: 1rem;
+    opacity: 0.75;
+  }
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0.35rem 0;
+}
+
+.logout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(28, 35, 32, 0.32);
+  backdrop-filter: blur(8px);
+  animation: logout-fade 180ms ease-out both;
+}
+
+.logout-dialog {
+  width: min(100%, 420px);
+  padding: 2rem;
+  text-align: center;
+  color: var(--bloom-text);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 28px;
+  box-shadow: 0 24px 80px rgba(37, 60, 49, 0.22), inset 0 1px rgba(255,255,255,.9);
+  backdrop-filter: blur(28px) saturate(160%);
+  animation: logout-pop 220ms var(--ease-bloom) both;
+
+  h2 { margin: 1rem 0 0.5rem; font-size: 1.25rem; }
+  p { margin: 0; color: var(--bloom-muted); line-height: 1.6; }
+}
+
+.logout-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto;
+  color: $bloom-800;
+  background: rgba($bloom-200, .72);
+  border-radius: 18px;
+  font-size: 1.35rem;
+}
+
+.logout-actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
+.logout-cancel, .logout-confirm {
+  flex: 1;
+  min-height: 46px;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.logout-cancel { color: var(--bloom-text); background: rgba(255,255,255,.7); border: 1px solid var(--glass-border); }
+.logout-confirm { color: #fff; background: $bloom-gradient; border: 0; }
+.logout-actions button:disabled { opacity: .7; cursor: wait; }
+.logout-error { margin-top: 1rem; color: #a52c4c; font-size: .875rem; }
+.logout-spinner { display: inline-block; width: 14px; height: 14px; margin-right: .35rem; vertical-align: -2px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; animation: logout-spin .7s linear infinite; }
+.logout-toast { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 2100; display: flex; gap: .65rem; align-items: center; max-width: min(440px, calc(100vw - 2rem)); padding: 1rem 1.2rem; color: #286c49; background: rgba(244, 255, 248, .9); border: 1px solid rgba(67,140,104,.24); border-radius: 18px; box-shadow: 0 16px 44px rgba(37,60,49,.16); backdrop-filter: blur(20px); animation: logout-pop 220ms var(--ease-bloom) both; }
+.logout-toast i { font-size: 1.1rem; }
+
+@keyframes logout-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes logout-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes logout-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .logout-backdrop, .logout-dialog, .logout-toast, .logout-spinner { animation-duration: .01ms; } }
+@media (max-width: 480px) { .logout-dialog { padding: 1.5rem; border-radius: 24px; } .logout-toast { right: 1rem; bottom: 1rem; } }

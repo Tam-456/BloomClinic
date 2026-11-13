@@ -1,0 +1,74 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Timeline căn chỉnh */
+.timeline {
+  position: relative;
+  padding-left: 0.5rem;
+
+  .timeline-item {
+    position: relative;
+    padding-left: 2rem;
+
+    .timeline-badge {
+      top: 0;
+      left: -15px;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 0.85rem;
+      z-index: 2;
+    }
+  }
+}
+
+/* Star rating trong modal */
+.star-rating {
+  .star {
+    transition: transform 0.15s ease;
+    display: inline-block;
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}
+
+/* Modal backdrop & dialog */
+.treatment-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  backdrop-filter: blur(2px);
+}
+
+.treatment-modal-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 92%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+}
+
+.treatment-package-name {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #2B0A14;
+}
+
+.timeline-badge {
+  background: linear-gradient(135deg, #8B1638 0%, #D63A6A 100%) !important;
+  color: #ffffff !important;
+}

@@ -1,0 +1,120 @@
+<main class="price-list-page">
+  <!-- Page Hero Banner -->
+  <header class="page-hero" appReveal>
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Bảng giá minh bạch</span>
+      <h1 class="page-hero__title">Chi phí dịch vụ chuẩn y khoa</h1>
+      <p class="page-hero__lead">
+        Bloom cam kết minh bạch 100% về chi phí. Khách hàng luôn được thông báo trọn gói và giải thích cụ thể trước khi thực hiện bất kỳ liệu trình nào.
+      </p>
+    </div>
+  </header>
+
+  <div class="container-bloom py-5">
+    <!-- Notice Box: Prices are indicative -->
+    <div class="notice-card" appReveal [revealDelay]="80">
+      <div class="notice-card__icon">
+        <i class="bi bi-info-circle-fill"></i>
+      </div>
+      <div class="notice-card__body">
+        <h2 class="notice-card__title">Lưu ý về bảng giá tham khảo</h2>
+        <p class="notice-card__desc">
+          Mức giá dưới đây là giá niêm yết cơ sở cho từng buổi trị liệu. Sau khi soi da và thăm khám trực tiếp, bác sĩ sẽ xác định mức độ tổn thương thực tế và tư vấn phác đồ cá nhân hoá kèm tổng chi phí chính xác nhất. Không phát sinh chi phí ẩn ngoài phác đồ đã thống nhất.
+        </p>
+      </div>
+    </div>
+
+    <!-- Group Filter Tabs -->
+    <nav class="filter-bar" aria-label="Lọc theo nhóm dịch vụ" appReveal [revealDelay]="120">
+      @for (g of groups; track g.value) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="selectedGroup() === g.value"
+          (click)="selectGroup(g.value)"
+        >
+          <i class="bi {{ g.icon }}" aria-hidden="true"></i>
+          <span>{{ g.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- Price Tables Sections -->
+    <div class="price-sections-wrapper">
+      @for (sec of visibleTables(); track sec.group; let idx = $index) {
+        <section class="price-category-card" appReveal [revealDelay]="idx * 100">
+          <div class="price-category-card__header">
+            <div>
+              <span class="category-badge">{{ groupLabel(sec.group) }}</span>
+              <h2 class="category-title">{{ sec.title }}</h2>
+            </div>
+            <p class="category-desc">{{ sec.description }}</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="bloom-table" [attr.aria-label]="sec.title">
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 40%">Tên dịch vụ</th>
+                  <th scope="col" class="text-center" style="width: 15%">Thời lượng</th>
+                  <th scope="col" class="text-center" style="width: 15%">Đơn vị</th>
+                  <th scope="col" class="text-end" style="width: 15%">Giá niêm yết</th>
+                  <th scope="col" class="text-end" style="width: 15%">Chi tiết</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of sec.rows; track row.serviceName) {
+                  <tr>
+                    <td>
+                      <div class="service-name-cell">
+                        <strong>{{ row.serviceName }}</strong>
+                        @if (row.note) {
+                          <span class="service-note-text">{{ row.note }}</span>
+                        }
+                      </div>
+                    </td>
+                    <td class="text-center text-muted">
+                      <i class="bi bi-clock me-1"></i>{{ row.durationMinutes }} phút
+                    </td>
+                    <td class="text-center text-muted">{{ row.unit }}</td>
+                    <td class="text-end">
+                      <span class="price-cell">{{ row.price | vnd }}</span>
+                    </td>
+                    <td class="text-end">
+                      @if (row.slug) {
+                        <a [routerLink]="['/services', row.slug]" class="btn-sm-view">
+                          Xem <i class="bi bi-chevron-right ms-1"></i>
+                        </a>
+                      } @else {
+                        <a routerLink="/" fragment="booking" class="btn-sm-book">
+                          Đặt hẹn
+                        </a>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+
+    <!-- Booking CTA Banner -->
+    <div class="price-cta-banner mt-5" appReveal>
+      <div class="price-cta-banner__content">
+        <span class="eyebrow-white">Ưu đãi thăm khám</span>
+        <h2 class="cta-title">Tư vấn và soi da miễn phí cùng Bác sĩ Da liễu</h2>
+        <p class="cta-desc">
+          Đặt hẹn ngay hôm nay để nhận kết quả phân tích chuyên sâu đa tầng bằng máy soi da 3D hiện đại.
+        </p>
+      </div>
+      <div class="price-cta-banner__action">
+        <a routerLink="/" fragment="booking" class="btn-cta-white">
+          <i class="bi bi-calendar2-heart-fill me-2"></i>
+          Đặt lịch ngay
+        </a>
+      </div>
+    </div>
+  </div>
+</main>

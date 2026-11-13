@@ -1,0 +1,62 @@
+<section class="error-page">
+  <!-- Floating bloom line-art SVG -->
+  <div class="error-bg-art" aria-hidden="true">
+    <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g opacity="0.18" stroke="#D63A6A" stroke-width="1.5" fill="none">
+        <!-- Main bloom -->
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(0 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(45 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(90 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(135 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(180 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(225 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(270 200 200)"/>
+        <ellipse cx="200" cy="150" rx="28" ry="52" transform="rotate(315 200 200)"/>
+        <circle cx="200" cy="200" r="20"/>
+        <!-- Stem -->
+        <path d="M200 220 Q200 320 185 350" stroke-linecap="round"/>
+        <path d="M196 280 Q165 258 158 232" stroke-linecap="round"/>
+        <!-- Lock symbol (403 theme) -->
+        <rect x="182" y="195" width="36" height="28" rx="4" stroke-width="1.5"/>
+        <path d="M190 195 Q190 183 200 183 Q210 183 210 195" stroke-linecap="round" stroke-width="1.5"/>
+        <circle cx="200" cy="209" r="3" fill="#D63A6A" stroke="none"/>
+        <!-- Small bloom top-right -->
+        <ellipse cx="320" cy="70" rx="12" ry="22" transform="rotate(0 320 70)"/>
+        <ellipse cx="320" cy="70" rx="12" ry="22" transform="rotate(60 320 70)"/>
+        <ellipse cx="320" cy="70" rx="12" ry="22" transform="rotate(120 320 70)"/>
+        <ellipse cx="320" cy="70" rx="12" ry="22" transform="rotate(180 320 70)"/>
+        <ellipse cx="320" cy="70" rx="12" ry="22" transform="rotate(240 320 70)"/>
+        <ellipse cx="320" cy="70" rx="12" ry="22" transform="rotate(300 320 70)"/>
+        <circle cx="320" cy="70" r="8"/>
+        <!-- Small bloom bottom-left -->
+        <ellipse cx="70" cy="340" rx="16" ry="30" transform="rotate(20 70 340)"/>
+        <ellipse cx="70" cy="340" rx="16" ry="30" transform="rotate(80 70 340)"/>
+        <ellipse cx="70" cy="340" rx="16" ry="30" transform="rotate(140 70 340)"/>
+        <ellipse cx="70" cy="340" rx="16" ry="30" transform="rotate(200 70 340)"/>
+        <ellipse cx="70" cy="340" rx="16" ry="30" transform="rotate(260 70 340)"/>
+        <ellipse cx="70" cy="340" rx="16" ry="30" transform="rotate(320 70 340)"/>
+        <circle cx="70" cy="340" r="11"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="error-content">
+    <p class="error-label">Lỗi</p>
+    <h1 class="error-code">403</h1>
+    <h2 class="error-title">Bạn chưa có quyền truy cập!</h2>
+    <p class="error-message">
+      Khu vực này chỉ dành cho thành viên đã đăng nhập hoặc có quyền hạn phù hợp.<br>
+      Vui lòng đăng nhập hoặc liên hệ Bloom để được hỗ trợ.
+    </p>
+    <div class="error-actions">
+      <a routerLink="/" class="btn-bloom">
+        <i class="bi bi-house-door-fill"></i>
+        Về trang chủ
+      </a>
+      <a routerLink="/login" class="btn-bloom-outline">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Đăng nhập
+      </a>
+    </div>
+  </div>
+</section>

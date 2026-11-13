@@ -1,0 +1,319 @@
+<div class="container mt-4">
+  <!-- TIÊU ĐỀ TRANG -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Quản Lý Gói Liệu Trình Điều Trị</h4>
+    </div>
+    @if (viewMode() === 'detail') {
+      <button type="button" class="btn btn-outline-secondary fw-semibold btn-sm" (click)="backToList()">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách gói
+      </button>
+    }
+  </div>
+
+  <!-- THÔNG BÁO THÀNH CÔNG -->
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2 mb-3" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage() }}
+      <button type="button" class="btn-close py-2" (click)="successMessage.set('')"></button>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- VIEW 1: BẢNG DANH SÁCH GÓI FULL PAGE       -->
+  <!-- ========================================== -->
+  @if (viewMode() === 'list') {
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold text-dark">
+          Danh Sách Gói Liệu Trình Của Bạn
+        </h5>
+        <span class="badge bg-primary rounded-pill px-3 py-2">
+          {{ treatments().length }} gói điều trị
+        </span>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 80px;" class="text-center">STT</th>
+                <th>Tên Gói Liệu Trình</th>
+                <th style="width: 320px;">Tiến Độ Điều Trị</th>
+                <th class="text-center" style="width: 180px;">Trạng Thái</th>
+                <th class="text-end pe-4" style="width: 160px;">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of treatments(); track item._id; let idx = $index) {
+                <tr class="cursor-pointer" (click)="viewDetails(item)">
+                  <!-- Cột 1: STT -->
+                  <td class="text-center text-muted fw-bold">{{ idx + 1 }}</td>
+
+                  <!-- Cột 2: Tên gói liệu trình -->
+                  <td>
+                    <strong class="text-dark d-block fs-6">{{ item.treatmentName }}</strong>
+                    <small class="text-muted">
+                      Mã hồ sơ: <span class="font-monospace">#{{ item._id?.slice(-6) || ('LT-0' + (idx + 1)) }}</span>
+                    </small>
+                  </td>
+
+                  <!-- Cột 3: Tiến độ (x/y buổi + Progress bar) -->
+                  <td>
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                      <span>Đã làm: <strong>{{ item.usedSessions }} / {{ item.totalSessions }} buổi</strong></span>
+                      <span>{{ ((item.usedSessions / item.totalSessions) * 100).toFixed(0) }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                      <div
+                        class="progress-bar"
+                        [class.bg-success]="item.status === 'active'"
+                        [class.bg-secondary]="item.status !== 'active'"
+                        role="progressbar"
+                        [style.width.%]="(item.usedSessions / item.totalSessions) * 100"
+                      ></div>
+                    </div>
+                  </td>
+
+                  <!-- Cột 4: Trạng thái -->
+                  <td class="text-center">
+                    @if (item.status === 'active') {
+                      <span class="badge bg-success px-3 py-2">Đang thực hiện</span>
+                    } @else {
+                      <span class="badge bg-secondary px-3 py-2">Đã hoàn thành</span>
+                    }
+                  </td>
+
+                  <!-- Cột 5: Thao tác -->
+                  <td class="text-end pe-4">
+                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" (click)="viewDetails(item); $event.stopPropagation()">
+                      Xem Nhật Ký →
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                    <div class="fw-semibold">Bạn chưa đăng ký gói trị liệu nào tại phòng khám.</div>
+                    <small>Vui lòng liên hệ quầy tiếp tân hoặc đặt lịch khám để được bác sĩ lên phác đồ.</small>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- VIEW 2: CHI TIẾT NHẬT KÝ ĐIỀU TRỊ TỪNG BUỔI -->
+  <!-- ========================================== -->
+  @if (viewMode() === 'detail' && selectedTreatment()) {
+    <div class="row g-4">
+      <!-- CỘT TRÁI: TỔNG QUAN GÓI ĐIỀU TRỊ -->
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-header py-3">
+            <h5 class="mb-0 fw-bold">Thông Tin Gói Liệu Trình</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="treatment-package-name mb-2">{{ selectedTreatment()?.treatmentName }}</div>
+            
+            <div class="mb-3">
+              @if (selectedTreatment()?.status === 'active') {
+                <span class="badge bg-success">Đang thực hiện</span>
+              } @else {
+                <span class="badge bg-secondary">Đã hoàn tất</span>
+              }
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border mb-3">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Tổng số buổi:</span>
+                <strong class="text-dark">{{ selectedTreatment()?.totalSessions }} buổi</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Đã thực hiện:</span>
+                <strong class="text-success">{{ selectedTreatment()?.usedSessions }} buổi</strong>
+              </div>
+              <div class="d-flex justify-content-between border-top pt-2">
+                <span class="text-muted">Số buổi còn lại:</span>
+                <strong class="text-danger">{{ selectedTreatment()?.remainingSessions }} buổi</strong>
+              </div>
+            </div>
+
+            <div class="progress mb-2" style="height: 8px;">
+              <div
+                class="progress-bar bg-success"
+                role="progressbar"
+                [style.width.%]="(selectedTreatment()!.usedSessions / selectedTreatment()!.totalSessions) * 100"
+              ></div>
+            </div>
+            <small class="text-muted d-block text-center mb-3">
+              Tiến độ: {{ ((selectedTreatment()!.usedSessions / selectedTreatment()!.totalSessions) * 100).toFixed(0) }}%
+            </small>
+
+            <button type="button" class="btn btn-outline-secondary w-100" (click)="backToList()">
+              <i class="bi bi-arrow-left me-1"></i> Trở về danh sách gói
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI: TIMELINE NHẬT KÝ & ĐÁNH GIÁ TỪNG BUỔI -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">
+              <i class="bi bi-clock-history text-primary me-2"></i>
+              Nhật Ký Tiến Trình Từng Buổi Khám
+            </h5>
+            <span class="badge bg-light text-dark border">
+              {{ selectedTreatment()?.history?.length || 0 }} buổi đã làm
+            </span>
+          </div>
+
+          <div class="card-body p-4">
+            <div class="timeline">
+              @for (h of selectedTreatment()?.history; track h.date; let idx = $index) {
+                <div class="timeline-item pb-4 position-relative ps-4 border-start border-2 border-primary">
+                  <!-- Số thứ tự buổi tròn trên timeline -->
+                  <div class="timeline-badge bg-primary text-white rounded-circle position-absolute text-center fw-bold shadow-sm">
+                    {{ idx + 1 }}
+                  </div>
+
+                  <!-- Nội dung chính của buổi -->
+                  <div class="card border p-3 rounded-3 shadow-none bg-light-subtle">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                      <h6 class="fw-bold text-dark mb-0">
+                        Buổi {{ idx + 1 }} - Ngày {{ h.date }}
+                      </h6>
+                      <span class="badge bg-light text-secondary border">
+                        <i class="bi bi-person-badge me-1"></i>Phụ trách: {{ getStaffName(h.staffId) }}
+                      </span>
+                    </div>
+
+                    <!-- Ghi chú tiến trình chuyên môn -->
+                    <div class="bg-white p-3 rounded-2 border mb-3">
+                      <small class="text-muted fw-semibold d-block mb-1">Ghi chú chuyên môn:</small>
+                      <p class="text-dark small mb-0">{{ h.note }}</p>
+                    </div>
+
+                    <!-- KHU VỰC ĐÁNH GIÁ (RATE SAO & NHẬN XÉT) -->
+                    <div class="border-top pt-2">
+                      @if (h.rating) {
+                        <!-- Đã có đánh giá -->
+                        <div class="p-2 bg-warning-subtle rounded-2 border border-warning-subtle">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-dark">
+                              <i class="bi bi-star-fill text-warning me-1"></i>Đánh giá của bạn:
+                            </span>
+                            <span class="text-warning fw-bold">
+                              @for (star of [1,2,3,4,5]; track star) {
+                                <span [class.text-warning]="star <= h.rating!" [class.text-muted]="star > h.rating!">★</span>
+                              }
+                              <small class="text-dark ms-1">({{ h.rating }}/5)</small>
+                            </span>
+                          </div>
+                          @if (h.ratingComment) {
+                            <p class="small text-muted mb-0 fst-italic">"{{ h.ratingComment }}"</p>
+                          }
+                        </div>
+                      } @else {
+                        <!-- Chưa đánh giá -> Nút mở modal -->
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small class="text-muted">Bạn cảm thấy dịch vụ buổi này thế nào?</small>
+                          <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-dark" (click)="openReviewModal(h, idx + 1)">
+                            ★ Đánh Giá Buổi Này
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="text-center py-5 text-muted">
+                  <i class="bi bi-calendar-x fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                  Gói điều trị này chưa ghi nhận buổi làm việc nào.
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL POPUP: ĐÁNH GIÁ BUỔI ĐIỀU TRỊ        -->
+<!-- ========================================== -->
+@if (isReviewModalOpen()) {
+  <div class="treatment-modal-backdrop" (click)="closeReviewModal()">
+    <div class="treatment-modal-dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header border-bottom pb-3">
+        <h5 class="modal-title fw-bold text-dark mb-0">
+          <i class="bi bi-star-fill text-warning me-2"></i>
+          Đánh Giá Buổi {{ selectedSessionIndex() }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeReviewModal()"></button>
+      </div>
+
+      <div class="modal-body py-3">
+        @if (reviewError()) {
+          <div class="alert alert-danger py-2 small mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ reviewError() }}
+          </div>
+        }
+
+        <div class="p-2 bg-light rounded-2 border mb-3 small">
+          <div><strong>Gói:</strong> {{ selectedTreatment()?.treatmentName }}</div>
+          <div class="text-muted"><strong>Ngày khám:</strong> {{ selectedSessionForReview()?.date }}</div>
+          <div class="text-muted"><strong>Bác sĩ / KTV:</strong> {{ getStaffName(selectedSessionForReview()?.staffId || '') }}</div>
+        </div>
+
+        <!-- RATE SAO -->
+        <div class="mb-3 text-center">
+          <label class="form-label d-block fw-bold small mb-2">Mức độ hài lòng của bạn (*):</label>
+          <div class="star-rating fs-2" style="cursor: pointer;">
+            @for (s of [1, 2, 3, 4, 5]; track s) {
+              <span class="star px-1" [class.text-warning]="s <= reviewStars()" [class.text-black-50]="s > reviewStars()" (click)="setStars(s)">
+                ★
+              </span>
+            }
+          </div>
+          <small class="text-muted d-block mt-1">
+            @if (reviewStars() === 5) { Tuyệt vời, rất hài lòng }
+            @else if (reviewStars() === 4) { Rất tốt }
+            @else if (reviewStars() === 3) { Bình thường / Tạm ổn }
+            @else if (reviewStars() === 2) { Chưa hài lòng }
+            @else if (reviewStars() === 1) { Kém / Cần cải thiện }
+          </small>
+        </div>
+
+        <!-- NHẬP NHẬN XÉT -->
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Nhận xét chi tiết (*):</label>
+          <textarea
+            class="form-control form-control-sm"
+            rows="3"
+            placeholder="Cảm nhận về tay nghề bác sĩ/KTV, thái độ phục vụ, hiệu quả da sau buổi..."
+            [(ngModel)]="reviewComment"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top pt-3 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeReviewModal()">
+          Hủy bỏ
+        </button>
+        <button type="submit" class="btn btn-primary btn-sm fw-bold px-3" (click)="submitReview()">
+          <i class="bi bi-send me-1"></i> Gửi Đánh Giá
+        </button>
+      </div>
+    </div>
+  </div>
+}

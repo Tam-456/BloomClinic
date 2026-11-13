@@ -1,0 +1,142 @@
+$bloom-primary: #8e2d56;         // Hồng mận chín
+$bloom-primary-hover: #751f43;
+$bloom-bg-page: #fff9f9;         // Nền trắng hồng phấn rất nhạt
+$bloom-bg-soft: #fdf3f4;         // Nền mục active
+$bloom-border: #f0d5db;          // Viền mảnh
+$bloom-text-main: #332026;
+$bloom-text-muted: #8c737a;
+
+.customer-wrapper {
+  display: flex;
+  background-color: $bloom-bg-page;
+  min-height: calc(100vh - 70px);
+  position: relative;
+  font-family: 'Inter', sans-serif;
+
+  .customer-sidebar {
+    position: sticky;
+    top: 70px;
+    height: calc(100vh - 70px);
+    width: 230px;
+    flex-shrink: 0;
+    background-color: #ffffff;
+    border-right: 1px solid $bloom-border;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 6px rgba(142, 45, 86, 0.03);
+    overflow-y: auto;
+  }
+
+  .customer-main-content {
+    flex: 1;
+    min-width: 0; // Tránh vỡ layout khi bên trong có bảng rộng
+    padding: 28px 36px 60px;
+    background-color: $bloom-bg-page;
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      color: $bloom-primary;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+  }
+
+  // Header của sidebar chứa nút toggle
+  .sidebar-toggle-header {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: 1px solid $bloom-border;
+
+    .btn-toggle-sidebar {
+      background: transparent;
+      border: none;
+      color: $bloom-primary;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $bloom-bg-soft;
+      }
+    }
+  }
+
+  // Danh sách Menu
+  .customer-menu {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    flex: 1;
+
+    .menu-item {
+      margin-bottom: 3px;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 20px;
+      color: $bloom-text-main;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-right: 3px solid transparent;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 1.1rem;
+        color: $bloom-text-muted;
+        min-width: 20px;
+        text-align: center;
+        transition: color 0.2s;
+      }
+
+      &:hover {
+        background-color: $bloom-bg-soft;
+        color: $bloom-primary;
+        i { color: $bloom-primary; }
+      }
+
+      &.active {
+        background-color: $bloom-bg-soft;
+        color: $bloom-primary;
+        font-weight: 600;
+        border-right: 3px solid $bloom-primary;
+
+        i {
+          color: $bloom-primary;
+        }
+      }
+    }
+  }
+
+  // TRẠNG THÁI THU GỌN (COLLAPSED)
+  &.collapsed {
+    .customer-sidebar {
+      width: 68px;
+
+      .sidebar-toggle-header {
+        justify-content: center;
+      }
+
+      .menu-link {
+        justify-content: center;
+        padding: 12px 0;
+        gap: 0;
+
+        .link-text {
+          display: none;
+        }
+      }
+    }
+  }
+}

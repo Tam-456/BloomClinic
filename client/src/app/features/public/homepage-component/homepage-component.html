@@ -1,0 +1,646 @@
+<main class="home-page">
+
+  <!-- ══════════════════════════════════════════════════════════
+       1. HERO
+       ══════════════════════════════════════════════════════════ -->
+  <section class="hero" aria-label="Bloom Beauty & Wellness – Giới thiệu">
+
+    <!-- Background video (fully muted, playsinline, loop) -->
+    <video
+      #heroVideo
+      class="hero__video"
+      src="assets/videos/hero-loop.mp4"
+      poster="assets/images/spa.jpg"
+      autoplay
+      [muted]="true"
+      muted
+      defaultMuted
+      loop
+      playsinline
+      aria-hidden="true"
+    ></video>
+    <!-- Pink gradient overlay -->
+    <div class="hero__overlay" aria-hidden="true"></div>
+
+    <div class="hero__inner">
+      <!-- Main copy -->
+      <div class="hero__copy">
+        <p class="eyebrow hero__eyebrow">Phòng khám Da liễu &amp; Không gian Spa y khoa</p>
+        <h1 class="hero__headline">Nở đẹp từ gốc</h1>
+        <p class="hero__subline">
+          Nơi tri thức y khoa song hành cùng sự thư thái. Đội ngũ Bác sĩ Chuyên khoa Da liễu
+          trực tiếp thăm khám, thấu hiểu từng làn da và thiết kế phác đồ điều trị chuyên biệt cho riêng bạn.
+        </p>
+        <div class="hero__actions">
+          <a href="#booking" class="btn-bloom">
+            <i class="bi bi-calendar2-heart-fill" aria-hidden="true"></i>
+            Đặt lịch thăm khám
+          </a>
+          <a routerLink="/services" class="btn-bloom-outline hero__btn-outline">
+            <i class="bi bi-grid-fill" aria-hidden="true"></i>
+            Khám phá dịch vụ
+          </a>
+        </div>
+      </div>
+
+      <!-- Glass info card -->
+      <div class="hero__glass-card">
+        <div class="glass-card-row">
+          <i class="bi bi-telephone-fill glass-card-icon" aria-hidden="true"></i>
+          <div>
+            <span class="glass-card-label">Hotline</span>
+            <a href="tel:19006789" class="glass-card-value">1900 6789</a>
+          </div>
+        </div>
+        <div class="glass-card-divider"></div>
+        <div class="glass-card-row">
+          <i class="bi bi-clock-fill glass-card-icon" aria-hidden="true"></i>
+          <div>
+            <span class="glass-card-label">Giờ mở cửa</span>
+            <span class="glass-card-value">09:00 – 20:00 mỗi ngày</span>
+          </div>
+        </div>
+        <div class="glass-card-divider"></div>
+        <div class="glass-card-row">
+          <i class="bi bi-geo-alt-fill glass-card-icon" aria-hidden="true"></i>
+          <div>
+            <span class="glass-card-label">Địa chỉ</span>
+            <span class="glass-card-value">310 Lam Sơn, Gò Vấp, TP.HCM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll-down indicator -->
+    <div class="hero__scroll-hint" aria-hidden="true">
+      <i class="bi bi-chevron-double-down"></i>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       2. STATS STRIP
+       ══════════════════════════════════════════════════════════ -->
+  <section class="stats-strip" aria-label="Thống kê nổi bật">
+    <div class="stats-inner">
+      @for (stat of stats; track stat.label; let i = $index) {
+        <div class="stat-card" #statCard appReveal [revealDelay]="i * 80">
+          <span class="stat-value">
+            {{ counterValues()[i] }}<span class="stat-suffix">{{ stat.suffix }}</span>
+          </span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       3. VÌ SAO CHỌN BLOOM
+       ══════════════════════════════════════════════════════════ -->
+  <section class="why-section section-pad" aria-labelledby="why-title">
+    <div class="container-bloom why-grid">
+
+      <!-- Left: about image -->
+      <div class="why-image-wrap" appReveal>
+        <img
+          src="assets/images/about-clinic.jpg"
+          alt="Không gian phòng khám Bloom Beauty & Wellness"
+          class="why-image"
+          loading="lazy"
+          width="600" height="720"
+        >
+        <!-- floating badge -->
+        <div class="why-badge">
+          <i class="bi bi-award-fill" aria-hidden="true"></i>
+          <span>Chuẩn y khoa</span>
+        </div>
+      </div>
+
+      <!-- Right: cards -->
+      <div class="why-content">
+        <p class="eyebrow" appReveal>Giá trị khác biệt</p>
+        <h2 id="why-title" appReveal [revealDelay]="60">Vì sao khách hàng tin chọn Bloom?</h2>
+        <p class="why-lead" appReveal [revealDelay]="120">
+          Chúng tôi tin rằng vẻ đẹp bền vững phải bắt nguồn từ nền tảng làn da khỏe mạnh thực sự — 
+          được nuôi dưỡng bởi y đức, khoa học hiện đại và sự tận tâm chân thành.
+        </p>
+        <div class="why-cards">
+          @for (card of whyCards; track card.title; let i = $index) {
+            <div class="why-card" appReveal [revealDelay]="i * 80 + 160">
+              <div class="why-card__icon">
+                <i class="bi {{ card.icon }}" aria-hidden="true"></i>
+              </div>
+              <div>
+                <h3 class="why-card__title">{{ card.title }}</h3>
+                <p class="why-card__body">{{ card.body }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       4. SERVICES SHOWCASE
+       ══════════════════════════════════════════════════════════ -->
+  <section class="services-section section-pad" aria-labelledby="services-title">
+    <div class="container-bloom">
+      <div class="section-header" appReveal>
+        <p class="eyebrow">Danh mục dịch vụ</p>
+        <h2 id="services-title">Giải pháp chuyên sâu cho từng làn da</h2>
+        <p class="section-lead">
+          Từ chăm sóc thư giãn tầng sâu đến các phác đồ điều trị da liễu chuyên biệt — mọi nhu cầu đều được thiết kế lộ trình riêng.
+        </p>
+      </div>
+
+      <div class="service-group-grid">
+        @for (grp of serviceGroups; track grp.slug; let i = $index) {
+          <a
+            [routerLink]="['/services']"
+            [queryParams]="{ group: grp.slug }"
+            class="service-group-card"
+            appReveal [revealDelay]="i * 90"
+            [attr.aria-label]="'Dịch vụ ' + grp.label"
+          >
+            <div class="service-group-card__img-wrap">
+              <img
+                [src]="grp.image"
+                [alt]="grp.label"
+                loading="lazy"
+                class="service-group-card__img"
+              >
+              <div class="service-group-card__overlay" aria-hidden="true"></div>
+            </div>
+            <div class="service-group-card__content">
+              <h3 class="service-group-card__title">{{ grp.label }}</h3>
+              <p class="service-group-card__tagline">{{ grp.tagline }}</p>
+              <span class="service-group-card__cta">
+                Khám phá <i class="bi bi-arrow-right" aria-hidden="true"></i>
+              </span>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       5. FEATURED PRICES
+       ══════════════════════════════════════════════════════════ -->
+  <section class="prices-section section-pad" aria-labelledby="prices-title">
+    <div class="container-bloom">
+      <div class="section-header" appReveal>
+        <p class="eyebrow">Bảng giá nổi bật</p>
+        <h2 id="prices-title">Minh bạch – Rõ ràng – Không phát sinh</h2>
+      </div>
+
+      <div class="price-grid">
+        @for (item of featuredPrices; track item.name; let i = $index) {
+          <div class="price-card" appReveal [revealDelay]="i * 80">
+            @if (item.badge) {
+              <span class="price-badge">{{ item.badge }}</span>
+            }
+            <p class="price-card__name">{{ item.name }}</p>
+            <p class="price-card__amount">{{ item.price | vnd }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="prices-cta" appReveal>
+        <a routerLink="/price-list" class="btn-bloom">
+          <i class="bi bi-list-columns-reverse" aria-hidden="true"></i>
+          Xem toàn bộ bảng giá
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       6. JOURNEY TIMELINE
+       ══════════════════════════════════════════════════════════ -->
+  <section class="journey-section section-pad" aria-labelledby="journey-title">
+    <div class="container-bloom">
+      <div class="section-header" appReveal>
+        <p class="eyebrow">Quy trình dịch vụ</p>
+        <h2 id="journey-title">Hành trình chăm sóc chuẩn y khoa</h2>
+        <p class="section-lead">Tận tâm trong từng bước nhỏ để làn da phục hồi khỏe đẹp dài lâu.</p>
+      </div>
+
+      <div class="journey-track" #journeyTrack>
+        <!-- SVG connecting line (drawn in via CSS animation on scroll) -->
+        <div class="journey-line" aria-hidden="true">
+          <svg class="journey-line__svg" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="0.5" x2="1" y2="0.5" class="journey-line__path"/>
+          </svg>
+        </div>
+
+        @for (step of journeySteps; track step.step; let i = $index) {
+          <div class="journey-step" appReveal [revealDelay]="i * 110">
+            <div class="journey-step__node">
+              <div class="journey-step__circle">
+                <i class="bi {{ step.icon }}" aria-hidden="true"></i>
+              </div>
+              <span class="journey-step__num">0{{ step.step }}</span>
+            </div>
+            <div class="journey-step__content">
+              <h3 class="journey-step__title">{{ step.title }}</h3>
+              <p class="journey-step__body">{{ step.body }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       7. TEAM
+       ══════════════════════════════════════════════════════════ -->
+  <section class="team-section section-pad" aria-labelledby="team-title">
+    <div class="container-bloom">
+      <div class="section-header" appReveal>
+        <p class="eyebrow">Đội ngũ chuyên môn</p>
+        <h2 id="team-title">Bác sĩ Da liễu trực tiếp thăm khám</h2>
+        <p class="section-lead">100% Bác sĩ tại Bloom đều tốt nghiệp chuyên khoa Da liễu và có nhiều năm kinh nghiệm lâm sàng tại các bệnh viện tuyến đầu.</p>
+      </div>
+
+      <div class="team-grid">
+        @for (doc of doctors; track doc._id; let i = $index) {
+          <article class="doctor-card" appReveal [revealDelay]="i * 100">
+            <div class="doctor-card__img-wrap">
+              <img
+                [src]="doc.avatar"
+                [alt]="doc.staffName"
+                loading="lazy"
+                class="doctor-card__img"
+              >
+              <!-- Glass hover overlay -->
+              <div class="doctor-card__overlay">
+                <p class="doctor-card__specialty-full">{{ doc.specialty }}</p>
+                <a routerLink="/professors" class="doctor-card__link">
+                  Xem hồ sơ <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+            <div class="doctor-card__info">
+              <h3 class="doctor-card__name">{{ doc.staffName }}</h3>
+              <p class="doctor-card__title">{{ doc.title }}</p>
+              <div class="doctor-card__rating" [attr.aria-label]="'Đánh giá ' + doc.rating + ' sao'">
+                @for (filled of starsArray(doc.rating || 0); track $index) {
+                  <i class="bi" [class.bi-star-fill]="filled" [class.bi-star]="!filled" aria-hidden="true"></i>
+                }
+                <span class="rating-val">{{ doc.rating }}</span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="team-cta" appReveal>
+        <a routerLink="/professors" class="btn-bloom-outline">
+          <i class="bi bi-people-fill" aria-hidden="true"></i>
+          Gặp gỡ toàn bộ đội ngũ
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       8. MAP – BLOOM TẠI TP.HCM
+       ══════════════════════════════════════════════════════════ -->
+  <section class="map-section section-pad" aria-labelledby="map-title">
+    <div class="container-bloom map-layout">
+
+      <!-- Map SVG component -->
+      <div class="map-svg-col" appReveal>
+        <app-map-component></app-map-component>
+      </div>
+
+      <!-- Address card -->
+      <div class="map-info-col">
+        <p class="eyebrow" appReveal>Địa chỉ</p>
+        <h2 id="map-title" appReveal [revealDelay]="60">Bloom tại TP.HCM</h2>
+        <p class="map-tagline" appReveal [revealDelay]="120">
+          Phòng khám Da liễu &amp; Không gian Spa y khoa thanh lịch tại quận Gò Vấp — không gian yên tĩnh, bãi đỗ xe thuận tiện và dễ dàng di chuyển từ trung tâm thành phố.
+        </p>
+
+        <address class="map-address" appReveal [revealDelay]="180">
+          <div class="map-address__row">
+            <i class="bi bi-geo-alt-fill map-address__icon" aria-hidden="true"></i>
+            <div>
+              <span class="map-address__label">Địa chỉ</span>
+              <span class="map-address__value">310 Lam Sơn, Phường 5, Quận Gò Vấp, TP.HCM</span>
+            </div>
+          </div>
+          <div class="map-address__row">
+            <i class="bi bi-telephone-fill map-address__icon" aria-hidden="true"></i>
+            <div>
+              <span class="map-address__label">Hotline</span>
+              <a href="tel:19006789" class="map-address__value map-address__link">1900 6789</a>
+            </div>
+          </div>
+          <div class="map-address__row">
+            <i class="bi bi-clock-fill map-address__icon" aria-hidden="true"></i>
+            <div>
+              <span class="map-address__label">Giờ mở cửa</span>
+              <span class="map-address__value">09:00 – 20:00 mỗi ngày (kể cả cuối tuần)</span>
+            </div>
+          </div>
+          <div class="map-address__row">
+            <i class="bi bi-envelope-fill map-address__icon" aria-hidden="true"></i>
+            <div>
+              <span class="map-address__label">Email</span>
+              <a href="mailto:contact@bloomwellness.vn" class="map-address__value map-address__link">contact&#64;bloomwellness.vn</a>
+            </div>
+          </div>
+        </address>
+
+        <div class="map-actions" appReveal [revealDelay]="240">
+          <a
+            href="https://maps.google.com/?q=310+Lam+Son+Go+Vap+Ho+Chi+Minh"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-bloom"
+          >
+            <i class="bi bi-map-fill" aria-hidden="true"></i>
+            Chỉ đường
+          </a>
+          <a href="tel:19006789" class="btn-bloom-outline">
+            <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+            Gọi ngay
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       9. TESTIMONIALS
+       ══════════════════════════════════════════════════════════ -->
+  <section class="testimonials-section section-pad" aria-labelledby="testimonials-title">
+    <div class="container-bloom">
+      <div class="section-header" appReveal>
+        <p class="eyebrow">Cảm nhận khách hàng</p>
+        <h2 id="testimonials-title">Lắng nghe chia sẻ từ những người đã trải nghiệm</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        @for (t of testimonials; track t.name; let i = $index) {
+          <blockquote class="testimonial-card" appReveal [revealDelay]="i * 100">
+            <!-- Stars -->
+            <div class="testimonial-stars" [attr.aria-label]="'Đánh giá ' + t.rating + ' sao'">
+              @for (filled of starsArray(t.rating); track $index) {
+                <i class="bi" [class.bi-star-fill]="filled" [class.bi-star]="!filled" aria-hidden="true"></i>
+              }
+            </div>
+            <!-- Quote -->
+            <p class="testimonial-text">{{ t.text }}</p>
+            <!-- Author -->
+            <footer class="testimonial-author">
+              <div class="testimonial-avatar" aria-hidden="true">{{ t.avatar }}</div>
+              <div>
+                <cite class="testimonial-name">{{ t.name }}</cite>
+                <span class="testimonial-meta">{{ t.service }} · {{ t.date }}</span>
+              </div>
+            </footer>
+          </blockquote>
+        }
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       10. KNOWLEDGE / ARTICLES
+       ══════════════════════════════════════════════════════════ -->
+  <section class="knowledge-section section-pad" aria-labelledby="knowledge-title">
+    <div class="container-bloom">
+      <div class="section-header" appReveal>
+        <p class="eyebrow">Cẩm nang da liễu</p>
+        <h2 id="knowledge-title">Kiến thức chăm sóc da khoa học</h2>
+        <p class="section-lead">Chia sẻ chuyên sâu từ Bác sĩ Da liễu giúp bạn nuôi dưỡng làn da đúng cách mỗi ngày.</p>
+      </div>
+
+      <div class="knowledge-grid">
+        @for (a of knowledgeArticles; track a._id; let i = $index) {
+          <article class="knowledge-card" appReveal [revealDelay]="i * 90">
+            <a [routerLink]="['/articles', a.slug]" class="knowledge-card__img-link" [attr.aria-label]="a.title">
+              <img
+                [src]="a.thumbnail"
+                [alt]="a.title"
+                loading="lazy"
+                class="knowledge-card__img"
+              >
+            </a>
+            <div class="knowledge-card__body">
+              <p class="eyebrow">{{ a.category }}</p>
+              <h3 class="knowledge-card__title">
+                <a [routerLink]="['/articles', a.slug]">{{ a.title }}</a>
+              </h3>
+              <p class="knowledge-card__summary">{{ a.summary }}</p>
+              <a [routerLink]="['/articles', a.slug]" class="knowledge-card__more">
+                Đọc tiếp <i class="bi bi-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="knowledge-cta" appReveal>
+        <a routerLink="/articles" class="btn-bloom-outline">
+          <i class="bi bi-journal-richtext" aria-hidden="true"></i>
+          Xem tất cả bài viết
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       11. FAQ
+       ══════════════════════════════════════════════════════════ -->
+  <section class="faq-section section-pad" aria-labelledby="faq-title">
+    <div class="container-bloom faq-layout">
+      <div class="faq-header" appReveal>
+        <p class="eyebrow">Giải đáp thắc mắc</p>
+        <h2 id="faq-title">Những điều bạn quan tâm trước khi đến Bloom</h2>
+        <p class="section-lead">Cần hỗ trợ thêm thông tin chi tiết? Đội ngũ Bloom luôn sẵn sàng phục vụ qua hotline <a href="tel:19006789">1900 6789</a>.</p>
+      </div>
+
+      <div class="faq-list" role="list">
+        @for (item of faqItems; track item.question; let i = $index) {
+          <div class="faq-item" [class.faq-item--open]="openFaqIndex() === i" role="listitem" appReveal [revealDelay]="i * 60">
+            <button
+              class="faq-question"
+              type="button"
+              [attr.aria-expanded]="openFaqIndex() === i"
+              [attr.aria-controls]="'faq-answer-' + i"
+              (click)="toggleFaq(i)"
+            >
+              <span>{{ item.question }}</span>
+              <i class="bi bi-plus-circle faq-icon" aria-hidden="true"></i>
+            </button>
+            <div
+              class="faq-answer"
+              [id]="'faq-answer-' + i"
+              role="region"
+              [attr.hidden]="openFaqIndex() !== i ? '' : null"
+            >
+              <div class="faq-answer__inner">
+                <p>{{ item.answer }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       12. BOOKING BAND
+       ══════════════════════════════════════════════════════════ -->
+  <section class="booking-section section-pad" id="booking" aria-labelledby="booking-title">
+    <div class="container-bloom booking-layout">
+
+      <!-- Left copy -->
+      <div class="booking-copy" appReveal>
+        <p class="eyebrow booking-eyebrow">Đặt lịch hẹn</p>
+        <h2 id="booking-title" class="booking-title">Khởi đầu hành trình<br>nuôi dưỡng làn da rạng rỡ</h2>
+        <p class="booking-desc">
+          Vui lòng để lại thông tin hoặc liên hệ trực tiếp hotline
+          <a href="tel:19006789">1900 6789</a> —
+          chuyên viên Bloom sẽ gọi điện xác nhận lịch hẹn cùng bạn trong vòng 30 phút làm việc.
+        </p>
+        <ul class="booking-perks">
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Bác sĩ CKI Da liễu trực tiếp soi da &amp; tư vấn 1:1</li>
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Không yêu cầu đặt cọc trước — an tâm trải nghiệm</li>
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Phác đồ minh bạch, rõ ràng chi phí trọn gói</li>
+        </ul>
+      </div>
+
+      <!-- Form card -->
+      <div class="booking-form-wrap" appReveal [revealDelay]="120">
+        <form
+          class="booking-form"
+          [formGroup]="bookingForm"
+          (ngSubmit)="onBookingSubmit()"
+          novalidate
+          aria-label="Form đặt lịch hẹn"
+        >
+          <!-- Họ tên -->
+          <div class="form-field" [class.form-field--error]="bf['fullName'].invalid && (bf['fullName'].touched || bookingSubmitted())">
+            <label for="bk-name">Họ và tên <span aria-hidden="true">*</span></label>
+            <input
+              id="bk-name"
+              type="text"
+              formControlName="fullName"
+              placeholder="Nguyễn Thị Lan"
+              autocomplete="name"
+            >
+            @if (bf['fullName'].invalid && (bf['fullName'].touched || bookingSubmitted())) {
+              <span class="form-error">Họ tên cần ít nhất 3 ký tự.</span>
+            }
+          </div>
+
+          <!-- SĐT -->
+          <div class="form-field" [class.form-field--error]="bf['phone'].invalid && (bf['phone'].touched || bookingSubmitted())">
+            <label for="bk-phone">Số điện thoại <span aria-hidden="true">*</span></label>
+            <input
+              id="bk-phone"
+              type="tel"
+              formControlName="phone"
+              placeholder="0901 234 567"
+              autocomplete="tel"
+            >
+            @if (bf['phone'].invalid && (bf['phone'].touched || bookingSubmitted())) {
+              <span class="form-error">Số điện thoại không hợp lệ (vd: 0901234567).</span>
+            }
+          </div>
+
+          <!-- Dịch vụ -->
+          <div class="form-field" [class.form-field--error]="bf['service'].invalid && (bf['service'].touched || bookingSubmitted())">
+            <label for="bk-service">Dịch vụ quan tâm <span aria-hidden="true">*</span></label>
+            <select id="bk-service" formControlName="service">
+              <option value="" disabled>-- Chọn dịch vụ --</option>
+              @for (svc of bookingServices; track svc._id) {
+                <option [value]="svc.serviceName">{{ svc.serviceName }}</option>
+              }
+            </select>
+            @if (bf['service'].invalid && (bf['service'].touched || bookingSubmitted())) {
+              <span class="form-error">Vui lòng chọn dịch vụ.</span>
+            }
+          </div>
+
+          <!-- Ngày -->
+          <div class="form-field" [class.form-field--error]="bf['date'].invalid && (bf['date'].touched || bookingSubmitted())">
+            <label for="bk-date">Ngày hẹn mong muốn <span aria-hidden="true">*</span></label>
+            <input
+              id="bk-date"
+              type="date"
+              formControlName="date"
+              [min]="today"
+            >
+            @if (bf['date'].invalid && (bf['date'].touched || bookingSubmitted())) {
+              <span class="form-error">Vui lòng chọn ngày hẹn.</span>
+            }
+          </div>
+
+          <!-- Ghi chú -->
+          <div class="form-field">
+            <label for="bk-note">Ghi chú thêm (tuỳ chọn)</label>
+            <textarea
+              id="bk-note"
+              formControlName="note"
+              rows="3"
+              placeholder="Mô tả tình trạng da hoặc yêu cầu đặc biệt..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn-bloom booking-submit">
+            <i class="bi bi-calendar2-heart-fill" aria-hidden="true"></i>
+            Gửi yêu cầu đặt lịch hẹn
+          </button>
+
+          <p class="booking-privacy">
+            <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+            Thông tin của bạn được cam kết bảo mật y khoa tuyệt đối.
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       GLASS TOAST
+       ══════════════════════════════════════════════════════════ -->
+  @if (toastVisible()) {
+    <div
+      class="bloom-toast"
+      role="status"
+      aria-live="polite"
+      aria-label="Thông báo"
+    >
+      <div class="bloom-toast__inner">
+        <i class="bi bi-check-circle-fill bloom-toast__icon" aria-hidden="true"></i>
+        <div>
+          <strong>Đã gửi yêu cầu!</strong>
+          <p>Bloom sẽ liên hệ xác nhận lịch trong 2 giờ làm việc.</p>
+        </div>
+        <button type="button" class="bloom-toast__close" (click)="dismissToast()" aria-label="Đóng thông báo">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  }
+
+</main>
+

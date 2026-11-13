@@ -1,0 +1,246 @@
+<div class="container mt-4">
+  <!-- TIÊU ĐỀ TRANG -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-1">Hồ Sơ &amp; Cài Đặt Tài Khoản</h4>
+    </div>
+  </div>
+
+  <!-- THÔNG BÁO THÀNH CÔNG -->
+  @if (profileMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2 mb-3">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ profileMessage() }}
+      <button type="button" class="btn-close py-2" (click)="profileMessage.set('')"></button>
+    </div>
+  }
+  @if (passwordMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2 mb-3">
+      <i class="bi bi-shield-check me-2"></i>{{ passwordMessage() }}
+      <button type="button" class="btn-close py-2" (click)="passwordMessage.set('')"></button>
+    </div>
+  }
+
+  <div class="row g-4">
+    <!-- CỘT 1: THÔNG TIN CÁ NHÂN CỐ ĐỊNH (READ-ONLY) -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold text-dark">Thông Tin Cá Nhân</h5>
+          <button type="button" class="btn btn-sm btn-primary fw-bold" (click)="openEditProfileModal()">
+            <i class="bi bi-pencil-square me-1"></i> Cập Nhật Hồ Sơ
+          </button>
+        </div>
+
+        <div class="card-body p-4">
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+              <tbody>
+                <tr class="border-bottom">
+                  <td class="text-muted py-3" style="width: 220px;">
+                    <i class="bi bi-qr-code me-2"></i>Mã khách hàng:
+                  </td>
+                  <td class="py-3">
+                    <span class="fw-bold font-monospace text-dark">
+                      {{ getDisplayCustomerId(currentUser()) }}
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="border-bottom">
+                  <td class="text-muted py-3">
+                    <i class="bi bi-person-badge me-2"></i>Tên đăng nhập / Email gốc:
+                  </td>
+                  <td class="py-3 fw-semibold text-dark">
+                    {{ currentUser()?.username }}
+                  </td>
+                </tr>
+
+                <tr class="border-bottom">
+                  <td class="text-muted py-3">
+                    <i class="bi bi-person me-2"></i>Họ và tên:
+                  </td>
+                  <td class="py-3 fw-bold text-primary fs-6">
+                    {{ currentUser()?.fullName }}
+                  </td>
+                </tr>
+
+                <tr class="border-bottom">
+                  <td class="text-muted py-3">
+                    <i class="bi bi-gender-ambiguous me-2"></i>Giới tính:
+                  </td>
+                  <td class="py-3 text-dark fw-semibold">
+                    {{ currentUser()?.gender || 'Nữ' }}
+                  </td>
+                </tr>
+
+                <tr class="border-bottom">
+                  <td class="text-muted py-3">
+                    <i class="bi bi-calendar-event me-2"></i>Ngày tháng năm sinh:
+                  </td>
+                  <td class="py-3 text-dark fw-semibold">
+                    {{ (currentUser()?.dateOfBirth | date:'dd/MM/yyyy') || '06/05/2004' }}
+                  </td>
+                </tr>
+
+                <tr class="border-bottom">
+                  <td class="text-muted py-3">
+                    <i class="bi bi-telephone me-2"></i>Số điện thoại:
+                  </td>
+                  <td class="py-3 text-dark fw-semibold font-monospace">
+                    {{ currentUser()?.phone }}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="text-muted py-3">
+                    <i class="bi bi-envelope me-2"></i>Email liên hệ:
+                  </td>
+                  <td class="py-3 text-dark fw-semibold">
+                    {{ currentUser()?.email }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CỘT 2: THẺ HỘI VIÊN & BẢO MẬT TÀI KHOẢN -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-3 mb-4 bg-light">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted small text-uppercase fw-semibold">Hạng Hội Viên</span>
+            <span class="badge bg-warning text-dark px-2 py-1 fw-bold fs-6">
+              {{ currentUser()?.membershipTier || 'Standard' }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="text-muted small text-uppercase fw-semibold">Số dư ví trả trước:</span>
+            <strong class="text-success fs-5">
+              {{ (currentUser()?.prepaidBalance || 0) | number }} đ
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thẻ Bảo Mật & Đổi Mật Khẩu -->
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-bottom py-3">
+          <h5 class="mb-0 fw-bold text-dark">
+            <i class="bi bi-shield-lock me-2 text-primary"></i>Bảo Mật &amp; Mật Khẩu
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-muted small mb-3">
+            Bảo vệ tài khoản bằng mật khẩu mạnh (tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và chữ số) và nên thay đổi định kỳ.
+          </p>
+
+          <button
+            type="button"
+            class="btn bloom-pink-btn w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2"
+            (click)="openChangePasswordModal()"
+          >
+            <i class="bi bi-key"></i> Đổi Mật Khẩu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 1: CẬP NHẬT HỒ SƠ -->
+<app-bloom-modal
+  [isOpen]="isEditProfileModalOpen()"
+  title="Cập Nhật Thông Tin Hồ Sơ"
+  icon="bi-person-lines-fill"
+  maxWidth="560px"
+  (close)="closeEditProfileModal()"
+>
+  <div modal-body>
+    @if (profileError()) {
+      <div class="alert alert-danger py-2 small mb-3">{{ profileError() }}</div>
+    }
+    <form [formGroup]="profileForm" class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Mã khách hàng:</label>
+        <input type="text" class="form-control bg-light font-monospace" [value]="getDisplayCustomerId(currentUser())" disabled>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Tên đăng nhập / Email gốc:</label>
+        <input type="text" class="form-control bg-light" [value]="currentUser()?.username" disabled>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Họ và tên (*):</label>
+        <input type="text" class="form-control" formControlName="fullName" placeholder="Nhập họ và tên...">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Giới tính (*):</label>
+        <select class="form-select" formControlName="gender">
+          <option value="Nữ">Nữ</option>
+          <option value="Nam">Nam</option>
+          <option value="Khác">Khác</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Ngày sinh (*):</label>
+        <input type="date" class="form-control" formControlName="dateOfBirth">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Số điện thoại (*):</label>
+        <input type="text" class="form-control font-monospace" formControlName="phone">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Email liên hệ (*):</label>
+        <input type="email" class="form-control" formControlName="email">
+      </div>
+    </form>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeEditProfileModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-primary" [disabled]="isSavingProfile()" (click)="onSaveProfile()">
+      {{ isSavingProfile() ? 'Đang lưu...' : 'Lưu Thay Đổi' }}
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- MODAL 2: ĐỔI MẬT KHẨU -->
+<app-bloom-modal
+  [isOpen]="isChangePasswordModalOpen()"
+  title="Thay Đổi Mật Khẩu"
+  icon="bi-shield-lock"
+  maxWidth="480px"
+  (close)="closeChangePasswordModal()"
+>
+  <div modal-body>
+    @if (passwordError()) {
+      <div class="alert alert-danger py-2 small mb-3 d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>{{ passwordError() }}</span>
+      </div>
+    }
+    <form [formGroup]="passwordForm" class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Mật khẩu hiện tại (*):</label>
+        <input type="password" class="form-control" formControlName="currentPassword" placeholder="Nhập mật khẩu đang sử dụng...">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Mật khẩu mới (*):</label>
+        <input type="password" class="form-control" formControlName="newPassword" placeholder="Tối thiểu 8 ký tự (Hoa, thường, số)...">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Xác nhận mật khẩu mới (*):</label>
+        <input type="password" class="form-control" formControlName="confirmPassword" placeholder="Nhập lại mật khẩu mới...">
+      </div>
+    </form>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeChangePasswordModal()">Hủy bỏ</button>
+    <button type="button" class="btn btn-primary" [disabled]="isSavingPassword()" (click)="onSavePassword()">
+      {{ isSavingPassword() ? 'Đang kiểm tra...' : 'Xác Nhận Đổi Mật Khẩu' }}
+    </button>
+  </div>
+</app-bloom-modal>

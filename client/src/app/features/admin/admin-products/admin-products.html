@@ -1,0 +1,770 @@
+<div class="container-fluid p-4">
+  <!-- HEADER & CÁC NÚT THAO TÁC -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h4 class="fw-bold mb-1">Quản Lý Kho Thuốc & Dược Mỹ Phẩm</h4>
+      
+    </div>
+
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        class="btn btn-outline-primary d-flex align-items-center gap-2"
+        (click)="openStockUpdateModal()"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Cập Nhật Tồn Kho</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary d-flex align-items-center gap-2"
+        (click)="openCreateProductModal()"
+      >
+        <i class="bi bi-box-seam"></i>
+        <span>Nhập Sản Phẩm Mới</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- THÔNG BÁO -->
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      {{ successMessage() }}
+      <button type="button" class="btn-close py-2" (click)="successMessage.set('')"></button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ errorMessage() }}
+      <button type="button" class="btn-close py-2" (click)="errorMessage.set('')"></button>
+    </div>
+  }
+
+  <!-- BẢNG TỒN KHO & BỘ LỌC -->
+  <div class="card mb-4">
+    <div class="card-header py-3">
+      <div class="row g-3 align-items-center justify-content-between">
+        <div class="col-md-5 col-lg-4">
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="🔍 Tìm theo mã SKU hoặc tên sản phẩm..."
+            [ngModel]="searchKeyword()"
+            (ngModelChange)="searchKeyword.set($event); onFilterChange()"
+          />
+        </div>
+
+        <div class="col-md-3 col-lg-3">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="filterCategory()"
+            (ngModelChange)="filterCategory.set($event); onFilterChange()"
+          >
+            <option value="all">-- Tất cả phân loại --</option>
+            <option value="treatment">Sản phẩm đặc trị</option>
+            <option value="cosmeceutical">Dược mỹ phẩm</option>
+            <option value="supplement">Thực phẩm bổ sung</option>
+          </select>
+        </div>
+
+        <div class="col-md-4 col-lg-5 text-md-end">
+          <div class="btn-group" role="group">
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="filterStock() === 'all'"
+              [class.btn-outline-secondary]="filterStock() !== 'all'"
+              (click)="filterStock.set('all'); onFilterChange()"
+            >
+              Tất cả ({{ products().length }})
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-danger]="filterStock() === 'low'"
+              [class.btn-outline-secondary]="filterStock() !== 'low'"
+              (click)="filterStock.set('low'); onFilterChange()"
+            >
+              ⚠️ Sắp hết (≤ 5)
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-success]="filterStock() === 'available'"
+              [class.btn-outline-secondary]="filterStock() !== 'available'"
+              (click)="filterStock.set('available'); onFilterChange()"
+            >
+              Đủ hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANH SÁCH SẢN PHẨM (CLICK DÒNG XEM CHI TIẾT) -->
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 130px;">Mã SKU</th>
+              <th class="ps-3">Tên Sản Phẩm</th>
+              <th>Phân Loại</th>
+              <th class="text-end">Giá Bán Lẻ</th>
+              <th class="text-center" style="width: 120px;">Tồn Kho</th>
+              <th class="text-center" style="width: 130px;">Trạng Thái</th>
+              <th class="text-end pe-3" style="width: 150px;">Thao Tác</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (p of paginatedProducts(); track p._id) {
+              <tr style="cursor: pointer;" (click)="openProductDetail(p)">
+                <td class="text-center text-muted font-monospace">{{ p.productCode }}</td>
+
+                <td class="ps-3">
+                  <strong class="text-dark d-block">{{ p.productName }}</strong>
+                  <small class="text-muted">Quy cách: {{ p.unit }}</small>
+                </td>
+
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    @if (p.category === 'treatment') {
+                      Sản phẩm đặc trị
+                    } @else if (p.category === 'supplement') {
+                      Thực phẩm bổ sung
+                    } @else {
+                      Dược mỹ phẩm
+                    }
+                  </span>
+                </td>
+
+                <td class="text-end fw-bold price-highlight text-nowrap">
+                  {{ p.price | number }} đ
+                </td>
+
+                <td class="text-center">
+                  <span class="badge bg-light text-dark border px-3 py-1 font-monospace">
+                    {{ p.stockQuantity }}
+                  </span>
+                  @if (hasExpiredBatch(p)) {
+                    <small class="text-danger d-block mt-1">
+                      <i class="bi bi-exclamation-triangle-fill"></i> Có lô hết hạn
+                    </small>
+                  }
+                </td>
+
+                <td class="text-center">
+                  @if (p.stockQuantity <= 0) {
+                    <span class="badge bg-danger">Hết hàng</span>
+                  } @else if (p.stockQuantity <= 5) {
+                    <span class="badge bg-warning text-dark">Sắp hết hàng</span>
+                  } @else {
+                    <span class="badge bg-success">Còn hàng</span>
+                  }
+                </td>
+
+                <td class="text-end pe-3 text-nowrap" (click)="$event.stopPropagation()">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary me-1"
+                    title="Chỉnh sửa sản phẩm"
+                    (click)="openEditProductModal(p)"
+                  >
+                    <i class="bi bi-pencil-square me-1"></i> Sửa
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    title="Xóa sản phẩm"
+                    (click)="deleteProduct(p)"
+                  >
+                    <i class="bi bi-trash me-1"></i> Xóa
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                  Không tìm thấy sản phẩm nào trong kho.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PHÂN TRANG -->
+    @if (totalPages() > 1) {
+      <div class="card-footer bg-white border-top p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <small class="text-muted">
+          Hiển thị <strong>{{ (currentPage() - 1) * pageSize() + 1 }}</strong> - 
+          <strong>{{ (currentPage() * pageSize() > filteredProducts().length ? filteredProducts().length : currentPage() * pageSize()) }}</strong>
+          trên tổng số <strong>{{ filteredProducts().length }}</strong> sản phẩm
+        </small>
+
+        <nav aria-label="Phân trang danh sách sản phẩm">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage() === 1">
+              <button type="button" class="page-link" (click)="setPage(currentPage() - 1)">
+                <i class="bi bi-chevron-left"></i> Trước
+              </button>
+            </li>
+
+            @for (page of pagesArray(); track page) {
+              <li class="page-item" [class.active]="currentPage() === page">
+                <button type="button" class="page-link" (click)="setPage(page)">
+                  {{ page }}
+                </button>
+              </li>
+            }
+
+            <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+              <button type="button" class="page-link" (click)="setPage(currentPage() + 1)">
+                Sau <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ================= POPUP 1: CHI TIẾT SẢN PHẨM ================= -->
+<app-bloom-modal
+  [isOpen]="isProductDetailModalOpen() && !!selectedProductForDetail()"
+  title="Chi Tiết Sản Phẩm"
+  icon="bi-info-circle"
+  maxWidth="680px"
+  (close)="closeProductDetail()"
+>
+  @if (selectedProductForDetail()) {
+    <div modal-body>
+      <h5 class="fw-bold mb-3">{{ selectedProductForDetail()?.productName }}</h5>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <small class="text-muted d-block">Mã SKU</small>
+          <strong class="font-monospace text-muted">{{ selectedProductForDetail()?.productCode }}</strong>
+        </div>
+
+        <div class="col-md-6">
+          <small class="text-muted d-block">Thương hiệu</small>
+          <strong>{{ selectedProductForDetail()?.brand || 'Chưa cập nhật' }}</strong>
+        </div>
+
+        <div class="col-md-6">
+          <small class="text-muted d-block">Nhà sản xuất</small>
+          <strong>{{ selectedProductForDetail()?.manufacturer || 'Chưa cập nhật' }}</strong>
+        </div>
+
+        <div class="col-md-6">
+          <small class="text-muted d-block">Dung tích / Quy cách</small>
+          <strong>{{ selectedProductForDetail()?.volume || selectedProductForDetail()?.unit }}</strong>
+        </div>
+
+        <div class="col-12">
+          <small class="text-muted d-block">Thành phần</small>
+          <p class="mb-0">{{ selectedProductForDetail()?.ingredients || 'Chưa cập nhật' }}</p>
+        </div>
+
+        <div class="col-12">
+          <small class="text-muted d-block">Công dụng</small>
+          <p class="mb-0">{{ selectedProductForDetail()?.uses || 'Chưa cập nhật' }}</p>
+        </div>
+
+        <div class="col-12">
+          <small class="text-muted d-block">Lưu ý / Cảnh báo</small>
+          <p class="mb-0">{{ selectedProductForDetail()?.cautions || 'Chưa cập nhật' }}</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <h6 class="fw-bold text-primary mb-3">
+        <i class="bi bi-boxes me-2"></i>Danh Sách Lô Hàng
+      </h6>
+
+      @if (selectedProductForDetail()?.batches?.length) {
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Ngày nhập</th>
+                <th>Ngày SX</th>
+                <th>Hạn dùng</th>
+                <th class="text-end">SL còn lại</th>
+                <th class="text-center">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (batch of selectedProductForDetail()?.batches; track batch.id) {
+                <tr>
+                  <td>{{ batch.receivedDate | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ batch.manufactureDate | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ batch.expiryDate | date:'dd/MM/yyyy' }}</td>
+                  <td class="text-end font-monospace">{{ batch.remainingQuantity }}</td>
+                  <td class="text-center">
+                    @if (batch.expiryDate && batch.expiryDate < today) {
+                      <span class="badge bg-danger">Hết hạn</span>
+                    } @else if (batch.remainingQuantity <= 0) {
+                      <span class="badge bg-secondary">Hết hàng</span>
+                    } @else {
+                      <span class="badge bg-success">Còn hạn</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="text-muted mb-0">Chưa có thông tin lô hàng.</p>
+      }
+    </div>
+  }
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeProductDetail()">
+      Đóng
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 2: NHẬP SẢN PHẨM MỚI ================= -->
+<app-bloom-modal
+  [isOpen]="isCreateProductModalOpen()"
+  title="Nhập Sản Phẩm / Thuốc Mới Vào Kho"
+  icon="bi-box-seam"
+  maxWidth="680px"
+  (close)="closeCreateProductModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Phân loại mặt hàng (*):</label>
+      <select
+        class="form-select"
+        [ngModel]="newProduct.category"
+        (ngModelChange)="onCategoryChangeInCreateModal($event)"
+      >
+        <option value="cosmeceutical">Dược mỹ phẩm chăm sóc da</option>
+        <option value="treatment">Sản phẩm đặc trị (Kê toa/Liệu trình)</option>
+        <option value="supplement">Thực phẩm bổ sung / Viên uống</option>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Mã SKU / Barcode (*):</label>
+      <input
+        type="text"
+        class="form-control bg-light text-muted fw-bold font-monospace"
+        placeholder="Hệ thống tự cấp..."
+        [(ngModel)]="newProduct.productCode"
+        readonly
+      />
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">Tên sản phẩm / thuốc (*):</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nhập tên sản phẩm..."
+        [(ngModel)]="newProduct.productName"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Giá vốn nhập vào (VNĐ):</label>
+      <input
+        type="number"
+        class="form-control"
+        placeholder="0"
+        [(ngModel)]="newProduct.costPrice"
+        min="0"
+        step="10000"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Giá bán lẻ niêm yết (*):</label>
+      <input
+        type="number"
+        class="form-control"
+        placeholder="0"
+        [(ngModel)]="newProduct.price"
+        min="0"
+        step="10000"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Số lượng nhập ban đầu:</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="newProduct.stockQuantity"
+        min="0"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Đơn vị tính:</label>
+      <select class="form-select" [(ngModel)]="newProduct.unit">
+        <option value="Tuýp">Tuýp</option>
+        <option value="Lọ">Lọ</option>
+        <option value="Chai">Chai</option>
+        <option value="Hộp">Hộp</option>
+        <option value="Vỉ">Vỉ</option>
+        <option value="Miếng">Miếng</option>
+        <option value="Cái">Cái</option>
+      </select>
+    </div>
+
+    <!-- THÔNG TIN LÔ HÀNG BAN ĐẦU -->
+    <div class="col-12 border-top pt-3 mt-3">
+      <h6 class="fw-bold text-primary mb-1">
+        <i class="bi bi-calendar3 me-2"></i>Thông Tin Lô Hàng Ban Đầu
+      </h6>
+      <small class="text-muted d-block mb-3">
+        Khai báo để theo dõi hạn sử dụng và quản lý xuất kho theo FEFO.
+      </small>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Ngày nhập kho (*):</label>
+          <input type="date" class="form-control" [(ngModel)]="initialBatchForm.receivedDate" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Ngày sản xuất (*):</label>
+          <input type="date" class="form-control" [(ngModel)]="initialBatchForm.manufactureDate" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Hạn sử dụng (*):</label>
+          <input type="date" class="form-control" [(ngModel)]="initialBatchForm.expiryDate" />
+        </div>
+      </div>
+    </div>
+
+    <!-- CHI TIẾT BỔ SUNG -->
+    <div class="col-12 border-top pt-3 mt-3">
+      <h6 class="fw-bold text-secondary mb-3">
+        <i class="bi bi-info-circle me-1"></i> Thông Tin Chi Tiết Bổ Sung (Tùy chọn)
+      </h6>
+
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label small fw-bold">Thương hiệu:</label>
+          <input type="text" class="form-control form-control-sm" placeholder="VD: Histolab, BABÉ..." [(ngModel)]="newProduct.brand">
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-bold">Nhà sản xuất:</label>
+          <input type="text" class="form-control form-control-sm" placeholder="VD: DECIEM..." [(ngModel)]="newProduct.manufacturer">
+        </div>
+      </div>
+
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label small fw-bold">Dung tích / Quy cách:</label>
+          <input type="text" class="form-control form-control-sm" placeholder="VD: 50ml, 30 viên..." [(ngModel)]="newProduct.volume">
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-bold">Thành phần chính:</label>
+          <input type="text" class="form-control form-control-sm" placeholder="VD: B5, HA, Niacinamide..." [(ngModel)]="newProduct.ingredients">
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-bold">Công dụng:</label>
+        <textarea class="form-control form-control-sm" rows="2" placeholder="Hỗ trợ làm dịu, phục hồi..." [(ngModel)]="newProduct.uses"></textarea>
+      </div>
+
+      <div>
+        <label class="form-label small fw-bold">Lưu ý / Cảnh báo:</label>
+        <textarea class="form-control form-control-sm" rows="2" placeholder="Ngưng dùng nếu kích ứng..." [(ngModel)]="newProduct.cautions"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeCreateProductModal()">
+      Hủy bỏ
+    </button>
+    <button type="button" class="btn btn-primary" (click)="createProduct()">
+      <i class="bi bi-check2-circle me-1"></i> Lưu Vào Kho
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 3: CHỈNH SỬA SẢN PHẨM ================= -->
+<app-bloom-modal
+  [isOpen]="isEditProductModalOpen()"
+  title="Chỉnh Sửa Thông Tin Sản Phẩm"
+  icon="bi-pencil-square"
+  maxWidth="680px"
+  (close)="closeEditProductModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Mã SKU (*):</label>
+      <input
+        type="text"
+        class="form-control bg-light text-muted font-monospace"
+        [(ngModel)]="editProductForm.productCode"
+        readonly
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Phân loại (*):</label>
+      <select class="form-select" [(ngModel)]="editProductForm.category">
+        <option value="treatment">Sản phẩm đặc trị</option>
+        <option value="cosmeceutical">Dược mỹ phẩm chăm sóc da</option>
+        <option value="supplement">Thực phẩm bổ sung</option>
+      </select>
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">Tên sản phẩm (*):</label>
+      <input type="text" class="form-control" [(ngModel)]="editProductForm.productName" />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Giá vốn nhập (VNĐ):</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="editProductForm.costPrice"
+        min="0"
+        step="10000"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Giá bán lẻ (*):</label>
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="editProductForm.price"
+        min="0"
+        step="10000"
+      />
+    </div>
+
+    <div class="col-md-12">
+      <label class="form-label fw-bold">Đơn vị tính:</label>
+      <select class="form-select" [(ngModel)]="editProductForm.unit">
+        <option value="Tuýp">Tuýp</option>
+        <option value="Lọ">Lọ</option>
+        <option value="Chai">Chai</option>
+        <option value="Hộp">Hộp</option>
+        <option value="Vỉ">Vỉ</option>
+        <option value="Miếng">Miếng</option>
+        <option value="Cái">Cái</option>
+      </select>
+    </div>
+
+    <div class="col-12 border-top pt-3 mt-3">
+      <h6 class="fw-bold text-secondary mb-3">
+        <i class="bi bi-pencil-square me-1"></i> Thông Tin Chi Tiết Bổ Sung
+      </h6>
+
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label small fw-bold">Thương hiệu:</label>
+          <input type="text" class="form-control form-control-sm" [(ngModel)]="editProductForm.brand">
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-bold">Nhà sản xuất:</label>
+          <input type="text" class="form-control form-control-sm" [(ngModel)]="editProductForm.manufacturer">
+        </div>
+      </div>
+
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label small fw-bold">Dung tích / Quy cách:</label>
+          <input type="text" class="form-control form-control-sm" [(ngModel)]="editProductForm.volume">
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-bold">Thành phần chính:</label>
+          <input type="text" class="form-control form-control-sm" [(ngModel)]="editProductForm.ingredients">
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-bold">Công dụng:</label>
+        <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="editProductForm.uses"></textarea>
+      </div>
+
+      <div>
+        <label class="form-label small fw-bold">Lưu ý / Cảnh báo:</label>
+        <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="editProductForm.cautions"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeEditProductModal()">
+      Hủy bỏ
+    </button>
+    <button type="button" class="btn btn-primary" (click)="updateProduct()">
+      <i class="bi bi-check-circle me-1"></i> Lưu Thay Đổi
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 4: CẬP NHẬT TỒN KHO ================= -->
+<app-bloom-modal
+  [isOpen]="isStockUpdateModalOpen()"
+  title="Nhập Thêm Hàng & Biên Nhận Nhập Hàng"
+  icon="bi-arrow-repeat"
+  maxWidth="680px"
+  (close)="closeStockUpdateModal()"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <label class="form-label fw-bold">Tìm & Chọn sản phẩm cần nhập (*):</label>
+      <input
+        type="text"
+        class="form-control form-control-sm mb-2"
+        placeholder="Gõ từ khóa để lọc nhanh tên sản phẩm..."
+        [(ngModel)]="stockModalSearchKeyword"
+      />
+
+      <select
+        class="form-select"
+        [(ngModel)]="stockUpdateForm.productId"
+        (ngModelChange)="selectProductForStock($event)"
+      >
+        <option value="">-- Vui lòng chọn sản phẩm --</option>
+        @for (p of searchedStockProducts(); track p._id) {
+          <option [value]="p._id">
+            [{{ p.productCode }}] {{ p.productName }} (Hiện còn: {{ p.stockQuantity }} {{ p.unit }})
+          </option>
+        }
+      </select>
+    </div>
+
+    @if (selectedProductForStock()) {
+      <div class="col-12">
+        <div class="p-3 bg-light rounded border">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-dark fw-bold">
+              {{ selectedProductForStock()?.productName }}
+            </span>
+            <span class="badge bg-secondary font-monospace">
+              {{ selectedProductForStock()?.productCode }}
+            </span>
+          </div>
+          <div class="small text-muted">
+            Tồn kho thực tế hiện tại:
+            <strong class="text-primary fs-6">
+              {{ selectedProductForStock()?.stockQuantity }}
+            </strong>
+            {{ selectedProductForStock()?.unit }}
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="col-12">
+      <label class="form-label fw-bold">Số lượng nhập thêm (*):</label>
+      <input
+        type="number"
+        class="form-control"
+        min="1"
+        placeholder="Nhập số lượng..."
+        [(ngModel)]="stockUpdateForm.quantity"
+      />
+    </div>
+
+    <!-- LÔ HÀNG MỚI -->
+    <div class="col-12 border-top pt-3 mt-2">
+      <h6 class="fw-bold text-primary mb-2">
+        <i class="bi bi-calendar3 me-2"></i>Thông Tin Lô Hàng Mới
+      </h6>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Ngày nhập kho (*):</label>
+          <input type="date" class="form-control" [(ngModel)]="stockUpdateForm.receivedDate" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Ngày sản xuất (*):</label>
+          <input type="date" class="form-control" [(ngModel)]="stockUpdateForm.manufactureDate" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Hạn sử dụng (*):</label>
+          <input type="date" class="form-control" [(ngModel)]="stockUpdateForm.expiryDate" />
+        </div>
+      </div>
+    </div>
+
+    <!-- CHỨNG TỪ -->
+    <div class="col-12 border-top pt-3 mt-2">
+      <label class="form-label fw-bold">
+        Chứng từ / Hóa đơn nhập (Ảnh):
+      </label>
+      <input
+        type="file"
+        class="form-control"
+        accept="image/*"
+        (change)="onDocumentSelected($event)"
+      />
+      <small class="text-muted d-block mt-1">
+        Chấp nhận định dạng ảnh (JPG, PNG, WebP) làm biên lai đối soát kho.
+      </small>
+
+      @if (stockUpdateForm.documentImagePreview) {
+        <div class="mt-2 p-2 border rounded text-center position-relative bg-light">
+          <img
+            [src]="stockUpdateForm.documentImagePreview"
+            alt="Chứng từ nhập hàng"
+            style="max-height: 180px; max-width: 100%; object-fit: contain; border-radius: 4px;"
+          />
+          <button
+            type="button"
+            class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+            title="Xóa hình ảnh này"
+            (click)="removeDocument()"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold">Ghi chú nhập kho / Số chứng từ:</label>
+      <textarea
+        class="form-control"
+        rows="2"
+        placeholder="Ví dụ: Nhập bổ sung từ nhà cung cấp theo phiếu nhập số 1204..."
+        [(ngModel)]="stockUpdateForm.note"
+      ></textarea>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="closeStockUpdateModal()">
+      Hủy bỏ
+    </button>
+    <button type="button" class="btn btn-primary" (click)="updateStock()">
+      <i class="bi bi-check2-circle me-1"></i> Xác Nhận Nhập Kho
+    </button>
+  </div>
+</app-bloom-modal>

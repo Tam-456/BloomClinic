@@ -1,0 +1,125 @@
+// ============================================================
+// Bloom Beauty & Wellness – Mixins & Helpers
+// ============================================================
+@use 'variables' as *;
+
+// --- Glass card  --------------------------------------------
+// iOS-style frosted glass panel
+@mixin glass($radius: var(--radius-lg)) {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius;
+  box-shadow: var(--glass-shadow);
+
+  @supports (backdrop-filter: blur(20px)) {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  // Fallback for browsers without backdrop-filter
+  @supports not (backdrop-filter: blur(1px)) {
+    background: rgba(255, 255, 255, 0.90);
+  }
+}
+
+// --- Gradient text ------------------------------------------
+@mixin gradient-text {
+  background: $bloom-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// --- Bloom button (filled) ----------------------------------
+@mixin btn-bloom($radius: var(--radius-pill)) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  background: $bloom-gradient;
+  color: #fff;
+  border: none;
+  border-radius: $radius;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: box-shadow var(--duration-normal) var(--ease-bloom),
+              transform var(--duration-fast) var(--ease-bloom);
+  text-decoration: none;
+
+  &:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// --- Bloom button (outline) ---------------------------------
+@mixin btn-outline($radius: var(--radius-pill)) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  background: transparent;
+  color: $bloom-900;
+  border: 1.5px solid $bloom-600;
+  border-radius: $radius;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background var(--duration-normal) var(--ease-bloom),
+              color var(--duration-normal) var(--ease-bloom),
+              transform var(--duration-fast) var(--ease-bloom);
+  text-decoration: none;
+
+  &:hover {
+    background: $bloom-50;
+    transform: translateY(-2px);
+  }
+}
+
+// --- Reveal entrance (used by appReveal directive) ----------
+@mixin reveal {
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity var(--duration-slow) var(--ease-bloom),
+                transform var(--duration-slow) var(--ease-bloom);
+
+    &.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
+// --- Hover card lift ----------------------------------------
+@mixin card-lift {
+  transition: transform var(--duration-normal) var(--ease-bloom),
+              box-shadow var(--duration-normal) var(--ease-bloom);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:hover {
+      transform: none;
+    }
+  }
+}
+

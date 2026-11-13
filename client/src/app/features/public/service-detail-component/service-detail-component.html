@@ -1,0 +1,205 @@
+<main class="service-detail-page">
+  <!-- State: Loading -->
+  @if (loading()) {
+    <div class="state-box my-5" aria-live="polite">
+      <div class="bloom-spinner" role="status" aria-label="Đang tải..."></div>
+      <p class="state-box__desc mt-3">Đang tải thông tin liệu trình...</p>
+    </div>
+  }
+
+  <!-- State: Not Found / Error -->
+  @else if (error() || !service()) {
+    <div class="container-bloom py-5">
+      <div class="state-box" appReveal>
+        <i class="bi bi-heartbreak state-box__icon"></i>
+        <h1 class="state-box__title">Không tìm thấy liệu trình</h1>
+        <p class="state-box__desc">
+          Dịch vụ bạn đang tìm kiếm không tồn tại, đã được thay đổi hoặc tạm dừng cung cấp.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <a routerLink="/services" class="btn-bloom">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Xem tất cả dịch vụ
+          </a>
+          <a routerLink="/" class="btn-bloom-outline">Về trang chủ</a>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Detail Content -->
+  @else if (service(); as svc) {
+    <!-- Page Hero Banner -->
+    <header class="page-hero" appReveal>
+      <div class="page-hero__inner">
+        <nav class="breadcrumb-trail" aria-label="Đường dẫn trang">
+          <a routerLink="/">Trang chủ</a>
+          <span class="separator">/</span>
+          <a routerLink="/services">Dịch vụ</a>
+          <span class="separator">/</span>
+          <a [routerLink]="['/services']" [queryParams]="{ group: svc.categoryGroup }">
+            {{ groupLabel(svc.categoryGroup) }}
+          </a>
+        </nav>
+        <span class="page-hero__eyebrow mt-2">{{ groupLabel(svc.categoryGroup) }}</span>
+        <h1 class="page-hero__title">{{ svc.serviceName }}</h1>
+        <p class="page-hero__lead">{{ svc.description }}</p>
+      </div>
+    </header>
+
+    <div class="container-bloom py-5">
+      <div class="detail-layout">
+        <!-- Main Content Column -->
+        <div class="detail-main" appReveal [revealDelay]="100">
+          <!-- Featured Image -->
+          <div class="detail-image-wrap">
+            <img
+              [src]="svc.image || 'assets/images/service-cham-soc-da.jpg'"
+              [alt]="svc.serviceName"
+              class="detail-image"
+            />
+          </div>
+
+          <!-- Section: Giới thiệu liệu trình -->
+          <section class="detail-section" aria-labelledby="desc-heading">
+            <h2 id="desc-heading" class="section-heading-sm">
+              <i class="bi bi-flower1 me-2 text-primary-bloom" aria-hidden="true"></i>
+              Chi tiết liệu trình
+            </h2>
+            <div class="rich-content" [innerHTML]="svc.detail || svc.description"></div>
+          </section>
+
+          <!-- Section: Quy trình 5 bước chuẩn y khoa -->
+          <section class="detail-section" aria-labelledby="process-heading">
+            <h2 id="process-heading" class="section-heading-sm">
+              <i class="bi bi-list-check me-2 text-primary-bloom" aria-hidden="true"></i>
+              Quy trình thực hiện chuẩn y khoa
+            </h2>
+            <p class="text-muted mb-4">
+              Toàn bộ thao tác được thực hiện trong môi trường vô trùng, tuân thủ nghiêm ngặt phác đồ điều trị da liễu.
+            </p>
+
+            <div class="steps-timeline">
+              @for (step of steps; track step.step) {
+                <div class="step-card">
+                  <div class="step-card__number">{{ step.step }}</div>
+                  <div class="step-card__body">
+                    <h3 class="step-card__title">{{ step.title }}</h3>
+                    <p class="step-card__desc">{{ step.desc }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <!-- Section: Cam kết của Bloom -->
+          <section class="detail-section" aria-labelledby="commit-heading">
+            <h2 id="commit-heading" class="section-heading-sm">
+              <i class="bi bi-patch-check-fill me-2 text-primary-bloom" aria-hidden="true"></i>
+              Cam kết từ Bloom Beauty &amp; Wellness
+            </h2>
+
+            <div class="commit-grid">
+              @for (c of commitments; track c.title) {
+                <div class="commit-card">
+                  <div class="commit-card__icon">
+                    <i class="bi {{ c.icon }}" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h3 class="commit-card__title">{{ c.title }}</h3>
+                    <p class="commit-card__desc">{{ c.desc }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+
+        <!-- Sticky Sidebar: Booking Card -->
+        <aside class="detail-sidebar">
+          <div class="sticky-booking-card" appReveal [revealDelay]="150">
+            <div class="booking-card-header">
+              <span class="badge-bloom-tag">{{ groupLabel(svc.categoryGroup) }}</span>
+              <span class="booking-status">
+                <span class="pulse-dot"></span> Đang nhận lịch
+              </span>
+            </div>
+
+            <div class="booking-price-block">
+              <span class="price-label">Giá niêm yết</span>
+              <div class="price-value">{{ svc.price | vnd }}</div>
+              <div class="duration-badge">
+                <i class="bi bi-clock-history me-1" aria-hidden="true"></i>
+                Thời gian: <strong>{{ svc.durationMinutes }} phút</strong>
+              </div>
+            </div>
+
+            <div class="booking-actions">
+              <a routerLink="/" fragment="booking" class="btn-bloom w-100 justify-content-center py-3">
+                <i class="bi bi-calendar-check-fill me-2" aria-hidden="true"></i>
+                Đặt lịch thăm khám
+              </a>
+              <a href="tel:19006789" class="btn-bloom-outline w-100 justify-content-center py-2">
+                <i class="bi bi-telephone-fill me-2" aria-hidden="true"></i>
+                Hotline 1900 6789
+              </a>
+            </div>
+
+            <div class="booking-info-list">
+              <div class="info-item">
+                <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                <span>310 Lam Sơn, Gò Vấp, TP.HCM</span>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-clock" aria-hidden="true"></i>
+                <span>Mở cửa: 09:00 – 20:00 mỗi ngày</span>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                <span>Tư vấn da miễn phí lần đầu cùng bác sĩ</span>
+              </div>
+            </div>
+
+            <p class="booking-note">
+              * Khách hàng đặt hẹn trước sẽ được ưu tiên thăm khám đúng giờ và không phải chờ đợi.
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Related Services -->
+      @if (relatedServices().length > 0) {
+        <section class="related-section mt-5 pt-4" aria-labelledby="related-heading" appReveal>
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+              <span class="eyebrow-sm text-primary-bloom">Gợi ý thêm</span>
+              <h2 id="related-heading" class="related-title">Dịch vụ cùng chuyên mục</h2>
+            </div>
+            <a [routerLink]="['/services']" [queryParams]="{ group: svc.categoryGroup }" class="view-more-link">
+              Xem tất cả <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+
+          <div class="related-grid">
+            @for (rel of relatedServices(); track rel._id ?? rel.slug) {
+              <article class="related-card">
+                <a [routerLink]="['/services', rel.slug]" class="related-card__thumb-link">
+                  <img [src]="rel.image || 'assets/images/service-cham-soc-da.jpg'" [alt]="rel.serviceName" loading="lazy" />
+                </a>
+                <div class="related-card__body">
+                  <h3 class="related-card__title">
+                    <a [routerLink]="['/services', rel.slug]">{{ rel.serviceName }}</a>
+                  </h3>
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="related-card__price">{{ rel.price | vnd }}</span>
+                    <span class="related-card__dur text-muted small">{{ rel.durationMinutes }}p</span>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</main>

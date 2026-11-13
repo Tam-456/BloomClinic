@@ -1,0 +1,140 @@
+/* =========================================
+   POPUP MODAL POS
+========================================= */
+
+.pos-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(43, 10, 20, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.pos-modal-dialog {
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  box-shadow: 0 10px 25px rgba(139, 22, 56, 0.12);
+  padding: 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  .modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--bloom-900);
+    font-weight: 600;
+  }
+
+  .form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--bloom-900);
+    letter-spacing: 0.5px;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid var(--bloom-200);
+    border-radius: 4px;
+
+    &:focus {
+      border-color: var(--bloom-900);
+      box-shadow: 0 0 0 2px rgba(139, 22, 56, 0.15);
+    }
+  }
+}
+
+/* =========================================
+   HIỆU ỨNG TRẠNG THÁI HÓA ĐƠN
+========================================= */
+
+.invoice-row-exported {
+  background-color: #f0fdf4 !important;
+  border-left: 3px solid #16a34a;
+}
+
+.invoice-row-edited {
+  background-color: #fffbeb !important;
+  border-left: 3px solid #f59e0b;
+}
+
+.invoice-row-deleted {
+  background-color: #fef2f2 !important;
+  border-left: 3px solid #ef4444;
+  opacity: 0.85;
+
+  td {
+    text-decoration: line-through;
+    color: #991b1b;
+  }
+
+  .badge,
+  small {
+    text-decoration: none;
+    display: inline-block;
+  }
+}
+
+/* =========================================
+   DROPDOWN TÌM KIẾM KHÁCH HÀNG
+========================================= */
+
+.customer-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--bloom-200);
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+
+.hover-bg:hover {
+  background-color: var(--bloom-50);
+}
+
+/* =========================================
+   HIỆU ỨNG THẺ SẢN PHẨM / DỊCH VỤ POS
+========================================= */
+
+.hover-card,
+.product-item-card {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid var(--bloom-200) !important;
+  border-radius: 4px !important;
+  background-color: #ffffff;
+
+  &:hover {
+    border-color: var(--bloom-900) !important;
+    box-shadow: 0 2px 8px rgba(139, 22, 56, 0.08);
+    transform: translateY(-1px);
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.product-item-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--bloom-text);
+  line-height: 1.4;
+}
+
+.product-item-price {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--bloom-900);
+}

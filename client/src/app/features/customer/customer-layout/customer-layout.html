@@ -1,0 +1,56 @@
+<div class="customer-wrapper" [class.collapsed]="isSidebarCollapsed()">
+  <!-- SIDEBAR CỐ ĐỊNH (FIXED / STICKY) -->
+  <aside class="customer-sidebar">
+    <!-- Nút Đóng / Mở Sidebar ở trên cùng -->
+    <div class="sidebar-toggle-header">
+      <button class="btn-toggle-sidebar" (click)="toggleSidebar()" [title]="isSidebarCollapsed() ? 'Mở rộng sidebar' : 'Thu gọn sidebar'">
+        <i class="bi" [class.bi-text-indent-left]="!isSidebarCollapsed()" [class.bi-text-indent-right]="isSidebarCollapsed()"></i>
+      </button>
+    </div>
+
+    <!-- DANH SÁCH MENU ĐIỀU HƯỚNG -->
+    <ul class="customer-menu">
+      <li class="menu-item">
+        <a routerLink="/customer/overview" routerLinkActive="active" class="menu-link" title="Trang chủ">
+          <i class="bi bi-grid"></i>
+          <span class="link-text">Trang chủ</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a routerLink="/customer/account" routerLinkActive="active" class="menu-link" title="Thông tin cá nhân">
+          <i class="bi bi-person"></i>
+          <span class="link-text">Thông tin cá nhân</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a routerLink="/customer/bookings" routerLinkActive="active" class="menu-link" title="Lịch hẹn khám">
+          <i class="bi bi-calendar4-week"></i>
+          <span class="link-text">Lịch hẹn khám</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a routerLink="/customer/treatments" routerLinkActive="active" class="menu-link" title="Lịch sử liệu trình">
+          <i class="bi bi-heart-pulse"></i>
+          <span class="link-text">Lịch sử liệu trình</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a routerLink="/customer/used-history" routerLinkActive="active" class="menu-link" title="Nhật ký sử dụng">
+          <i class="bi bi-clipboard2-check"></i>
+          <span class="link-text">Nhật ký sử dụng</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a routerLink="/customer/invoices" routerLinkActive="active" class="menu-link" title="Hóa đơn">
+          <i class="bi bi-receipt"></i>
+          <span class="link-text">Hóa đơn</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- NỘI DUNG CHÍNH CUỘN ĐỘC LẬP -->
+  <main class="customer-main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

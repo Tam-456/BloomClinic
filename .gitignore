@@ -1,0 +1,24 @@
+# Dependencies
+**/node_modules/
+
+# Angular build
+**/dist/
+**/.angular/
+**/coverage/
+
+# Environment variables
+**/.env
+**/.env.*
+**/*credentials*.env
+!**/.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

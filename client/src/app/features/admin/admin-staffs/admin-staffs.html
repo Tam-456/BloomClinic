@@ -1,0 +1,666 @@
+<div class="container-fluid p-4">
+
+  <!-- TIÊU ĐỀ -->
+  <div class="mb-4">
+    <h4 class="fw-bold mb-1">
+      Quản Lý Đội Ngũ Nhân Sự & Ca Trực
+    </h4>
+  </div>
+
+  <!-- TAB CHÍNH -->
+  <div class="card mb-4">
+    <div class="card-header py-3">
+      <ul class="nav nav-pills">
+        <li class="nav-item">
+          <button
+            class="nav-link fw-bold"
+            [class.active]="activeMainTab() === 'schedules'"
+            (click)="activeMainTab.set('schedules')">
+            Quản Lý Ca Trực & Timeline
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button
+            class="nav-link fw-bold"
+            [class.active]="activeMainTab() === 'staffs'"
+            (click)="activeMainTab.set('staffs')">
+            Quản Lý Hồ Sơ Nhân Sự
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================================== -->
+  <!-- TAB 1: QUẢN LÝ CA TRỰC -->
+  <!-- ===================================== -->
+  @if (activeMainTab() === 'schedules') {
+
+    <!-- FORM PHÂN CA: NỀN SÁNG CHỮ ĐỎ TÍA -->
+    <div class="card mb-4">
+      <div class="card-header py-3 border-bottom">
+        <h5 class="mb-0 fw-bold">
+          Phân Ca & Duyệt Lịch Nghỉ
+        </h5>
+      </div>
+
+      <div class="card-body p-4">
+        <form (ngSubmit)="saveSchedule()">
+          <div class="row g-3 align-items-end">
+            <!-- NHÂN VIÊN (TÌM KIẾM / AUTOCOMPLETE) -->
+            <div class="col-lg-3 col-md-6 position-relative">
+              <label class="form-label fw-bold">Nhân sự (*):</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="🔍 Tìm tên hoặc mã NV..."
+                [ngModel]="scheduleStaffSearch()"
+                (focus)="isStaffSelectDropdownOpen.set(true)"
+                (ngModelChange)="scheduleStaffSearch.set($event); isStaffSelectDropdownOpen.set(true)"
+                name="staffSearch"
+                required
+                autocomplete="off">
+
+              @if (isStaffSelectDropdownOpen() && searchedScheduleStaffs().length > 0) {
+                <div class="dropdown-menu show w-100 shadow-sm mt-1" style="max-height: 250px; overflow-y: auto;">
+                  @for (s of searchedScheduleStaffs(); track s._id) {
+                    <button
+                      type="button"
+                      class="dropdown-item py-2 d-flex justify-content-between align-items-center"
+                      (click)="selectStaffForSchedule(s)">
+                      <div>
+                        <strong>{{ s.staffName }}</strong>
+                        <small class="text-muted d-block">{{ s.title }}</small>
+                      </div>
+                      <span class="badge" [class.bg-primary]="s.roleType === 'doctor'" [class.bg-info]="s.roleType === 'ktv'" [class.bg-danger]="s.roleType === 'admin'">
+                        {{ s.staffCode }}
+                      </span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- NGÀY LÀM VIỆC -->
+            <div class="col-lg-2 col-md-6">
+              <label class="form-label fw-bold">Ngày làm việc (*):</label>
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="newSchedule.date"
+                name="date"
+                required>
+            </div>
+
+            <!-- CA TRỰC -->
+            <div class="col-lg-4 col-md-8">
+              <label class="form-label fw-bold d-block">Ca trực:</label>
+              <div class="d-flex flex-wrap gap-3 pt-1">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="shift"
+                    id="sSang"
+                    value="sang"
+                    [(ngModel)]="newSchedule.shift">
+                  <label class="form-check-label" for="sSang">
+                    Sáng (08h-12h)
+                  </label>
+                </div>
+
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="shift"
+                    id="sChieu"
+                    value="chieu"
+                    [(ngModel)]="newSchedule.shift">
+                  <label class="form-check-label" for="sChieu">
+                    Chiều (13h-17h)
+                  </label>
+                </div>
+
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="shift"
+                    id="sToi"
+                    value="toi"
+                    [(ngModel)]="newSchedule.shift">
+                  <label class="form-check-label" for="sToi">
+                    Tối (18h-21h)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- SỨC CHỨA -->
+            <div class="col-lg-1 col-md-4">
+              <label class="form-label fw-bold">Sức chứa:</label>
+              <input
+                type="number"
+                class="form-control"
+                min="0"
+                [(ngModel)]="newSchedule.maxCapacity"
+                name="maxCapacity">
+            </div>
+
+            <!-- NGHỈ PHÉP -->
+            <div class="col-lg-2 col-md-6">
+              <div class="form-check form-switch mb-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="offCheck"
+                  [(ngModel)]="newSchedule.isOff"
+                  name="isOff">
+                <label class="form-check-label fw-bold text-danger" for="offCheck">
+                  Nghỉ phép
+                </label>
+              </div>
+            </div>
+
+            <!-- NÚT LƯU -->
+            <div class="col-12 pt-2">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="bi bi-calendar-check me-1"></i>
+                Lưu Ca Trực
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TIMELINE LỊCH TRỰC THEO TUẦN -->
+    <div class="card mb-4">
+      <!-- HEADER TIMELINE -->
+      <div class="card-header py-3 border-bottom">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div>
+            <h5 class="fw-bold mb-1">
+              Lịch Trực Nhân Viên Theo Tuần
+            </h5>
+            <span class="text-muted small">
+              Theo dõi lịch làm việc của toàn bộ nhân sự
+            </span>
+          </div>
+
+          <!-- ĐIỀU HƯỚNG TUẦN -->
+          <div class="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              (click)="changeWeek(-1)">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <div class="text-center px-2">
+              <div class="fw-bold price-highlight">
+                {{ timelineWeekLabel() }}
+              </div>
+              <small class="text-muted">Lịch trực 7 ngày</small>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              (click)="changeWeek(1)">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              (click)="goToCurrentWeek()">
+              Tuần này
+            </button>
+
+            <input
+              type="date"
+              class="form-control form-control-sm"
+              style="width: 145px;"
+              [ngModel]="timelineDate()"
+              (ngModelChange)="timelineDate.set($event)"
+              aria-label="Chọn ngày trong tuần">
+          </div>
+        </div>
+      </div>
+
+      <!-- CHÚ THÍCH -->
+      <div class="card-body border-bottom py-2">
+        <div class="d-flex flex-wrap gap-3 small">
+          <span><span class="timeline-dot bg-success"></span>Đang trực</span>
+          <span><span class="timeline-dot bg-warning"></span>Ca cần chú ý</span>
+          <span><span class="timeline-dot bg-danger"></span>Nghỉ phép</span>
+          <span><span class="timeline-dot bg-secondary"></span>Chưa phân ca</span>
+        </div>
+      </div>
+
+      <!-- BẢNG TIMELINE -->
+      <div class="card-body p-0">
+        <div class="table-responsive timeline-scroll">
+          <table class="table table-bordered align-middle mb-0 timeline-table">
+            <thead>
+              <tr>
+                <th class="timeline-staff-column bg-light">
+                  <div class="fw-bold">Nhân viên</div>
+                  <small class="text-muted">Họ tên / Mã NV</small>
+                </th>
+
+                @for (day of weekDays(); track day.date) {
+                  <th
+                    class="text-center timeline-day-column"
+                    [class.timeline-weekend]="day.isWeekend">
+                    <div class="small text-muted fw-bold">{{ day.label }}</div>
+                    <div class="fs-5 fw-bold" [class.text-danger]="day.isWeekend">
+                      {{ day.dayNumber }}
+                    </div>
+                    <small class="text-muted">
+                      {{ day.date.substring(5, 7) }}/{{ day.date.substring(0, 4) }}
+                    </small>
+                  </th>
+                }
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (staff of sortedAndFilteredStaffs(); track staff._id) {
+                <tr [class.opacity-50]="staff.status === 'leave'">
+                  <!-- THÔNG TIN NHÂN VIÊN -->
+                  <td class="timeline-staff-column">
+                    <div class="d-flex align-items-start gap-2">
+                      <div
+                        class="timeline-avatar"
+                        [class.bg-primary]="staff.roleType === 'doctor'"
+                        [class.bg-info]="staff.roleType === 'ktv'"
+                        [class.bg-danger]="staff.roleType === 'admin'">
+                        {{ staff.roleType === 'doctor' ? 'BS' : (staff.roleType === 'admin' ? 'Admin' : 'KT') }}
+                      </div>
+
+                      <div class="min-w-0">
+                        <div class="fw-bold price-highlight timeline-staff-name">
+                          {{ staff.staffName }}
+                        </div>
+                        <small class="text-muted d-block font-monospace">{{ staff.staffCode }}</small>
+                        <small class="text-muted d-block" style="font-size: 11px;">{{ staff.title }}</small>
+                        @if (staff.status === 'leave') {
+                          <span class="badge bg-secondary mt-1">Đã nghỉ</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- CÁC Ô LỊCH TRỰC -->
+                  @for (day of weekDays(); track day.date) {
+                    <td class="timeline-cell" [class.timeline-weekend]="day.isWeekend">
+                      @for (item of getSchedulesForCell(staff._id, day.date); track item._id) {
+                        <div
+                          class="timeline-shift-item"
+                          [class.shift-morning]="item.shift === 'sang' && !item.isOff"
+                          [class.shift-afternoon]="item.shift === 'chieu' && !item.isOff"
+                          [class.shift-evening]="item.shift === 'toi' && !item.isOff"
+                          [class.shift-off]="item.isOff">
+                          <div class="d-flex align-items-center gap-1">
+                            <span
+                              class="timeline-dot"
+                              [class.bg-danger]="item.isOff"
+                              [class.bg-success]="!item.isOff && item.shift === 'sang'"
+                              [class.bg-info]="!item.isOff && item.shift === 'chieu'"
+                              [class.bg-warning]="!item.isOff && item.shift === 'toi'">
+                            </span>
+                            <strong>
+                              {{ item.isOff ? 'Nghỉ phép' : 'Ca ' + getShiftLabel(item.shift) }}
+                            </strong>
+                          </div>
+                          @if (!item.isOff) {
+                            <small class="d-block mt-1">
+                              Sức chứa: {{ item.maxCapacity }} khách
+                            </small>
+                          }
+                        </div>
+                      } @empty {
+                        <div class="timeline-empty">
+                          <span class="text-muted">—</span>
+                        </div>
+                      }
+                    </td>
+                  }
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="text-center py-5 text-muted">
+                    Không có nhân viên phù hợp.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FOOTER TIMELINE -->
+      <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          Tổng nhân sự: <strong>{{ sortedAndFilteredStaffs().length }}</strong>
+        </small>
+        <small class="text-muted">
+          Tổng ca được phân: <strong>{{ scheduleList().length }}</strong>
+        </small>
+      </div>
+    </div>
+
+    <!-- DANH SÁCH LỊCH LÀM VIỆC THEO NHÂN SỰ -->
+    <div class="card">
+      <div class="card-header py-3 border-bottom">
+        <h6 class="mb-0 fw-bold">
+          Danh Sách Lịch Làm Việc Theo Nhân Sự
+        </h6>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Nhân sự</th>
+                <th>Trạng thái</th>
+                <th class="text-center" style="width: 140px;">Chi tiết</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (staff of staffList(); track staff._id) {  
+                <tr>
+                  <td class="schedule-staff-name">{{ getStaffName(staff._id) }}</td>
+                  <td>
+                    <span class="schedule-status-text"
+                      [class.status-off]="getStaffWeeklyStatus(staff._id)"
+                      [class.status-working]="!getStaffWeeklyStatus(staff._id)">
+                      {{ getStaffWeeklyStatus(staff._id) ? 'Nghỉ phép' : 'Đang trực' }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                      (click)="viewWeeklySchedule(staff._id)">
+                      Xem lịch tuần
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="text-center py-4 text-muted">
+                    Chưa có lịch làm việc.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  }
+
+  <!-- ===================================== -->
+  <!-- TAB 2: QUẢN LÝ HỒ SƠ NHÂN SỰ -->
+  <!-- ===================================== -->
+  @if (activeMainTab() === 'staffs') {
+    <div class="card">
+      <!-- THANH TÌM KIẾM -->
+      <div class="card-header py-3 border-bottom">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-5">
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="🔍 Tìm theo mã NV, họ tên, số điện thoại..."
+              [ngModel]="searchStaffKeyword()"
+              (ngModelChange)="searchStaffKeyword.set($event)">
+          </div>
+
+          <div class="col-md-4">
+            <div class="btn-group btn-group-sm">
+              <button
+                class="btn"
+                [class.btn-primary]="staffRoleFilter() === 'all'"
+                [class.btn-outline-secondary]="staffRoleFilter() !== 'all'"
+                (click)="staffRoleFilter.set('all')">
+                Tất cả
+              </button>
+
+              <button
+                class="btn"
+                [class.btn-primary]="staffRoleFilter() === 'doctor'"
+                [class.btn-outline-secondary]="staffRoleFilter() !== 'doctor'"
+                (click)="staffRoleFilter.set('doctor')">
+                Bác sĩ
+              </button>
+
+              <button
+                class="btn"
+                [class.btn-primary]="staffRoleFilter() === 'ktv'"
+                [class.btn-outline-secondary]="staffRoleFilter() !== 'ktv'"
+                (click)="staffRoleFilter.set('ktv')">
+                Kỹ thuật viên
+              </button>
+
+              <button
+                class="btn"
+                [class.btn-primary]="staffRoleFilter() === 'admin'"
+                [class.btn-outline-secondary]="staffRoleFilter() !== 'admin'"
+                (click)="staffRoleFilter.set('admin')">
+                Admin
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-3 text-md-end">
+            <button
+              class="btn btn-sm btn-primary fw-bold"
+              (click)="openAddStaff()">
+              + Thêm Nhân Sự
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BẢNG NHÂN SỰ -->
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="text-center" style="width: 120px;">Mã NV</th>
+                <th>Họ & Tên</th>
+                <th>SĐT</th>
+                <th>Vị Trí / Chức Vụ</th>
+                <th class="text-center">Kinh Nghiệm</th>
+                <th class="text-center">Đánh Giá</th>
+                <th class="text-center" style="width: 140px;">Trạng Thái</th>
+                <th class="text-end pe-3" style="width: 150px;">Hành Động</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (st of sortedAndFilteredStaffs(); track st._id) {
+                <tr [class.opacity-50]="st.status === 'leave'">
+                  <td class="text-center text-muted font-monospace">
+                    {{ st.staffCode }}
+                  </td>
+
+                  <td>
+                    <strong class="text-dark">{{ st.staffName }}</strong>
+                  </td>
+
+                  <td>{{ st.phone }}</td>
+
+                  <td>
+                    <span
+                      class="badge"
+                      [class.bg-danger]="st.roleType === 'admin'"
+                      [class.bg-info]="st.roleType === 'ktv'"
+                      [class.bg-primary]="st.roleType === 'doctor'">
+                      {{ st.roleType === 'admin' ? 'Admin' : (st.roleType === 'doctor' ? 'Bác sĩ' : 'KTV') }}
+                    </span>
+                    <small class="text-muted d-block mt-1">{{ st.title }}</small>
+                  </td>
+
+                  <td class="text-center fw-bold">
+                    {{ st.experienceYears }} năm
+                  </td>
+
+                  <td class="text-center text-warning fw-bold">
+                    ★ {{ st.rating }}
+                  </td>
+
+                  <td class="text-center">
+                    <select
+                      class="form-select form-select-sm d-inline-block w-auto"
+                      [ngModel]="st.status"
+                      (ngModelChange)="onStatusChange(st, $event)">
+                      <option value="working">Đang làm</option>
+                      <option value="leave">Đã nghỉ</option>
+                    </select>
+                  </td>
+
+                  <td class="text-end pe-3 text-nowrap">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-1"
+                      (click)="openEditStaff(st)">
+                      <i class="bi bi-pencil-square me-1"></i> Sửa
+                    </button>
+
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteStaff(st)">
+                      <i class="bi bi-trash me-1"></i> Xóa
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="text-center py-5 text-muted">
+                    Không tìm thấy nhân sự phù hợp.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ================= POPUP 1: THÊM / SỬA NHÂN SỰ ================= -->
+<app-bloom-modal
+  [isOpen]="isStaffModalOpen()"
+  [title]="isEditMode() ? 'Cập Nhật Hồ Sơ Nhân Sự' : 'Thêm Nhân Sự Mới'"
+  [icon]="isEditMode() ? 'bi-pencil-square' : 'bi-person-plus'"
+  maxWidth="520px"
+  (close)="isStaffModalOpen.set(false)"
+>
+  <div modal-body class="row g-3">
+    <div class="col-12">
+      <label class="form-label fw-bold">Mã nhân viên:</label>
+      <input
+        type="text"
+        class="form-control form-control-sm bg-light text-muted fw-bold font-monospace"
+        [(ngModel)]="staffForm.staffCode"
+        readonly>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold">Họ và tên (*):</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="Nhập họ và tên..."
+        [(ngModel)]="staffForm.staffName">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold">Số điện thoại (*):</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="VD: 0912345678"
+        [(ngModel)]="staffForm.phone">
+    </div>
+
+    <div class="col-6">
+      <label class="form-label fw-bold">Phân loại:</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="staffForm.roleType"
+        (ngModelChange)="onRoleTypeFormChange($event)">
+        <option value="doctor">Bác sĩ</option>
+        <option value="ktv">Kỹ thuật viên</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="col-6">
+      <label class="form-label fw-bold">Kinh nghiệm (năm):</label>
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        [(ngModel)]="staffForm.experienceYears"
+        min="0">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label fw-bold">Chức danh / Chuyên khoa:</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="VD: Bác sĩ CKI Da Liễu"
+        [(ngModel)]="staffForm.title">
+    </div>
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="isStaffModalOpen.set(false)">
+      Hủy bỏ
+    </button>
+    <button type="button" class="btn btn-primary" (click)="saveStaff()">
+      <i class="bi bi-check2-circle me-1"></i>
+      {{ isEditMode() ? 'Lưu Thay Đổi' : 'Thêm Nhân Sự' }}
+    </button>
+  </div>
+</app-bloom-modal>
+
+<!-- ================= POPUP 2: XEM LỊCH TUẦN NHÂN VIÊN ================= -->
+<app-bloom-modal
+  [isOpen]="!!selectedStaffWeekly()"
+  [title]="'Lịch Trực Tuần: ' + (selectedStaffWeekly()?.staffName || '')"
+  icon="bi-calendar-week"
+  maxWidth="500px"
+  (close)="selectedStaffWeekly.set(null)"
+>
+  <div modal-body>
+    @for (item of selectedStaffWeekly()?.schedules; track item._id) {
+      <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+        <span>{{ item.date }} (Ca {{ getShiftLabel(item.shift) }})</span>
+        <span class="badge" [class.bg-danger]="item.isOff" [class.bg-success]="!item.isOff">
+          {{ item.isOff ? 'Nghỉ phép' : 'Đang trực' }}
+        </span>
+      </div>
+    } @empty {
+      <div class="text-center py-4 text-muted">
+        Không có lịch trực nào trong tuần này.
+      </div>
+    }
+  </div>
+
+  <div modal-footer>
+    <button type="button" class="btn btn-outline-secondary" (click)="selectedStaffWeekly.set(null)">
+      Đóng
+    </button>
+  </div>
+</app-bloom-modal>

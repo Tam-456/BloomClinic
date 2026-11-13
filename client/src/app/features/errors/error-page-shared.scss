@@ -1,0 +1,143 @@
+// ============================================================
+// Bloom – Error Page Shared Styles (404 / 403)
+// ============================================================
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+// ── Page shell ────────────────────────────────────────────────
+.error-page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--header-h, 72px));
+  padding: 2rem 1.5rem;
+  overflow: hidden;
+  background: var(--bloom-50);
+}
+
+// ── Floating art ──────────────────────────────────────────────
+.error-bg-art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+
+  svg {
+    width: min(640px, 90vw);
+    height: min(640px, 90vw);
+    animation: floatArt 8s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes floatArt {
+  from { transform: translateY(0) rotate(-2deg); }
+  to   { transform: translateY(-24px) rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-bg-art svg {
+    animation: none;
+  }
+}
+
+// ── Content card ──────────────────────────────────────────────
+.error-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  animation: errorEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes errorEnter {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-content {
+    animation: none;
+  }
+}
+
+// ── Label ─────────────────────────────────────────────────────
+.error-label {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: $bloom-600;
+  margin: 0;
+}
+
+// ── Big error code (gradient text) ───────────────────────────
+.error-code {
+  font-family: var(--font-heading);
+  font-size: clamp(5rem, 20vw, 10rem);
+  font-weight: 700;
+  line-height: 1;
+  margin: 0;
+  @include gradient-text;
+  animation: errorEnter 0.6s 0.08s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+// ── Title ─────────────────────────────────────────────────────
+.error-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 600;
+  color: $bloom-900;
+  margin: 0;
+  animation: errorEnter 0.6s 0.14s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+// ── Message ───────────────────────────────────────────────────
+.error-message {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: $bloom-muted;
+  line-height: 1.7;
+  margin: 0;
+  animation: errorEnter 0.6s 0.20s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+// ── Action buttons ────────────────────────────────────────────
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+  animation: errorEnter 0.6s 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  .btn-bloom,
+  .btn-bloom-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-bloom {
+    @include btn-bloom;
+  }
+
+  .btn-bloom-outline {
+    @include btn-outline;
+  }
+}
